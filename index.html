@@ -37,7 +37,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .backrow{height:53px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid var(--gray200)}
 .back{display:flex;align-items:center;gap:6px;background:none;border:0;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500}
 .back:hover{background:var(--gray100)}
-.wrap{padding:24px 16px 120px;max-width:1440px}
+.wrap{padding:24px 16px 120px}
 
 /* tarjetas */
 .cards{display:grid;grid-template-columns:1fr 1fr 2fr;gap:32px}
@@ -86,8 +86,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 /* tabla */
 .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .scroll-hint{display:none;font-size:12px;color:var(--muted);margin:0 0 8px}
-.table{width:1408px}
-.g{display:grid;grid-template-columns:32px 152px 64px 176px 56px 120px 112px 12px 112px 112px 112px 12px 112px 112px 112px}
+.table{width:100%;min-width:1408px}
+.g{display:grid;grid-template-columns:32px 128px 64px minmax(208px,1fr) 56px 112px 112px 12px 112px 112px 112px 12px 112px 112px 112px}
 .c{height:36px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--gray200);border-right:1px solid var(--gray200);white-space:nowrap;overflow:hidden;min-width:0;background:#fff}
 .c.e{justify-content:flex-end;font-variant-numeric:tabular-nums}
 .c.nb{border-right:0}
@@ -111,8 +111,9 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .total .c{background:var(--gray100);font-weight:500}
 .add{display:flex;align-items:center;gap:6px;background:none;border:0;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500;color:#3F3F46}
 .add:hover{background:var(--gray100)}
-.addrow{height:40px;display:flex;align-items:center;padding-left:4px;border-bottom:1px solid var(--gray200);width:712px}
-.empty{padding:12px 8px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--gray200);width:712px}
+.addrow{grid-column:1/8;height:40px;display:flex;align-items:center;padding-left:4px;border-bottom:1px solid var(--gray200)}
+.empty{grid-column:1/8;padding:12px 8px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--gray200)}
+.tip{position:fixed;z-index:70;max-width:min(420px,calc(100vw - 32px));background:#18181B;color:#fff;font-size:12px;line-height:17px;padding:6px 10px;border-radius:6px;box-shadow:var(--shadow);pointer-events:none;white-space:normal}
 .ro .cellsel,.ro .add,.ro .ck-cell input{pointer-events:none;opacity:.5}
 
 /* menús flotantes */
@@ -215,6 +216,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 <div class="menu" id="float" hidden></div>
 <div class="actionbar" id="actionbar" hidden><span id="ab-count"></span><button class="btn danger" type="button" data-act="delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3"/></svg>Eliminar</button></div>
 <div class="toast" id="toast" role="status" hidden></div>
+<div class="tip" id="tip" role="tooltip" hidden></div>
 
 <script>
 (function(){
@@ -343,7 +345,7 @@ function renderTable(){
     const extra = st.assigned.length ? ` · incluye ${st.assigned.length} fuera de contrato` : '';
     t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c">${c.code}</span><span class="c meta" style="grid-column:3/7"><span class="t">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
     if (open) for (const r of rows)
-      t.push(`<div class="g"><span class="c guide"><i></i></span><span class="c"></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c" title="${esc(r.con)}"><span class="t">${esc(r.con)}</span></span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
+      t.push(`<div class="g"><span class="c guide"><i></i></span><span class="c"></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c"><span class="t">${esc(r.con)}</span></span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
   }
 
   const allF = visibleFuera(), vf = allF.filter(matches);
@@ -355,10 +357,10 @@ function renderTable(){
     if (S.fueraOpen || S.q){
       for (const f of vf){
         const ccName = f.cc==='—' ? 'Sin centro de coste' : (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
-        t.push(`<div class="g"><span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel ${f.contract?'':'unset'}" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract||'sin asignar'}">${f.contract||'Sin asignar'}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span><span class="c" title="${esc(f.con)}"><span class="t">${esc(f.con)}</span></span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
+        t.push(`<div class="g"><span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel ${f.contract?'':'unset'}" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract||'sin asignar'}">${f.contract||'Sin asignar'}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span><span class="c"><span class="t">${esc(f.con)}</span></span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
       }
-      if (!vf.length) t.push(`<div class="empty">${S.q?'Ninguna línea fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div>`);
-      if (S.filter==='all') t.push(`<div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir línea fuera de contrato</button></div>`);
+      if (!vf.length) t.push(`<div class="g"><div class="empty">${S.q?'Ninguna línea fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div></div>`);
+      if (S.filter==='all') t.push(`<div class="g"><div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir línea fuera de contrato</button></div></div>`);
     }
   }
   const label = S.filter==='all' ? 'Total proveedor' : 'Total '+S.filter;
@@ -469,6 +471,21 @@ const follow = ()=>{ if (S.menu) placeMenu(); };
 $('tscroll').addEventListener('scroll', follow, {passive:true});
 addEventListener('resize', follow);
 addEventListener('scroll', ()=>{ if (S.menu) placeMenu(); }, {passive:true});
+
+// Tooltip para texto truncado (conceptos y resúmenes de contrato)
+const tip = $('tip');
+function showTip(el){
+  if (!el || el.scrollWidth <= el.clientWidth + 1){ tip.hidden = true; return; }
+  tip.textContent = el.textContent; tip.hidden = false;
+  const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+  let left = Math.max(16, Math.min(r.left - 10, innerWidth - w - 16));
+  let top = r.bottom + 6; if (top + h > innerHeight - 16) top = r.top - h - 6;
+  tip.style.left = left+'px'; tip.style.top = top+'px';
+}
+$('table').addEventListener('mouseover', (e)=>{ const el = e.target.closest('.t'); if (el) showTip(el); });
+$('table').addEventListener('mouseout', (e)=>{ const el = e.target.closest('.t'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
+$('tscroll').addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
+addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
 
 render();
 })();
