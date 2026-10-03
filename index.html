@@ -276,6 +276,8 @@ function fmt(n, dec=3){
   return (neg?'-':'') + i + (dec?','+d:'');
 }
 const eur = (n)=>fmt(n)+' €';
+// Cantidades: sin decimales forzados (hasta 3 si los tiene)
+const qty = (n)=>{ if (Math.abs(n) < 0.0005) return '0'; const s = fmt(n); return s.includes(',') ? s.replace(/,?0+$/,'') : s; };
 const pct = (n,d=2)=>{ const v = Math.round(n*Math.pow(10,d+2))/Math.pow(10,d); return v.toFixed(d).replace(/\.?0+$/,'').replace('.',',') + ' %'; };
 const sum = (a,k)=>a.reduce((s,r)=>s+r[k],0);
 const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -325,7 +327,7 @@ function renderCards(){
   }
 }
 
-const nums = (r)=>`<span class="c e">${fmt(r.mto)}</span><span class="c e">${fmt(r.mant)}</span><span class="c e nb">${fmt(r.mmes)}</span><span class="gap"></span><span class="c e">${eur(r.ito)}</span><span class="c e">${eur(r.iant)}</span><span class="c e nb">${eur(r.imes)}</span>`;
+const nums = (r)=>`<span class="c e">${qty(r.mto)}</span><span class="c e">${qty(r.mant)}</span><span class="c e nb">${qty(r.mmes)}</span><span class="gap"></span><span class="c e">${eur(r.ito)}</span><span class="c e">${eur(r.iant)}</span><span class="c e nb">${eur(r.imes)}</span>`;
 const dashMed = `<span class="c e" aria-label="Sin dato">—</span><span class="c e" aria-label="Sin dato">—</span><span class="c e nb" aria-label="Sin dato">—</span>`;
 const blankMed = `<span class="c"></span><span class="c"></span><span class="c nb"></span>`;
 
