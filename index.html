@@ -294,6 +294,7 @@ const IC = {
   caret:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>`,
   warn:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>`,
   check:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>`,
+  dl:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>`,
   plus:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`
 };
 
@@ -323,6 +324,7 @@ function renderCards(){
 }
 
 const nums = (r)=>`<span class="c e">${fmt(r.mto)}</span><span class="c e">${fmt(r.mant)}</span><span class="c e nb">${fmt(r.mmes)}</span><span class="gap"></span><span class="c e">${eur(r.ito)}</span><span class="c e">${eur(r.iant)}</span><span class="c e nb">${eur(r.imes)}</span>`;
+const dashMed = `<span class="c e" aria-label="Sin dato">—</span><span class="c e" aria-label="Sin dato">—</span><span class="c e nb" aria-label="Sin dato">—</span>`;
 const blankMed = `<span class="c"></span><span class="c"></span><span class="c nb"></span>`;
 
 function renderTable(){
@@ -339,7 +341,7 @@ function renderTable(){
     tImp += st.imp; tTO += sum(c.rows,'ito'); tAnt += sum(c.rows,'iant'); tMes += sum(c.rows,'imes');
     if (S.q && !rows.length) continue;
     const extra = st.assigned.length ? ` · incluye ${st.assigned.length} fuera de contrato` : '';
-    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c">${c.code}</span><span class="c meta" style="grid-column:3/7"><span class="t">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
+    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c">${c.code}</span><span class="c meta" style="grid-column:3/7"><span class="t">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
     if (open) for (const r of rows)
       t.push(`<div class="g"><span class="c guide"><i></i></span><span class="c"></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c" title="${esc(r.con)}"><span class="t">${esc(r.con)}</span></span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
   }
@@ -349,10 +351,10 @@ function renderTable(){
   if (S.filter==='all' || allF.length){
     tImp += sum(allF,'imp'); tTO += sum(allF,'ito'); tAnt += sum(allF,'iant'); tMes += sum(allF,'imes');
     const badge = (unassigned && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px">${IC.warn}${unassigned} ${unassigned===1?'partida':'partidas'} sin asignar</span>` : '';
-    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c" style="grid-column:2/7">Fuera de contrato adjudicado${badge}</span><span class="c e nb">${eur(sum(allF,'imp'))}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(sum(allF,'ito'))}</span><span class="c e">${eur(sum(allF,'iant'))}</span><span class="c e nb">${eur(sum(allF,'imes'))}</span></div>`);
+    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c" style="grid-column:2/7">Fuera de contrato adjudicado${badge}</span><span class="c e nb">${eur(sum(allF,'imp'))}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(sum(allF,'ito'))}</span><span class="c e">${eur(sum(allF,'iant'))}</span><span class="c e nb">${eur(sum(allF,'imes'))}</span></div>`);
     if (S.fueraOpen || S.q){
       for (const f of vf){
-        const ccName = (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
+        const ccName = f.cc==='—' ? 'Sin centro de coste' : (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
         t.push(`<div class="g"><span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel ${f.contract?'':'unset'}" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract||'sin asignar'}">${f.contract||'Sin asignar'}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span><span class="c" title="${esc(f.con)}"><span class="t">${esc(f.con)}</span></span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
       }
       if (!vf.length) t.push(`<div class="empty">${S.q?'Ninguna línea fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div>`);
@@ -375,20 +377,18 @@ function menuHTML(){
   if (m==='dl'){
     const n = S.dlSel.size, all = n===CONTRACTS.length, un = FUERA.filter(f=>!f.contract).length;
     const cta = n===0 ? 'Elige al menos un contrato' : n===1 ? 'Descargar PDF' : `Descargar ${n} PDF (ZIP)`;
-    return `<h3>Descargar proforma · Septiembre 2026</h3>
-      <label class="ck"><input type="checkbox" id="dl-all" data-act="dlall" ${all?'checked':''}>Todos los contratos</label>
+    return `<label class="ck"><input type="checkbox" id="dl-all" data-act="dlall" ${all?'checked':''}>Todos los contratos</label>
       <div class="sep"></div>
-      ${CONTRACTS.map(c=>`<label class="ck"><input type="checkbox" id="dl-${c.code}" data-act="dlone" data-code="${c.code}" ${S.dlSel.has(c.code)?'checked':''}>${c.code} · ${c.rows.length} partidas</label>`).join('')}
-      <p class="note">${n>1?'Un PDF por contrato, en un ZIP.':'Con un solo contrato se descarga el PDF directamente.'}</p>
+      ${CONTRACTS.map(c=>`<label class="ck"><input type="checkbox" id="dl-${c.code}" data-act="dlone" data-code="${c.code}" ${S.dlSel.has(c.code)?'checked':''}>${c.code}</label>`).join('')}
       ${un?`<div class="alert">${IC.warn}<div><b>${un} ${un===1?'línea':'líneas'} fuera de contrato sin asignar</b><p>No pertenecen a ningún contrato. Asígnalas para que salgan en su PDF.</p></div></div>`:''}
-      <button class="btn primary" type="button" data-act="dodl" ${n===0?'disabled':''} style="width:100%;height:36px;font-size:13px">${cta}</button>`;
+      <button class="btn primary" type="button" data-act="dodl" ${n===0?'disabled':''} style="width:100%;height:32px">${n?IC.dl:''}${cta}</button>`;
   }
   const [kind, idStr] = m.split('-'); const f = FUERA.find(x=>x.id===Number(idStr)); if (!f) return '';
   if (kind==='assign'){
     const opts = [['','Sin asignar','']].concat(CONTRACTS.map(c=>[c.code,c.code,`${c.rows.length} partidas · ${c.note}`]));
     return opts.map(([v,l,s],i)=>`${i===1?'<div class="sep"></div>':''}<button class="mi ${(f.contract||'')===v?'on':''}" type="button" role="option" aria-selected="${(f.contract||'')===v}" data-act="setassign" data-id="${f.id}" data-v="${v}"><span>${l}</span>${s?`<small>${s}</small>`:''}</button>`).join('');
   }
-  if (kind==='cc') return CCS.map(([k,n])=>`<button class="mi row ${f.cc===k?'on':''}" type="button" role="option" aria-selected="${f.cc===k}" data-act="setcc" data-id="${f.id}" data-v="${k}"><span>${n}</span>${f.cc===k?IC.check:''}</button>`).join('');
+  if (kind==='cc') return `<button class="mi row ${f.cc==='—'?'on':''}" type="button" role="option" aria-selected="${f.cc==='—'}" data-act="setcc" data-id="${f.id}" data-v="—"><span>—</span></button><div class="sep"></div>` + CCS.map(([k,n])=>`<button class="mi row ${f.cc===k?'on':''}" type="button" role="option" aria-selected="${f.cc===k}" data-act="setcc" data-id="${f.id}" data-v="${k}"><span>${n}</span>${f.cc===k?IC.check:''}</button>`).join('');
   return '';
 }
 function anchorFor(m){
