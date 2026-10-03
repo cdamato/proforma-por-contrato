@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Proforma por contrato</title>
+<meta name="description" content="Prototipo interactivo: Proforma del proveedor agrupada por contrato (Control de costes · 011h).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Réplica del frame de Figma 745:111937 (MASTER - PROCUREMENT) con tokens del DS 011h (Chakra v3) */
+:root{
+  --bg:#FFFFFF; --chrome:#F4F4F5; --gray50:#FAFAFA; --gray100:#F4F4F5; --gray200:#E4E4E7; --gray300:#D4D4D8;
+  --fg:#18181B; --muted:#52525B; --subtle:#71717A;
+  --brand:#527A53; --brand-hover:#3D5C3F; --bar:#4ADE80;
+  --band:#BFDBFE; --band-soft:#EFF6FF;
+  --warn-bg:#FFEDD5; --warn-fg:#9A3412; --ok-bg:#DCFCE7; --ok-fg:#166534; --danger:#B91C1C; --danger-bg:#FEF2F2;
+  --shadow:0 8px 24px rgba(24,24,27,.10),0 2px 6px rgba(24,24,27,.06);
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:400 14px/20px var(--font);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+
+/* cabecera */
+.top{height:64px;background:var(--chrome);border-bottom:1px solid var(--gray200);display:flex;align-items:center;gap:16px;padding:0 16px;padding-top:env(safe-area-inset-top,0px)}
+.chip{height:40px;flex-shrink:0;display:flex;align-items:center;gap:8px;background:#111;color:#fff;border:0;border-radius:8px;padding:0 12px}
+.chip b{font-weight:600;font-size:18px;letter-spacing:-.4px}
+.chip span{font-size:12px;font-weight:500}
+.top h1{margin:0;font-size:24px;line-height:32px;font-weight:500;letter-spacing:-.3px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.backrow{height:53px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid var(--gray200)}
+.back{display:flex;align-items:center;gap:6px;background:none;border:0;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500}
+.back:hover{background:var(--gray100)}
+.wrap{padding:24px 16px 120px;max-width:1440px}
+
+/* tarjetas */
+.cards{display:grid;grid-template-columns:1fr 1fr 2fr;gap:32px}
+.card{border:1px solid var(--gray200);border-radius:8px;padding:16px 20px;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:133px}
+.lbl{font-size:14px;color:var(--muted)}
+.big{font-size:24px;line-height:32px;font-weight:600;letter-spacing:-.3px}
+.help{font-size:12px;line-height:16px;color:var(--muted)}
+.liq-head{padding-bottom:10px;border-bottom:1px solid var(--gray200)}
+.liq-row{display:flex;align-items:center;gap:8px;font-size:14px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:14px;background:var(--gray100);color:#3F3F46;white-space:nowrap}
+.badge.ok{background:var(--ok-bg);color:var(--ok-fg)}
+.badge.warn{background:var(--warn-bg);color:var(--warn-fg);font-size:12px;line-height:16px;padding:2px 8px;font-weight:400}
+.avance-top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.bar{height:12px;border-radius:6px;background:var(--gray100);overflow:hidden;margin:6px 0}
+.bar-fill{display:block;height:100%;background:var(--bar);border-radius:6px;transition:width .3s}
+.legend{display:flex;flex-wrap:wrap;column-gap:32px;row-gap:6px;font-size:14px}
+.lg{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--bar);flex:0 0 10px}
+.sw.rest{background:var(--gray100);border:1px solid var(--gray300)}
+.lg .lbl{white-space:nowrap}
+.lg b{font-weight:500}
+
+/* botones */
+.btn{height:32px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:6px;border:1px solid var(--gray300);background:#fff;font-size:12px;font-weight:500;white-space:nowrap}
+.btn:hover{background:var(--gray50)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-hover)}
+.btn.primary:disabled{background:#A1A1AA;border-color:#A1A1AA;cursor:not-allowed}
+.btn.ghost{border-color:transparent;background:none}
+.btn.ghost:hover{background:var(--gray100)}
+.btn.danger{background:var(--danger-bg);border-color:transparent;color:var(--danger)}
+.card .btn.primary{align-self:flex-start;margin-top:2px}
+
+/* barra de la tabla */
+.toolbar{display:flex;align-items:center;gap:12px;margin:16px 0}
+.tb-left,.tb-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
+.tb-right{margin-left:auto;gap:8px}
+.sel{height:36px;display:inline-flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--gray300);border-radius:6px;background:#fff;font-size:14px;white-space:nowrap}
+.sel:hover{border-color:#A1A1AA}
+.sel .tag{padding:1px 6px;border-radius:4px;background:var(--gray100);font-size:12px;line-height:16px;color:#3F3F46}
+.sel b{font-weight:500}
+.search{height:36px;width:240px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--gray300);border-radius:6px}
+.search input{border:0;outline:none;font:inherit;flex:1;min-width:0;background:transparent}
+.search input::placeholder{color:#A1A1AA}
+
+/* tabla */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroll-hint{display:none;font-size:12px;color:var(--muted);margin:0 0 8px}
+.table{width:1408px}
+.g{display:grid;grid-template-columns:32px 152px 64px 176px 56px 120px 112px 12px 112px 112px 112px 12px 112px 112px 112px}
+.c{height:36px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--gray200);border-right:1px solid var(--gray200);white-space:nowrap;overflow:hidden;min-width:0;background:#fff}
+.c.e{justify-content:flex-end;font-variant-numeric:tabular-nums}
+.c.nb{border-right:0}
+.gap{background:transparent}
+.t{overflow:hidden;text-overflow:ellipsis}
+.h{background:var(--gray100);font-weight:500}
+.hb{background:var(--band-soft);font-weight:500;border-right:0}
+.band{background:var(--band);font-weight:500;justify-content:center;border-right:0}
+.cen{justify-content:center}
+.parent .c{background:var(--gray50);font-weight:500}
+.parent .meta{font-size:12px;color:var(--muted);font-weight:400}
+.tog{width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:none;border:0;border-radius:4px;padding:0}
+.tog:hover{background:var(--gray200)}
+.guide{border-right:0;justify-content:center;padding:0}
+.guide i{width:1px;height:100%;background:var(--gray300);display:block}
+.cellsel{display:flex;align-items:center;justify-content:space-between;gap:4px;width:100%;height:100%;background:none;border:0;padding:0 8px;text-align:left}
+.cellsel:hover{background:var(--gray50)}
+.cellsel.unset{color:var(--muted)}
+.c.pad0{padding:0}
+.ck-cell input{width:18px;height:18px;margin:0;accent-color:#18181B}
+.total .c{background:var(--gray100);font-weight:500}
+.add{display:flex;align-items:center;gap:6px;background:none;border:0;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500;color:#3F3F46}
+.add:hover{background:var(--gray100)}
+.addrow{height:40px;display:flex;align-items:center;padding-left:4px;border-bottom:1px solid var(--gray200);width:712px}
+.empty{padding:12px 8px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--gray200);width:712px}
+.ro .cellsel,.ro .add,.ro .ck-cell input{pointer-events:none;opacity:.5}
+
+/* menús flotantes */
+.menu{position:fixed;z-index:50;background:#fff;border:1px solid var(--gray200);border-radius:8px;box-shadow:var(--shadow);padding:4px;min-width:240px;max-width:calc(100vw - 32px);max-height:min(420px,calc(100vh - 32px));overflow:auto}
+.mi{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:7px 10px;font-size:14px}
+.mi:hover,.mi.on{background:var(--gray50)}
+.mi.on{font-weight:500}
+.mi small{font-size:12px;line-height:16px;color:var(--muted);font-weight:400}
+.mi.row{flex-direction:row;align-items:center;justify-content:space-between}
+.sep{height:1px;background:var(--gray200);margin:4px 0}
+.menu.dl{width:300px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.dl h3{margin:0;font-size:14px;font-weight:600}
+.ck{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;min-height:24px}
+.ck input{width:18px;height:18px;accent-color:#18181B;margin:0;flex-shrink:0}
+.alert{display:flex;gap:8px;background:var(--warn-bg);color:var(--warn-fg);border-radius:6px;padding:10px;font-size:12px;line-height:16px}
+.alert svg{flex-shrink:0;margin-top:1px}
+.alert b{display:block;font-weight:500;font-size:13px;line-height:18px}
+.alert p{margin:0;color:#7C2D12}
+.note{font-size:12px;line-height:16px;color:var(--muted);margin:0}
+
+/* barra de acciones + aviso */
+.actionbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--gray200);border-radius:10px;box-shadow:var(--shadow);padding:8px;z-index:40}
+.actionbar span{padding:0 8px;font-size:13px;font-weight:500;white-space:nowrap}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));background:#18181B;color:#fff;border-radius:8px;padding:10px 14px;font-size:13px;line-height:18px;width:max-content;max-width:calc(100vw - 32px);box-shadow:var(--shadow);z-index:60;overflow-wrap:anywhere}
+.toast code{font-family:inherit;color:#D4D4D8}
+
+/* responsive */
+@media (max-width:1439px){.scroll-hint{display:block}}
+@media (max-width:1180px){
+  .cards{grid-template-columns:1fr 1fr;gap:16px}
+  .cards .card:last-child{grid-column:1/-1}
+  .toolbar{flex-wrap:wrap}
+  .tb-right{margin-left:0}
+}
+@media (max-width:720px){
+  .top{gap:10px;padding:0 12px}
+  .top h1{font-size:16px;line-height:22px}
+  .chip{height:36px;padding:0 10px}
+  .chip b{font-size:15px}
+  .wrap{padding:16px 16px 120px}
+  .cards{grid-template-columns:1fr;gap:12px}
+  .card{min-height:0}
+  .big{font-size:20px;line-height:28px}
+  .legend{flex-direction:column;align-items:flex-start}
+  .tb-left{width:100%}
+  .tb-left .lbl{display:none}
+  .search{width:100%;order:3}
+  .tb-left .sel{flex:1 1 auto;justify-content:space-between}
+  .tb-right{width:100%;justify-content:space-between}
+}
+@media (prefers-reduced-motion:reduce){.bar-fill{transition:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="chip" type="button" data-act="proyecto" aria-label="Cambiar proyecto: VELEZ"><b>011h</b><span>VELEZ</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+  <h1 id="prov-name"></h1>
+</header>
+<div class="backrow"><button class="back" type="button" data-act="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>Proformas · Control de costes</button></div>
+
+<main class="wrap">
+  <section class="cards" aria-label="Resumen del proveedor">
+    <div class="card">
+      <span class="lbl">Total contratado</span>
+      <span class="big num" id="k-total"></span>
+      <span class="help" id="k-total-help"></span>
+    </div>
+    <div class="card">
+      <div class="liq-head lbl">Proforma nº 5</div>
+      <div class="liq-row">Liquidación: <span class="badge" id="k-liq"></span></div>
+      <div id="k-liq-action"></div>
+    </div>
+    <div class="card">
+      <div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num" id="k-av"></span></div>
+      <div class="bar" role="img" id="k-bar-wrap"><span class="bar-fill" id="k-bar"></span></div>
+      <div class="legend">
+        <span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Origen proformado</span><b class="num" id="k-or"></b></span>
+        <span class="lg"><span class="sw rest" aria-hidden="true"></span><span class="lbl">Saldo disponible</span><b class="num" id="k-sa"></b></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <div class="tb-left">
+      <span class="lbl">Periodo:</span>
+      <button class="sel" type="button" data-act="periodo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b>Septiembre 2026</b><span class="tag">Actual · abierto</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button class="sel" type="button" id="filter-btn" aria-haspopup="listbox" aria-expanded="false" data-act="filter"><span id="filter-label">Todos los contratos</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar partida" aria-label="Buscar partida" autocomplete="off"></label>
+    </div>
+    <div class="tb-right">
+      <button class="btn ghost" type="button" data-act="apuntes">Ver en Apuntes contables<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></button>
+      <button class="btn" type="button" id="dl-btn" aria-haspopup="dialog" aria-expanded="false" data-act="dl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</button>
+    </div>
+  </div>
+
+  <p class="scroll-hint">Desliza la tabla en horizontal para ver Medición e Importe.</p>
+  <div class="tscroll" id="tscroll"><div class="table" id="table"></div></div>
+</main>
+
+<div class="menu" id="float" hidden></div>
+<div class="actionbar" id="actionbar" hidden><span id="ab-count"></span><button class="btn danger" type="button" data-act="delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3"/></svg>Eliminar</button></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+const PROVIDER = 'ASESORIA CONSULTORIA ACME, S.L.';
+const PERIOD = 'septiembre 2026';
+
+// [ud, concepto, precio, importe, med. total origen, med. prov. anterior, med. prov. mes, imp. total origen, imp. prov. anterior, imp. prov. mes]
+const P = (a)=>({cc:'CI', ud:a[0], con:a[1], pu:a[2], imp:a[3], mto:a[4], mant:a[5], mmes:a[6], ito:a[7], iant:a[8], imes:a[9]});
+const Z = [0,0,0,0,0,0];
+const CONTRACTS = [
+  {code:'HC-26150029', note:'Torre móvil', rows:[
+    P(['690','690 Precio Cerrado Unidad Torre Movil',690,2760,1,1,0,690,690,0]),
+    P(['4','4 Alquiler adicional Unidad Torre Móvil',4,480,53,53,0,212,212,0]),
+    P(['400','400 Cambio Posicion Unidad Torre Móvil',2,4,...Z])]},
+  {code:'HC-26150046', note:'Torre móvil grande', rows:[
+    P(['UD','UD Precio Cerrado Unidad TORRE MOVIL GRANDE',900,900,1,1,0,900,900,0]),
+    P(['UD','UD Alquiler adicional Unidad Torre MóIL GRANDE',6,180,18,18,0,108,108,0]),
+    P(['UD','UD Cambio Posicion Unidad Torre Móvil GRANDE',550,1100,1.455,0,1.455,800.25,0,800.25])]},
+  {code:'HC-26150064', note:'03 Andamios', rows:[
+    P(['UD','UD Precio Cerrado 03 Andamios',1150,1150,...Z]),
+    P(['dia/ud','dia/ud Alquiler adicional Pasado el periodo inicial de los 30 dias naturales',7,210,...Z]),
+    P(['ud','ud Cambio Posicion 03 Andamios',700,700,...Z])]},
+  {code:'HC-26150072', note:'Bloques 1, 2 y 3', rows:[
+    P(['m2/dia','m2/dia Alquiler por dia natural BLOQUE 3',0.04,9597.6,18605.31,0,18605.31,744.212,0,744.212]),
+    P(['m2','m2 Montaje BLOQUE 3',2.35,3132.55,1700.49,0,1700.49,3996.152,0,3996.152]),
+    P(['m2','m2 Desmontaje BLOQUE 3',1.3,1732.9,...Z]),
+    P(['m2','m2 Transporte de entrega BLOQUE 3',0.75,999.75,1700.49,0,1700.49,1275.368,0,1275.368]),
+    P(['m2','m2 Transporte de retirada BLOQUE 3',0.75,999.75,...Z]),
+    P(['m2/dia','m2/dia Alquiler por dia natural BLOQUE 2',0.04,11004,...Z]),
+    P(['m2','m2 Montaje BLOQUE 2',2.35,3078.5,...Z]),
+    P(['m2','m2 Desmontaje BLOQUE 2',1.3,1703,...Z]),
+    P(['m2','m2 Transporte de entrega BLOQUE 2',0.75,982.5,...Z]),
+    P(['m2','m2 Transporte de retirada BLOQUE 2',0.75,982.5,...Z]),
+    P(['m2/dia','m2/dia Alquiler por dia natural BLOQUE 1',0.04,11166.8,...Z]),
+    P(['m2','m2 Montaje BLOQUE 1',2.35,3235.95,...Z]),
+    P(['m2','m2 Desmontaje BLOQUE 1',1.3,1790.1,...Z]),
+    P(['m2','m2 Transporte de entrega BLOQUE 1',0.75,1032.75,...Z]),
+    P(['m2','m2 Transporte de retirada BLOQUE 1',0.75,1032.75,...Z])]}
+];
+let nextId = 1;
+const F = (a)=>Object.assign(P(a), {id: nextId++, contract: null, checked: false});
+let FUERA = [
+  F(['ud','Precio Cerrado 03 Andamios Según oferta 260295',1150,1150,1,1,0,1150,1150,0]),
+  F(['ud','Alquiler adicional 03 Andamios Según oferta 260295',7,7,38,7,31,266,49,217]),
+  F(['ud','Cambio Posicion 03 Andamios (Incluye desmontaje y montaje con certificado) Según oferta 260295',700,700,...Z]),
+  F(['ud','Descuento limpieza',-22,-22,9.9,0,9.9,-217.8,-0,-217.8])
+];
+const CCS = [['CI','Coste indirecto'],['BR','Bajo rasante'],['URB','Urbanización'],['SRM','Sobre rasante madera'],['SRH','Sobre rasante hormigón'],['BAL','Balcón'],['SC','Soft Cost']];
+
+const S = { open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, dlSel:new Set(CONTRACTS.map(c=>c.code)), menu:null, anchor:null };
+
+// Formato de la plataforma: coma decimal, 3 decimales, punto de miles a partir de 5 cifras
+function fmt(n, dec=3){
+  const neg = n < 0 || Object.is(n,-0);
+  let [i,d] = Math.abs(n).toFixed(dec).split('.');
+  if (i.length >= 5) i = i.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  return (neg?'-':'') + i + (dec?','+d:'');
+}
+const eur = (n)=>fmt(n)+' €';
+const pct = (n,d=2)=>{ const v = Math.round(n*Math.pow(10,d+2))/Math.pow(10,d); return v.toFixed(d).replace(/\.?0+$/,'').replace('.',',') + ' %'; };
+const sum = (a,k)=>a.reduce((s,r)=>s+r[k],0);
+const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = (id)=>document.getElementById(id);
+
+function contractStats(c){
+  const assigned = FUERA.filter(f=>f.contract===c.code);
+  const all = c.rows.concat(assigned);
+  const imp = sum(c.rows,'imp'), origen = sum(all,'ito');
+  return { imp, origen, saldo: imp-origen, av: imp?origen/imp:0, ito:origen, iant:sum(all,'iant'), imes:sum(all,'imes'), assigned };
+}
+const visibleContracts = ()=> S.filter==='all' ? CONTRACTS : CONTRACTS.filter(c=>c.code===S.filter);
+const visibleFuera = ()=> S.filter==='all' ? FUERA : FUERA.filter(f=>f.contract===S.filter);
+const matches = (r)=>!S.q || r.con.toLowerCase().includes(S.q);
+
+const IC = {
+  chev:(o)=>`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${o?'m6 9 6 6 6-6':'m9 6 6 6-6 6'}"/></svg>`,
+  caret:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>`,
+  warn:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>`,
+  check:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>`,
+  plus:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`
+};
+
+function renderCards(){
+  let total, origen, help;
+  if (S.filter==='all'){
+    total = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0);
+    origen = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + sum(FUERA,'ito');
+    help = `${CONTRACTS.length} contratos · ${CONTRACTS.reduce((a,c)=>a+c.rows.length,0)} partidas`;
+  } else {
+    const c = visibleContracts()[0], st = contractStats(c);
+    total = st.imp; origen = st.origen; help = `${c.code} · ${c.rows.length} partidas`;
+  }
+  const saldo = total-origen, av = total?origen/total:0;
+  $('k-total').textContent = eur(total); $('k-total-help').textContent = help;
+  $('k-av').textContent = pct(av); $('k-or').textContent = eur(origen); $('k-sa').textContent = eur(saldo);
+  $('k-bar').style.width = Math.max(0,Math.min(100,av*100))+'%';
+  $('k-bar-wrap').setAttribute('aria-label','Avance de contrato '+pct(av));
+  const liq = $('k-liq');
+  if (S.liquidated){
+    liq.textContent='Liquidada'; liq.className='badge ok';
+    $('k-liq-action').innerHTML = `<span class="help">Liquidada el 03/10/2026 · <button class="add" style="display:inline;padding:0;font-size:12px;text-decoration:underline" type="button" data-act="unliq">Deshacer (solo prototipo)</button></span>`;
+  } else {
+    liq.textContent='Abierta'; liq.className='badge';
+    $('k-liq-action').innerHTML = `<button class="btn primary" type="button" data-act="liquidar">Liquidar proveedor</button>`;
+  }
+}
+
+const nums = (r)=>`<span class="c e">${fmt(r.mto)}</span><span class="c e">${fmt(r.mant)}</span><span class="c e nb">${fmt(r.mmes)}</span><span class="gap"></span><span class="c e">${eur(r.ito)}</span><span class="c e">${eur(r.iant)}</span><span class="c e nb">${eur(r.imes)}</span>`;
+const blankMed = `<span class="c"></span><span class="c"></span><span class="c nb"></span>`;
+
+function renderTable(){
+  const t = [];
+  t.push(`<div class="g"><span style="grid-column:1/9"></span><span class="c band" style="grid-column:9/16">Proforma subcontrata</span></div>`);
+  t.push(`<div class="g"><span class="c hb" style="grid-column:1/8">Contrato adjudicado</span><span class="gap"></span><span class="c hb cen" style="grid-column:9/12">Medición</span><span class="gap"></span><span class="c hb cen" style="grid-column:13/16">Importe</span></div>`);
+  t.push(`<div class="g"><span class="c h" style="grid-column:1/3">Contrato</span><span class="c h"><abbr title="Centro de coste" style="text-decoration:none">CC</abbr></span><span class="c h">Concepto</span><span class="c h">Ud.</span><span class="c h e">Precio unitario</span><span class="c h e nb">Importe</span><span class="gap"></span><span class="c h e">Total origen</span><span class="c h e">Prov. anterior</span><span class="c h e nb">Prov. mes</span><span class="gap"></span><span class="c h e">Total origen</span><span class="c h e">Prov. anterior</span><span class="c h e nb">Prov. mes</span></div>`);
+
+  let tImp=0,tTO=0,tAnt=0,tMes=0;
+  for (const c of visibleContracts()){
+    const st = contractStats(c);
+    const rows = c.rows.filter(matches);
+    const open = S.open.has(c.code) || S.filter===c.code || (!!S.q && rows.length>0);
+    tImp += st.imp; tTO += sum(c.rows,'ito'); tAnt += sum(c.rows,'iant'); tMes += sum(c.rows,'imes');
+    if (S.q && !rows.length) continue;
+    const extra = st.assigned.length ? ` · incluye ${st.assigned.length} fuera de contrato` : '';
+    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c">${c.code}</span><span class="c meta" style="grid-column:3/7"><span class="t">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
+    if (open) for (const r of rows)
+      t.push(`<div class="g"><span class="c guide"><i></i></span><span class="c"></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c" title="${esc(r.con)}"><span class="t">${esc(r.con)}</span></span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
+  }
+
+  const allF = visibleFuera(), vf = allF.filter(matches);
+  const unassigned = FUERA.filter(f=>!f.contract).length;
+  if (S.filter==='all' || allF.length){
+    tImp += sum(allF,'imp'); tTO += sum(allF,'ito'); tAnt += sum(allF,'iant'); tMes += sum(allF,'imes');
+    const badge = (unassigned && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px">${IC.warn}${unassigned} ${unassigned===1?'partida':'partidas'} sin asignar</span>` : '';
+    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c" style="grid-column:2/7">Fuera de contrato adjudicado${badge}</span><span class="c e nb">${eur(sum(allF,'imp'))}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(sum(allF,'ito'))}</span><span class="c e">${eur(sum(allF,'iant'))}</span><span class="c e nb">${eur(sum(allF,'imes'))}</span></div>`);
+    if (S.fueraOpen || S.q){
+      for (const f of vf){
+        const ccName = (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
+        t.push(`<div class="g"><span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel ${f.contract?'':'unset'}" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract||'sin asignar'}">${f.contract||'Sin asignar'}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span><span class="c" title="${esc(f.con)}"><span class="t">${esc(f.con)}</span></span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
+      }
+      if (!vf.length) t.push(`<div class="empty">${S.q?'Ninguna línea fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div>`);
+      if (S.filter==='all') t.push(`<div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir línea fuera de contrato</button></div>`);
+    }
+  }
+  const label = S.filter==='all' ? 'Total proveedor' : 'Total '+S.filter;
+  t.push(`<div class="g total"><span class="c" style="grid-column:1/7">${label}</span><span class="c e nb">${eur(tImp)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(tTO)}</span><span class="c e">${eur(tAnt)}</span><span class="c e nb">${eur(tMes)}</span></div>`);
+  const tbl = $('table'); tbl.innerHTML = t.join(''); tbl.classList.toggle('ro', S.liquidated);
+}
+
+// ---------- menús flotantes (fixed, fuera del scroll de la tabla) ----------
+function menuHTML(){
+  const m = S.menu; if (!m) return '';
+  if (m==='filter'){
+    const total = CONTRACTS.reduce((a,c)=>a+c.rows.length,0);
+    const opts = [['all','Todos los contratos',`${CONTRACTS.length} contratos · ${total} partidas`]].concat(CONTRACTS.map(c=>[c.code,c.code,`${c.rows.length} partidas`]));
+    return opts.map(([v,l,s])=>`<button class="mi ${S.filter===v?'on':''}" type="button" role="option" aria-selected="${S.filter===v}" data-act="setfilter" data-v="${v}"><span>${l}</span><small>${s}</small></button>`).join('');
+  }
+  if (m==='dl'){
+    const n = S.dlSel.size, all = n===CONTRACTS.length, un = FUERA.filter(f=>!f.contract).length;
+    const cta = n===0 ? 'Elige al menos un contrato' : n===1 ? 'Descargar PDF' : `Descargar ${n} PDF (ZIP)`;
+    return `<h3>Descargar proforma · Septiembre 2026</h3>
+      <label class="ck"><input type="checkbox" id="dl-all" data-act="dlall" ${all?'checked':''}>Todos los contratos</label>
+      <div class="sep"></div>
+      ${CONTRACTS.map(c=>`<label class="ck"><input type="checkbox" id="dl-${c.code}" data-act="dlone" data-code="${c.code}" ${S.dlSel.has(c.code)?'checked':''}>${c.code} · ${c.rows.length} partidas</label>`).join('')}
+      <p class="note">${n>1?'Un PDF por contrato, en un ZIP.':'Con un solo contrato se descarga el PDF directamente.'}</p>
+      ${un?`<div class="alert">${IC.warn}<div><b>${un} ${un===1?'línea':'líneas'} fuera de contrato sin asignar</b><p>No pertenecen a ningún contrato. Asígnalas para que salgan en su PDF.</p></div></div>`:''}
+      <button class="btn primary" type="button" data-act="dodl" ${n===0?'disabled':''} style="width:100%;height:36px;font-size:13px">${cta}</button>`;
+  }
+  const [kind, idStr] = m.split('-'); const f = FUERA.find(x=>x.id===Number(idStr)); if (!f) return '';
+  if (kind==='assign'){
+    const opts = [['','Sin asignar','']].concat(CONTRACTS.map(c=>[c.code,c.code,`${c.rows.length} partidas · ${c.note}`]));
+    return opts.map(([v,l,s],i)=>`${i===1?'<div class="sep"></div>':''}<button class="mi ${(f.contract||'')===v?'on':''}" type="button" role="option" aria-selected="${(f.contract||'')===v}" data-act="setassign" data-id="${f.id}" data-v="${v}"><span>${l}</span>${s?`<small>${s}</small>`:''}</button>`).join('');
+  }
+  if (kind==='cc') return CCS.map(([k,n])=>`<button class="mi row ${f.cc===k?'on':''}" type="button" role="option" aria-selected="${f.cc===k}" data-act="setcc" data-id="${f.id}" data-v="${k}"><span>${n}</span>${f.cc===k?IC.check:''}</button>`).join('');
+  return '';
+}
+function anchorFor(m){
+  if (m==='filter') return $('filter-btn');
+  if (m==='dl') return $('dl-btn');
+  const [kind,id] = m.split('-'); return document.querySelector(`[data-act="${kind}"][data-id="${id}"]`);
+}
+function placeMenu(){
+  const fl = $('float');
+  if (!S.menu){ fl.hidden = true; fl.className = 'menu'; return; }
+  const a = anchorFor(S.menu); if (!a){ S.menu = null; fl.hidden = true; return; }
+  fl.className = 'menu' + (S.menu==='dl' ? ' dl' : '');
+  fl.setAttribute('role', S.menu==='dl' ? 'dialog' : 'listbox');
+  fl.setAttribute('aria-label', S.menu==='dl' ? 'Descargar proforma' : 'Opciones');
+  fl.innerHTML = menuHTML(); fl.hidden = false;
+  const allBox = $('dl-all'); if (allBox) allBox.indeterminate = S.dlSel.size>0 && S.dlSel.size<CONTRACTS.length;
+  const r = a.getBoundingClientRect(), w = fl.offsetWidth, h = fl.offsetHeight, vw = innerWidth, vh = innerHeight;
+  let left = S.menu==='dl' ? r.right - w : r.left;
+  left = Math.max(16, Math.min(left, vw - w - 16));
+  let top = r.bottom + 4; if (top + h > vh - 16 && r.top - h - 4 > 16) top = r.top - h - 4;
+  fl.style.left = left+'px'; fl.style.top = top+'px';
+  $('filter-btn').setAttribute('aria-expanded', S.menu==='filter');
+  $('dl-btn').setAttribute('aria-expanded', S.menu==='dl');
+}
+function renderActionbar(){
+  const n = FUERA.filter(f=>f.checked).length;
+  $('actionbar').hidden = n===0 || S.liquidated;
+  $('ab-count').textContent = n===1 ? '1 seleccionado' : `${n} seleccionados`;
+}
+function render(){
+  $('prov-name').textContent = PROVIDER;
+  $('filter-label').textContent = S.filter==='all' ? 'Todos los contratos' : S.filter;
+  renderCards(); renderTable(); renderActionbar(); placeMenu();
+}
+
+let toastT;
+function toast(html){ const t=$('toast'); t.innerHTML=html; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true;},4500); }
+const pdfName = (code)=>`${PERIOD}_Proforma_${PROVIDER}_${code.slice(-4)}.pdf`;
+
+document.addEventListener('click',(e)=>{
+  const el = e.target.closest('[data-act]');
+  if (!el){ if (S.menu && !e.target.closest('#float')){ S.menu=null; placeMenu(); } return; }
+  const act = el.dataset.act, id = Number(el.dataset.id), f = FUERA.find(x=>x.id===id);
+  switch(act){
+    case 'toggle': S.open.has(el.dataset.code)?S.open.delete(el.dataset.code):S.open.add(el.dataset.code); break;
+    case 'togglefuera': S.fueraOpen=!S.fueraOpen; break;
+    case 'filter': S.menu = S.menu==='filter'?null:'filter'; placeMenu(); return;
+    case 'setfilter': S.filter=el.dataset.v; S.menu=null; break;
+    case 'dl': S.menu = S.menu==='dl'?null:'dl'; if (S.menu) S.dlSel=new Set(CONTRACTS.map(c=>c.code)); placeMenu(); return;
+    case 'dlall': case 'dlone': case 'check': return;
+    case 'dodl': {
+      const sel = CONTRACTS.filter(c=>S.dlSel.has(c.code)).map(c=>c.code); S.menu=null;
+      toast(sel.length===1 ? `Descargando <code>${esc(pdfName(sel[0]))}</code>` : `Descargando ZIP con ${sel.length} PDF:<br>${sel.map(c=>`<code>${esc(pdfName(c))}</code>`).join('<br>')}`);
+      break; }
+    case 'assign': case 'cc': { const key = act+'-'+id; S.menu = S.menu===key?null:key; placeMenu(); return; }
+    case 'setassign': f.contract = el.dataset.v || null; S.menu=null; toast(f.contract?`Línea asignada a ${f.contract}`:'Línea sin asignar'); break;
+    case 'setcc': f.cc = el.dataset.v; S.menu=null; break;
+    case 'delete': { const n = FUERA.filter(x=>x.checked).length; FUERA = FUERA.filter(x=>!x.checked); toast(n===1?'Línea eliminada':`${n} líneas eliminadas`); break; }
+    case 'addline': FUERA.push(F(['ud','Nueva línea',0,0,...Z])); S.fueraOpen=true; toast('Línea añadida fuera de contrato'); break;
+    case 'liquidar': S.liquidated=true; FUERA.forEach(x=>x.checked=false); S.menu=null; toast('Proveedor liquidado. La confirmación es un flujo aparte y no está en este prototipo.'); break;
+    case 'unliq': S.liquidated=false; break;
+    case 'apuntes': toast('Abriría Apuntes contables filtrado por este proveedor.'); return;
+    case 'periodo': toast('El selector de periodo no forma parte de este prototipo.'); return;
+    case 'proyecto': toast('El cambio de proyecto no forma parte de este prototipo.'); return;
+    case 'back': toast('Volvería al listado de Proformas.'); return;
+  }
+  render();
+});
+document.addEventListener('change',(e)=>{
+  const el = e.target, act = el.dataset.act;
+  if (act==='check'){ FUERA.find(x=>x.id===Number(el.dataset.id)).checked = el.checked; renderActionbar(); }
+  if (act==='dlall'){ S.dlSel = el.checked ? new Set(CONTRACTS.map(c=>c.code)) : new Set(); placeMenu(); }
+  if (act==='dlone'){ el.checked ? S.dlSel.add(el.dataset.code) : S.dlSel.delete(el.dataset.code); placeMenu(); }
+});
+$('q').addEventListener('input',(e)=>{ S.q = e.target.value.trim().toLowerCase(); renderTable(); });
+document.addEventListener('keydown',(e)=>{ if (e.key==='Escape' && S.menu){ S.menu=null; placeMenu(); } });
+const follow = ()=>{ if (S.menu) placeMenu(); };
+$('tscroll').addEventListener('scroll', follow, {passive:true});
+addEventListener('resize', follow);
+addEventListener('scroll', ()=>{ if (S.menu) placeMenu(); }, {passive:true});
+
+render();
+})();
+</script>
+</body>
+</html>
