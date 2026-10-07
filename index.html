@@ -70,6 +70,10 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .btn.ghost:hover{background:var(--gray100)}
 .btn.danger{background:var(--danger-bg);border-color:transparent;color:var(--danger)}
 .card .btn.primary{align-self:flex-start;margin-top:2px}
+.split{display:inline-flex}
+.split .btn:first-child{border-top-right-radius:0;border-bottom-right-radius:0}
+.split .btn.icon{width:32px;padding:0;margin-left:-1px;border-top-left-radius:0;border-bottom-left-radius:0}
+.mh{padding:6px 10px 4px;font-size:12px;line-height:16px;color:var(--muted)}
 
 /* barra de la tabla */
 .toolbar{display:flex;align-items:center;gap:12px;margin:16px 0}
@@ -86,8 +90,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 /* tabla */
 .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .scroll-hint{display:none;font-size:12px;color:var(--muted);margin:0 0 8px}
-.table{width:100%;min-width:1408px}
-.g{display:grid;grid-template-columns:32px 128px 64px minmax(208px,1fr) 56px 112px 112px 12px 112px 112px 112px 12px 112px 112px 112px}
+.table{width:100%;min-width:1683px}
+.g{display:grid;grid-template-columns:32px 141px 64px 70px minmax(300px,1fr) 100px 56px 112px 112px 12px 112px 112px 112px 12px 112px 112px 112px}
 .c{height:36px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--gray200);border-right:1px solid var(--gray200);white-space:nowrap;overflow:hidden;min-width:0;background:#fff}
 .c.e{justify-content:flex-end;font-variant-numeric:tabular-nums}
 .c.nb{border-right:0}
@@ -111,8 +115,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .total .c{background:var(--gray100);font-weight:500}
 .add{display:flex;align-items:center;gap:6px;background:none;border:0;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500;color:#3F3F46}
 .add:hover{background:var(--gray100)}
-.addrow{grid-column:1/8;height:40px;display:flex;align-items:center;padding-left:4px;border-bottom:1px solid var(--gray200)}
-.empty{grid-column:1/8;padding:12px 8px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--gray200)}
+.addrow{grid-column:1/10;height:40px;display:flex;align-items:center;padding-left:4px;border-bottom:1px solid var(--gray200)}
+.empty{grid-column:1/10;padding:12px 8px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--gray200)}
 .tip{position:fixed;z-index:70;max-width:min(420px,calc(100vw - 32px));background:#18181B;color:#fff;font-size:12px;line-height:17px;padding:6px 10px;border-radius:6px;box-shadow:var(--shadow);pointer-events:none;white-space:normal}
 .ro .cellsel,.ro .add,.ro .ck-cell input{pointer-events:none;opacity:.5}
 
@@ -141,7 +145,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .toast code{font-family:inherit;color:#D4D4D8}
 
 /* responsive */
-@media (max-width:1439px){.scroll-hint{display:block}}
+@media (max-width:1714px){.scroll-hint{display:block}}
 @media (max-width:1180px){
   .cards{grid-template-columns:1fr 1fr;gap:16px}
   .cards .card:last-child{grid-column:1/-1}
@@ -201,15 +205,18 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
       <span class="lbl">Periodo:</span>
       <button class="sel" type="button" data-act="periodo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b>Septiembre 2026</b><span class="tag">Actual · abierto</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <button class="sel" type="button" id="filter-btn" aria-haspopup="listbox" aria-expanded="false" data-act="filter"><span id="filter-label">Todos los contratos</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar partida" aria-label="Buscar partida" autocomplete="off"></label>
+      <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar partida o código" aria-label="Buscar partida o código" autocomplete="off"></label>
     </div>
     <div class="tb-right">
       <button class="btn ghost" type="button" data-act="apuntes">Ver en Apuntes contables<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></button>
-      <button class="btn" type="button" id="dl-btn" aria-haspopup="dialog" aria-expanded="false" data-act="dl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</button>
+      <div class="split" role="group" aria-label="Exportar">
+        <button class="btn" type="button" data-act="expall"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exportar todos</button>
+        <button class="btn icon" type="button" id="dl-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Exportar un contrato" data-act="dl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      </div>
     </div>
   </div>
 
-  <p class="scroll-hint">Desliza la tabla en horizontal para ver Medición e Importe.</p>
+  <p class="scroll-hint">Desliza la tabla en horizontal para ver todas las columnas.</p>
   <div class="tscroll" id="tscroll"><div class="table" id="table"></div></div>
 </main>
 
@@ -223,50 +230,52 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 const PROVIDER = 'ASESORIA CONSULTORIA ACME, S.L.';
 const PERIOD = 'septiembre 2026';
 
-// [ud, concepto, precio, importe, med. total origen, med. prov. anterior, med. prov. mes, imp. total origen, imp. prov. anterior, imp. prov. mes]
-const P = (a)=>({cc:'CI', ud:a[0], con:a[1], pu:a[2], imp:a[3], mto:a[4], mant:a[5], mmes:a[6], ito:a[7], iant:a[8], imes:a[9]});
+// [código, ud, concepto, precio, importe, med. total origen, med. prov. anterior, med. prov. mes, imp. total origen, imp. prov. anterior, imp. prov. mes]
+// Cantidad = importe / precio unitario
+const P = (a)=>({cc:'CI', cod:a[0], ud:a[1], con:a[2], pu:a[3], imp:a[4], cant: a[3] ? Math.round(a[4]/a[3]*1000)/1000 : 0, mto:a[5], mant:a[6], mmes:a[7], ito:a[8], iant:a[9], imes:a[10]});
 const Z = [0,0,0,0,0,0];
 const CONTRACTS = [
   {code:'HC-26150029', note:'Torre móvil', rows:[
-    P(['690','690 Precio Cerrado Unidad Torre Movil',690,2760,1,1,0,690,690,0]),
-    P(['4','4 Alquiler adicional Unidad Torre Móvil',4,480,53,53,0,212,212,0]),
-    P(['400','400 Cambio Posicion Unidad Torre Móvil',2,4,...Z])]},
+    P(['2437','m2','Precio Cerrado Unidad Torre Movil',690,2760,1,1,0,690,690,0]),
+    P(['QAF024','ml','Alquiler adicional Unidad Torre Móvil',4,480,53,53,0,212,212,0]),
+    P(['QAF020','m','Cambio Posicion Unidad Torre Móvil',2,4,...Z])]},
   {code:'HC-26150046', note:'Torre móvil grande', rows:[
-    P(['UD','UD Precio Cerrado Unidad TORRE MOVIL GRANDE',900,900,1,1,0,900,900,0]),
-    P(['UD','UD Alquiler adicional Unidad Torre MóIL GRANDE',6,180,18,18,0,108,108,0]),
-    P(['UD','UD Cambio Posicion Unidad Torre Móvil GRANDE',550,1100,1.455,0,1.455,800.25,0,800.25])]},
+    P(['—','UD','Precio Cerrado Unidad TORRE MOVIL GRANDE',900,900,1,1,0,900,900,0]),
+    P(['—','UD','Alquiler adicional Unidad Torre MóIL GRANDE',6,180,18,18,0,108,108,0]),
+    P(['—','UD','Cambio Posicion Unidad Torre Móvil GRANDE',550,1100,1.455,0,1.455,800.25,0,800.25])]},
   {code:'HC-26150064', note:'03 Andamios', rows:[
-    P(['UD','UD Precio Cerrado 03 Andamios',1150,1150,...Z]),
-    P(['dia/ud','dia/ud Alquiler adicional Pasado el periodo inicial de los 30 dias naturales',7,210,...Z]),
-    P(['ud','ud Cambio Posicion 03 Andamios',700,700,...Z])]},
+    P(['—','UD','Precio Cerrado 03 Andamios',1150,1150,...Z]),
+    P(['—','dia/ud','Alquiler adicional Pasado el periodo inicial de los 30 dias naturales',7,210,...Z]),
+    P(['—','ud','Cambio Posicion 03 Andamios',700,700,...Z])]},
   {code:'HC-26150072', note:'Bloques 1, 2 y 3', rows:[
-    P(['m2/dia','m2/dia Alquiler por dia natural BLOQUE 3',0.04,9597.6,18605.31,0,18605.31,744.212,0,744.212]),
-    P(['m2','m2 Montaje BLOQUE 3',2.35,3132.55,1700.49,0,1700.49,3996.152,0,3996.152]),
-    P(['m2','m2 Desmontaje BLOQUE 3',1.3,1732.9,...Z]),
-    P(['m2','m2 Transporte de entrega BLOQUE 3',0.75,999.75,1700.49,0,1700.49,1275.368,0,1275.368]),
-    P(['m2','m2 Transporte de retirada BLOQUE 3',0.75,999.75,...Z]),
-    P(['m2/dia','m2/dia Alquiler por dia natural BLOQUE 2',0.04,11004,...Z]),
-    P(['m2','m2 Montaje BLOQUE 2',2.35,3078.5,...Z]),
-    P(['m2','m2 Desmontaje BLOQUE 2',1.3,1703,...Z]),
-    P(['m2','m2 Transporte de entrega BLOQUE 2',0.75,982.5,...Z]),
-    P(['m2','m2 Transporte de retirada BLOQUE 2',0.75,982.5,...Z]),
-    P(['m2/dia','m2/dia Alquiler por dia natural BLOQUE 1',0.04,11166.8,...Z]),
-    P(['m2','m2 Montaje BLOQUE 1',2.35,3235.95,...Z]),
-    P(['m2','m2 Desmontaje BLOQUE 1',1.3,1790.1,...Z]),
-    P(['m2','m2 Transporte de entrega BLOQUE 1',0.75,1032.75,...Z]),
-    P(['m2','m2 Transporte de retirada BLOQUE 1',0.75,1032.75,...Z])]}
+    P(['—','m2/dia','Alquiler por dia natural BLOQUE 3',0.04,9597.6,18605.31,0,18605.31,744.212,0,744.212]),
+    P(['—','m2','Montaje BLOQUE 3',2.35,3132.55,1700.49,0,1700.49,3996.152,0,3996.152]),
+    P(['—','m2','Desmontaje BLOQUE 3',1.3,1732.9,...Z]),
+    P(['—','m2','Transporte de entrega BLOQUE 3',0.75,999.75,1700.49,0,1700.49,1275.368,0,1275.368]),
+    P(['—','m2','Transporte de retirada BLOQUE 3',0.75,999.75,...Z]),
+    P(['—','m2/dia','Alquiler por dia natural BLOQUE 2',0.04,11004,...Z]),
+    P(['—','m2','Montaje BLOQUE 2',2.35,3078.5,...Z]),
+    P(['—','m2','Desmontaje BLOQUE 2',1.3,1703,...Z]),
+    P(['—','m2','Transporte de entrega BLOQUE 2',0.75,982.5,...Z]),
+    P(['—','m2','Transporte de retirada BLOQUE 2',0.75,982.5,...Z]),
+    P(['—','m2/dia','Alquiler por dia natural BLOQUE 1',0.04,11166.8,...Z]),
+    P(['—','m2','Montaje BLOQUE 1',2.35,3235.95,...Z]),
+    P(['—','m2','Desmontaje BLOQUE 1',1.3,1790.1,...Z]),
+    P(['—','m2','Transporte de entrega BLOQUE 1',0.75,1032.75,...Z]),
+    P(['—','m2','Transporte de retirada BLOQUE 1',0.75,1032.75,...Z])]}
 ];
 let nextId = 1;
-const F = (a)=>Object.assign(P(a), {id: nextId++, contract: null, checked: false});
+// Las líneas fuera de contrato siempre tienen contrato: por defecto el primero (como hoy). "Por revisar" = aún con el contrato por defecto sin confirmar.
+const F = (a)=>Object.assign(P(a), {id: nextId++, contract: CONTRACTS[0].code, reviewed: false, checked: false});
 let FUERA = [
-  F(['ud','Precio Cerrado 03 Andamios Según oferta 260295',1150,1150,1,1,0,1150,1150,0]),
-  F(['ud','Alquiler adicional 03 Andamios Según oferta 260295',7,7,38,7,31,266,49,217]),
-  F(['ud','Cambio Posicion 03 Andamios (Incluye desmontaje y montaje con certificado) Según oferta 260295',700,700,...Z]),
-  F(['ud','Descuento limpieza',-22,-22,9.9,0,9.9,-217.8,-0,-217.8])
+  F(['2437','ud','Precio Cerrado 03 Andamios Según oferta 260295',1150,1150,1,1,0,1150,1150,0]),
+  F(['QAF024','ud','Alquiler adicional 03 Andamios Según oferta 260295',7,7,38,7,31,266,49,217]),
+  F(['QAF020','ud','Cambio Posicion 03 Andamios (Incluye desmontaje y montaje con certificado) Según oferta 260295',700,700,...Z]),
+  F(['2437','ud','Descuento limpieza',-22,-22,9.9,0,9.9,-217.8,-0,-217.8])
 ];
 const CCS = [['CI','Coste indirecto'],['BR','Bajo rasante'],['URB','Urbanización'],['SRM','Sobre rasante madera'],['SRH','Sobre rasante hormigón'],['BAL','Balcón'],['SC','Soft Cost']];
 
-const S = { open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, dlSel:new Set(CONTRACTS.map(c=>c.code)), menu:null, anchor:null };
+const S = { open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null };
 
 // Formato de la plataforma: coma decimal, 3 decimales, punto de miles a partir de 5 cifras
 function fmt(n, dec=3){
@@ -283,15 +292,17 @@ const sum = (a,k)=>a.reduce((s,r)=>s+r[k],0);
 const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $ = (id)=>document.getElementById(id);
 
-function contractStats(c){
+function contractStats(c, withFuera=false){
+  // En la tabla, la fila del contrato resume solo sus partidas (las de fuera de contrato tienen su propio grupo).
+  // Con el filtro por contrato, la tarjeta suma también las líneas fuera de contrato asignadas a ese contrato.
   const assigned = FUERA.filter(f=>f.contract===c.code);
-  const all = c.rows.concat(assigned);
+  const all = withFuera ? c.rows.concat(assigned) : c.rows;
   const imp = sum(c.rows,'imp'), origen = sum(all,'ito');
   return { imp, origen, saldo: imp-origen, av: imp?origen/imp:0, ito:origen, iant:sum(all,'iant'), imes:sum(all,'imes'), assigned };
 }
 const visibleContracts = ()=> S.filter==='all' ? CONTRACTS : CONTRACTS.filter(c=>c.code===S.filter);
 const visibleFuera = ()=> S.filter==='all' ? FUERA : FUERA.filter(f=>f.contract===S.filter);
-const matches = (r)=>!S.q || r.con.toLowerCase().includes(S.q);
+const matches = (r)=>!S.q || r.con.toLowerCase().includes(S.q) || String(r.cod).toLowerCase().includes(S.q);
 
 const IC = {
   chev:(o)=>`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${o?'m6 9 6 6 6-6':'m9 6 6 6-6 6'}"/></svg>`,
@@ -309,7 +320,7 @@ function renderCards(){
     origen = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + sum(FUERA,'ito');
     help = `${CONTRACTS.length} contratos · ${CONTRACTS.reduce((a,c)=>a+c.rows.length,0)} partidas`;
   } else {
-    const c = visibleContracts()[0], st = contractStats(c);
+    const c = visibleContracts()[0], st = contractStats(c, true);
     total = st.imp; origen = st.origen; help = `${c.code} · ${c.rows.length} partidas`;
   }
   const saldo = total-origen, av = total?origen/total:0;
@@ -333,9 +344,9 @@ const blankMed = `<span class="c"></span><span class="c"></span><span class="c n
 
 function renderTable(){
   const t = [];
-  t.push(`<div class="g"><span style="grid-column:1/9"></span><span class="c band" style="grid-column:9/16">Proforma subcontrata</span></div>`);
-  t.push(`<div class="g"><span class="c hb" style="grid-column:1/8">Contrato adjudicado</span><span class="gap"></span><span class="c hb cen" style="grid-column:9/12">Medición</span><span class="gap"></span><span class="c hb cen" style="grid-column:13/16">Importe</span></div>`);
-  t.push(`<div class="g"><span class="c h" style="grid-column:1/3">Contrato</span><span class="c h"><abbr title="Centro de coste" style="text-decoration:none">CC</abbr></span><span class="c h">Concepto</span><span class="c h">Ud.</span><span class="c h e">Precio unitario</span><span class="c h e nb">Importe</span><span class="gap"></span><span class="c h e">Total origen</span><span class="c h e">Prov. anterior</span><span class="c h e nb">Prov. mes</span><span class="gap"></span><span class="c h e">Total origen</span><span class="c h e">Prov. anterior</span><span class="c h e nb">Prov. mes</span></div>`);
+  t.push(`<div class="g"><span style="grid-column:1/11"></span><span class="c band" style="grid-column:11/18">Proforma subcontrata</span></div>`);
+  t.push(`<div class="g"><span class="c hb" style="grid-column:1/10">Contrato adjudicado</span><span class="gap"></span><span class="c hb cen" style="grid-column:11/14">Medición</span><span class="gap"></span><span class="c hb cen" style="grid-column:15/18">Importe</span></div>`);
+  t.push(`<div class="g"><span class="c h" style="grid-column:1/3">Contrato</span><span class="c h"><abbr title="Centro de coste" style="text-decoration:none">CC</abbr></span><span class="c h">Código</span><span class="c h">Concepto</span><span class="c h e">Cantidad</span><span class="c h">Ud.</span><span class="c h e">Precio unitario</span><span class="c h e nb">Importe</span><span class="gap"></span><span class="c h e">Total origen</span><span class="c h e">Prov. anterior</span><span class="c h e nb">Prov. mes</span><span class="gap"></span><span class="c h e">Total origen</span><span class="c h e">Prov. anterior</span><span class="c h e nb">Prov. mes</span></div>`);
 
   let tImp=0,tTO=0,tAnt=0,tMes=0;
   for (const c of visibleContracts()){
@@ -344,29 +355,29 @@ function renderTable(){
     const open = S.open.has(c.code) || S.filter===c.code || (!!S.q && rows.length>0);
     tImp += st.imp; tTO += sum(c.rows,'ito'); tAnt += sum(c.rows,'iant'); tMes += sum(c.rows,'imes');
     if (S.q && !rows.length) continue;
-    const extra = st.assigned.length ? ` · incluye ${st.assigned.length} fuera de contrato` : '';
-    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c">${c.code}</span><span class="c meta" style="grid-column:3/7"><span class="t">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
+    const extra = '';
+    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c">${c.code}</span><span class="c meta" style="grid-column:3/9"><span class="t">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
     if (open) for (const r of rows)
-      t.push(`<div class="g"><span class="c guide"><i></i></span><span class="c"></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c"><span class="t">${esc(r.con)}</span></span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
+      t.push(`<div class="g"><span class="c guide"><i></i></span><span class="c"></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c">${esc(r.cod)}</span><span class="c"><span class="t">${esc(r.con)}</span></span><span class="c e">${qty(r.cant)}</span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
   }
 
   const allF = visibleFuera(), vf = allF.filter(matches);
-  const unassigned = FUERA.filter(f=>!f.contract).length;
+  const toReview = FUERA.filter(f=>!f.reviewed).length;
   if (S.filter==='all' || allF.length){
     tImp += sum(allF,'imp'); tTO += sum(allF,'ito'); tAnt += sum(allF,'iant'); tMes += sum(allF,'imes');
-    const badge = (unassigned && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px">${IC.warn}${unassigned} ${unassigned===1?'partida':'partidas'} sin asignar</span>` : '';
-    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c" style="grid-column:2/7">Fuera de contrato adjudicado${badge}</span><span class="c e nb">${eur(sum(allF,'imp'))}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(sum(allF,'ito'))}</span><span class="c e">${eur(sum(allF,'iant'))}</span><span class="c e nb">${eur(sum(allF,'imes'))}</span></div>`);
+    const badge = (toReview && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px" title="Líneas con el contrato asignado por defecto, sin confirmar">${IC.warn}${toReview} ${toReview===1?'partida':'partidas'} por revisar</span>` : '';
+    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c" style="grid-column:2/9">Fuera de contrato adjudicado${badge}</span><span class="c e nb">${eur(sum(allF,'imp'))}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(sum(allF,'ito'))}</span><span class="c e">${eur(sum(allF,'iant'))}</span><span class="c e nb">${eur(sum(allF,'imes'))}</span></div>`);
     if (S.fueraOpen || S.q){
       for (const f of vf){
         const ccName = f.cc==='—' ? 'Sin centro de coste' : (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
-        t.push(`<div class="g"><span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel ${f.contract?'':'unset'}" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract||'sin asignar'}">${f.contract||'Sin asignar'}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span><span class="c"><span class="t">${esc(f.con)}</span></span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
+        t.push(`<div class="g"><span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract}">${f.contract}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span><span class="c">${esc(f.cod)}</span><span class="c"><span class="t">${esc(f.con)}</span></span><span class="c e">${qty(f.cant)}</span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
       }
-      if (!vf.length) t.push(`<div class="g"><div class="empty">${S.q?'Ninguna línea fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div></div>`);
-      if (S.filter==='all') t.push(`<div class="g"><div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir línea fuera de contrato</button></div></div>`);
+      if (!vf.length) t.push(`<div class="g"><div class="empty">${S.q?'Ninguna partida fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div></div>`);
+      if (S.filter==='all') t.push(`<div class="g"><div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir partida</button></div></div>`);
     }
   }
   const label = S.filter==='all' ? 'Total proveedor' : 'Total '+S.filter;
-  t.push(`<div class="g total"><span class="c" style="grid-column:1/7">${label}</span><span class="c e nb">${eur(tImp)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(tTO)}</span><span class="c e">${eur(tAnt)}</span><span class="c e nb">${eur(tMes)}</span></div>`);
+  t.push(`<div class="g total"><span class="c" style="grid-column:1/9">${label}</span><span class="c e nb">${eur(tImp)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(tTO)}</span><span class="c e">${eur(tAnt)}</span><span class="c e nb">${eur(tMes)}</span></div>`);
   const tbl = $('table'); tbl.innerHTML = t.join(''); tbl.classList.toggle('ro', S.liquidated);
 }
 
@@ -379,18 +390,11 @@ function menuHTML(){
     return opts.map(([v,l,s])=>`<button class="mi ${S.filter===v?'on':''}" type="button" role="option" aria-selected="${S.filter===v}" data-act="setfilter" data-v="${v}"><span>${l}</span><small>${s}</small></button>`).join('');
   }
   if (m==='dl'){
-    const n = S.dlSel.size, all = n===CONTRACTS.length, un = FUERA.filter(f=>!f.contract).length;
-    const cta = n===0 ? 'Elige al menos un contrato' : n===1 ? 'Descargar PDF' : `Descargar ${n} PDF (ZIP)`;
-    return `<label class="ck"><input type="checkbox" id="dl-all" data-act="dlall" ${all?'checked':''}>Todos los contratos</label>
-      <div class="sep"></div>
-      ${CONTRACTS.map(c=>`<label class="ck"><input type="checkbox" id="dl-${c.code}" data-act="dlone" data-code="${c.code}" ${S.dlSel.has(c.code)?'checked':''}>${c.code}</label>`).join('')}
-      ${un?`<div class="alert">${IC.warn}<div><b>${un} ${un===1?'línea':'líneas'} fuera de contrato sin asignar</b><p>No pertenecen a ningún contrato. Asígnalas para que salgan en su PDF.</p></div></div>`:''}
-      <button class="btn primary" type="button" data-act="dodl" ${n===0?'disabled':''} style="width:100%;height:32px">${n?IC.dl:''}${cta}</button>`;
+    return `<div class="mh">Exportar un contrato (PDF)</div>` + CONTRACTS.map(c=>`<button class="mi row" type="button" role="menuitem" data-act="exportone" data-code="${c.code}"><span>${c.code}</span><small>${c.rows.length} partidas</small></button>`).join('');
   }
   const [kind, idStr] = m.split('-'); const f = FUERA.find(x=>x.id===Number(idStr)); if (!f) return '';
   if (kind==='assign'){
-    const opts = [['','Sin asignar','']].concat(CONTRACTS.map(c=>[c.code,c.code,`${c.rows.length} partidas · ${c.note}`]));
-    return opts.map(([v,l,s],i)=>`${i===1?'<div class="sep"></div>':''}<button class="mi ${(f.contract||'')===v?'on':''}" type="button" role="option" aria-selected="${(f.contract||'')===v}" data-act="setassign" data-id="${f.id}" data-v="${v}"><span>${l}</span>${s?`<small>${s}</small>`:''}</button>`).join('');
+    return CONTRACTS.map(c=>`<button class="mi ${f.contract===c.code?'on':''}" type="button" role="option" aria-selected="${f.contract===c.code}" data-act="setassign" data-id="${f.id}" data-v="${c.code}"><span>${c.code}</span><small>${c.rows.length} partidas · ${c.note}</small></button>`).join('');
   }
   if (kind==='cc') return `<button class="mi row ${f.cc==='—'?'on':''}" type="button" role="option" aria-selected="${f.cc==='—'}" data-act="setcc" data-id="${f.id}" data-v="—"><span>—</span></button><div class="sep"></div>` + CCS.map(([k,n])=>`<button class="mi row ${f.cc===k?'on':''}" type="button" role="option" aria-selected="${f.cc===k}" data-act="setcc" data-id="${f.id}" data-v="${k}"><span>${n}</span>${f.cc===k?IC.check:''}</button>`).join('');
   return '';
@@ -404,11 +408,10 @@ function placeMenu(){
   const fl = $('float');
   if (!S.menu){ fl.hidden = true; fl.className = 'menu'; return; }
   const a = anchorFor(S.menu); if (!a){ S.menu = null; fl.hidden = true; return; }
-  fl.className = 'menu' + (S.menu==='dl' ? ' dl' : '');
-  fl.setAttribute('role', S.menu==='dl' ? 'dialog' : 'listbox');
-  fl.setAttribute('aria-label', S.menu==='dl' ? 'Descargar proforma' : 'Opciones');
+  fl.className = 'menu';
+  fl.setAttribute('role', S.menu==='dl' ? 'menu' : 'listbox');
+  fl.setAttribute('aria-label', S.menu==='dl' ? 'Exportar un contrato' : 'Opciones');
   fl.innerHTML = menuHTML(); fl.hidden = false;
-  const allBox = $('dl-all'); if (allBox) allBox.indeterminate = S.dlSel.size>0 && S.dlSel.size<CONTRACTS.length;
   const r = a.getBoundingClientRect(), w = fl.offsetWidth, h = fl.offsetHeight, vw = innerWidth, vh = innerHeight;
   let left = S.menu==='dl' ? r.right - w : r.left;
   left = Math.max(16, Math.min(left, vw - w - 16));
@@ -441,17 +444,15 @@ document.addEventListener('click',(e)=>{
     case 'togglefuera': S.fueraOpen=!S.fueraOpen; break;
     case 'filter': S.menu = S.menu==='filter'?null:'filter'; placeMenu(); return;
     case 'setfilter': S.filter=el.dataset.v; S.menu=null; break;
-    case 'dl': S.menu = S.menu==='dl'?null:'dl'; if (S.menu) S.dlSel=new Set(CONTRACTS.map(c=>c.code)); placeMenu(); return;
-    case 'dlall': case 'dlone': case 'check': return;
-    case 'dodl': {
-      const sel = CONTRACTS.filter(c=>S.dlSel.has(c.code)).map(c=>c.code); S.menu=null;
-      toast(sel.length===1 ? `Descargando <code>${esc(pdfName(sel[0]))}</code>` : `Descargando ZIP con ${sel.length} PDF:<br>${sel.map(c=>`<code>${esc(pdfName(c))}</code>`).join('<br>')}`);
-      break; }
+    case 'dl': S.menu = S.menu==='dl'?null:'dl'; placeMenu(); return;
+    case 'check': return;
+    case 'expall': S.menu=null; toast(`Exportando ZIP con ${CONTRACTS.length} PDF:<br>${CONTRACTS.map(c=>`<code>${esc(pdfName(c.code))}</code>`).join('<br>')}`); break;
+    case 'exportone': S.menu=null; toast(`Exportando <code>${esc(pdfName(el.dataset.code))}</code>`); break;
     case 'assign': case 'cc': { const key = act+'-'+id; S.menu = S.menu===key?null:key; placeMenu(); return; }
-    case 'setassign': f.contract = el.dataset.v || null; S.menu=null; toast(f.contract?`Línea asignada a ${f.contract}`:'Línea sin asignar'); break;
+    case 'setassign': f.contract = el.dataset.v; f.reviewed = true; S.menu=null; toast(`Partida asignada a ${f.contract}`); break;
     case 'setcc': f.cc = el.dataset.v; S.menu=null; break;
-    case 'delete': { const n = FUERA.filter(x=>x.checked).length; FUERA = FUERA.filter(x=>!x.checked); toast(n===1?'Línea eliminada':`${n} líneas eliminadas`); break; }
-    case 'addline': FUERA.push(F(['ud','Nueva línea',0,0,...Z])); S.fueraOpen=true; toast('Línea añadida fuera de contrato'); break;
+    case 'delete': { const n = FUERA.filter(x=>x.checked).length; FUERA = FUERA.filter(x=>!x.checked); toast(n===1?'Partida eliminada':`${n} partidas eliminadas`); break; }
+    case 'addline': FUERA.push(F(['—','ud','Nueva partida',0,0,...Z])); S.fueraOpen=true; toast(`Partida añadida a ${CONTRACTS[0].code} por defecto`); break;
     case 'liquidar': S.liquidated=true; FUERA.forEach(x=>x.checked=false); S.menu=null; toast('Proveedor liquidado. La confirmación es un flujo aparte y no está en este prototipo.'); break;
     case 'unliq': S.liquidated=false; break;
     case 'apuntes': toast('Abriría Apuntes contables filtrado por este proveedor.'); return;
@@ -464,8 +465,6 @@ document.addEventListener('click',(e)=>{
 document.addEventListener('change',(e)=>{
   const el = e.target, act = el.dataset.act;
   if (act==='check'){ FUERA.find(x=>x.id===Number(el.dataset.id)).checked = el.checked; renderActionbar(); }
-  if (act==='dlall'){ S.dlSel = el.checked ? new Set(CONTRACTS.map(c=>c.code)) : new Set(); placeMenu(); }
-  if (act==='dlone'){ el.checked ? S.dlSel.add(el.dataset.code) : S.dlSel.delete(el.dataset.code); placeMenu(); }
 });
 $('q').addEventListener('input',(e)=>{ S.q = e.target.value.trim().toLowerCase(); renderTable(); });
 document.addEventListener('keydown',(e)=>{ if (e.key==='Escape' && S.menu){ S.menu=null; placeMenu(); } });
