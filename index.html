@@ -83,10 +83,11 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .btn.ghost{border-color:transparent;background:none}
 .btn.ghost:hover{background:var(--gray100)}
 .btn.danger{background:var(--danger-bg);border-color:transparent;color:var(--danger)}
-.card .btn.primary{align-self:flex-start;margin-top:2px}
+.card .btn{align-self:flex-start;margin-top:2px}
 .split{display:inline-flex}
 .split .btn:first-child{border-top-right-radius:0;border-bottom-right-radius:0}
 .split .btn.icon{width:32px;padding:0;margin-left:-1px;border-top-left-radius:0;border-bottom-left-radius:0}
+.split .btn.primary.icon{margin-left:1px}
 .mh{padding:6px 10px 4px;font-size:12px;line-height:16px;color:var(--muted)}
 
 /* barra de la tabla */
@@ -230,8 +231,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
     </div>
     <div class="tb-right">
       <div class="split" role="group" aria-label="Exportar">
-        <button class="btn" type="button" data-act="expall"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exportar todos</button>
-        <button class="btn icon" type="button" id="dl-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Exportar un contrato" data-act="dl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+        <button class="btn primary" type="button" id="exp-btn" data-act="expall"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exportar todos</button>
+        <button class="btn primary icon" type="button" id="dl-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Exportar un contrato" data-act="dl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       </div>
     </div>
   </div>
@@ -385,7 +386,7 @@ function renderCards(){
     $('k-liq-action').innerHTML = `<span class="help">Liquidada el 02/10/2026 · <button class="add" style="display:inline;padding:0;font-size:12px;text-decoration:underline" type="button" data-act="unliq">Deshacer (solo prototipo)</button></span>`;
   } else {
     liq.textContent='Abierta'; liq.className='badge';
-    $('k-liq-action').innerHTML = `<button class="btn primary" type="button" data-act="liquidar">Liquidar proveedor</button>`;
+    $('k-liq-action').innerHTML = `<button class="btn" type="button" data-act="liquidar">Liquidar proveedor</button>`;
   }
 }
 
@@ -504,6 +505,8 @@ function render(){
   if (isPast()) note.textContent = `Periodo cerrado. Puedes consultar y exportar la proforma de ${p.name.toLowerCase()}, pero no editarla.`;
   $('filter-label').textContent = S.filter==='all' ? 'Todos los contratos' : S.filter;
   applyPeriod();
+  // Opción A: Exportar es la acción principal del periodo actual; en periodos cerrados pasa a secundaria
+  $('exp-btn').classList.toggle('primary', !isPast()); $('dl-btn').classList.toggle('primary', !isPast());
   renderCards(); renderTable(); renderActionbar(); placeMenu();
 }
 
