@@ -34,9 +34,23 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .chip b{font-weight:600;font-size:18px;letter-spacing:-.4px}
 .chip span{font-size:12px;font-weight:500}
 .top h1{margin:0;font-size:24px;line-height:32px;font-weight:500;letter-spacing:-.3px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.backrow{height:53px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid var(--gray200)}
-.back{display:flex;align-items:center;gap:6px;background:none;border:0;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500}
-.back:hover{background:var(--gray100)}
+.crumbs{height:53px;display:flex;align-items:center;gap:6px;padding:0 12px;font-size:14px;min-width:0}
+.crumbs button{background:none;border:0;padding:4px;border-radius:4px;color:var(--fg);white-space:nowrap;flex-shrink:0}
+.crumbs svg{flex-shrink:0}
+.crumbs button:hover{background:var(--gray100)}
+.crumbs span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.navrow{min-height:53px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;padding:0 16px 0 0;border-bottom:1px solid var(--gray200)}
+.tabs{display:flex;align-self:stretch;overflow-x:auto}
+.tab{display:flex;align-items:center;padding:0 12px;height:52px;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:14px;color:var(--muted);white-space:nowrap}
+.tab[aria-current="page"]{color:var(--fg);font-weight:500;border-bottom-color:var(--fg)}
+.tab:hover{color:var(--fg)}
+.per{display:flex;align-items:center;gap:12px;height:52px;margin-left:auto}
+.per .tag.ok{background:var(--gray100)}
+.mi:disabled{cursor:not-allowed;opacity:.45;background:none}
+.ro-note{display:flex;align-items:center;gap:8px;margin:0 0 16px;padding:10px 12px;border-radius:6px;background:var(--gray50);border:1px solid var(--gray200);font-size:13px;color:var(--muted)}
+.empty-state{padding:120px 16px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.empty-state h2{margin:0;font-size:18px;line-height:28px;font-weight:500}
+.empty-state p{margin:0;color:var(--muted);max-width:52ch}
 .wrap{padding:24px 16px 120px}
 
 /* tarjetas */
@@ -176,9 +190,18 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   <button class="chip" type="button" data-act="proyecto" aria-label="Cambiar proyecto: VELEZ"><b>011h</b><span>VELEZ</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
   <h1 id="prov-name"></h1>
 </header>
-<div class="backrow"><button class="back" type="button" data-act="back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>Proformas · Control de costes</button></div>
+<nav class="crumbs" aria-label="Migas de pan"><button type="button" data-act="back">Control de costes</button><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span id="crumb-prov" aria-current="page"></span></nav>
+<div class="navrow">
+  <div class="tabs"><button class="tab" type="button" aria-current="page">Proformas</button><button class="tab" type="button" data-act="apuntes">Apuntes contables</button><button class="tab" type="button" data-act="detalle">Detalle costes</button></div>
+  <div class="per">
+    <span class="lbl">Periodo</span>
+    <button class="sel" type="button" id="per-btn" aria-haspopup="listbox" aria-expanded="false" data-act="periodo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b id="per-label">Septiembre 2026</b><span class="tag" id="per-tag">Actual · abierto</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+  </div>
+</div>
 
 <main class="wrap">
+  <section class="empty-state" id="empty" hidden><h2 id="empty-t"></h2><p id="empty-p"></p></section>
+  <div id="content">
   <section class="cards" aria-label="Resumen del proveedor">
     <div class="card">
       <span class="lbl">Total contratado</span>
@@ -186,7 +209,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
       <span class="help" id="k-total-help"></span>
     </div>
     <div class="card">
-      <div class="liq-head lbl">Proforma nº 5</div>
+      <div class="liq-head lbl" id="k-num">Proforma nº 5</div>
       <div class="liq-row">Liquidación: <span class="badge" id="k-liq"></span></div>
       <div id="k-liq-action"></div>
     </div>
@@ -202,13 +225,10 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 
   <div class="toolbar">
     <div class="tb-left">
-      <span class="lbl">Periodo:</span>
-      <button class="sel" type="button" data-act="periodo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b>Septiembre 2026</b><span class="tag">Actual · abierto</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <button class="sel" type="button" id="filter-btn" aria-haspopup="listbox" aria-expanded="false" data-act="filter"><span id="filter-label">Todos los contratos</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
       <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar partida o código" aria-label="Buscar partida o código" autocomplete="off"></label>
     </div>
     <div class="tb-right">
-      <button class="btn ghost" type="button" data-act="apuntes">Ver en Apuntes contables<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></button>
       <div class="split" role="group" aria-label="Exportar">
         <button class="btn" type="button" data-act="expall"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Exportar todos</button>
         <button class="btn icon" type="button" id="dl-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Exportar un contrato" data-act="dl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
@@ -216,8 +236,10 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
     </div>
   </div>
 
+  <p class="ro-note" id="ro-note" hidden></p>
   <p class="scroll-hint">Desliza la tabla en horizontal para ver todas las columnas.</p>
   <div class="tscroll" id="tscroll"><div class="table" id="table"></div></div>
+  </div>
 </main>
 
 <div class="menu" id="float" hidden></div>
@@ -232,16 +254,17 @@ const PERIOD = 'septiembre 2026';
 
 // [código, ud, concepto, precio, importe, med. total origen, med. prov. anterior, med. prov. mes, imp. total origen, imp. prov. anterior, imp. prov. mes]
 // Cantidad = importe / precio unitario
-const P = (a)=>({cc:'CI', cod:a[0], ud:a[1], con:a[2], pu:a[3], imp:a[4], cant: a[3] ? Math.round(a[4]/a[3]*1000)/1000 : 0, mto:a[5], mant:a[6], mmes:a[7], ito:a[8], iant:a[9], imes:a[10]});
+// start = mes (5 = mayo … 8 = agosto) en el que se proformó lo que hoy aparece como "Prov. anterior"
+const P = (a)=>({cc:'CI', cod:a[0], ud:a[1], con:a[2], pu:a[3], imp:a[4], cant: a[3] ? Math.round(a[4]/a[3]*1000)/1000 : 0, mto:a[5], mant:a[6], mmes:a[7], ito:a[8], iant:a[9], imes:a[10], start:a[11]||0, base:{mto:a[5], mant:a[6], mmes:a[7], ito:a[8], iant:a[9], imes:a[10]}});
 const Z = [0,0,0,0,0,0];
 const CONTRACTS = [
   {code:'HC-26150029', note:'Torre móvil', rows:[
-    P(['2437','m2','Precio Cerrado Unidad Torre Movil',690,2760,1,1,0,690,690,0]),
-    P(['QAF024','ml','Alquiler adicional Unidad Torre Móvil',4,480,53,53,0,212,212,0]),
+    P(['2437','m2','Precio Cerrado Unidad Torre Movil',690,2760,1,1,0,690,690,0,5]),
+    P(['QAF024','ml','Alquiler adicional Unidad Torre Móvil',4,480,53,53,0,212,212,0,7]),
     P(['QAF020','m','Cambio Posicion Unidad Torre Móvil',2,4,...Z])]},
   {code:'HC-26150046', note:'Torre móvil grande', rows:[
-    P(['—','UD','Precio Cerrado Unidad TORRE MOVIL GRANDE',900,900,1,1,0,900,900,0]),
-    P(['—','UD','Alquiler adicional Unidad Torre MóIL GRANDE',6,180,18,18,0,108,108,0]),
+    P(['—','UD','Precio Cerrado Unidad TORRE MOVIL GRANDE',900,900,1,1,0,900,900,0,8]),
+    P(['—','UD','Alquiler adicional Unidad Torre MóIL GRANDE',6,180,18,18,0,108,108,0,6]),
     P(['—','UD','Cambio Posicion Unidad Torre Móvil GRANDE',550,1100,1.455,0,1.455,800.25,0,800.25])]},
   {code:'HC-26150064', note:'03 Andamios', rows:[
     P(['—','UD','Precio Cerrado 03 Andamios',1150,1150,...Z]),
@@ -268,14 +291,38 @@ let nextId = 1;
 // Las líneas fuera de contrato siempre tienen contrato: por defecto el primero (como hoy). "Por revisar" = aún con el contrato por defecto sin confirmar.
 const F = (a)=>Object.assign(P(a), {id: nextId++, contract: CONTRACTS[0].code, reviewed: false, checked: false});
 let FUERA = [
-  F(['2437','ud','Precio Cerrado 03 Andamios Según oferta 260295',1150,1150,1,1,0,1150,1150,0]),
-  F(['QAF024','ud','Alquiler adicional 03 Andamios Según oferta 260295',7,7,38,7,31,266,49,217]),
+  F(['2437','ud','Precio Cerrado 03 Andamios Según oferta 260295',1150,1150,1,1,0,1150,1150,0,5]),
+  F(['QAF024','ud','Alquiler adicional 03 Andamios Según oferta 260295',7,7,38,7,31,266,49,217,8]),
   F(['QAF020','ud','Cambio Posicion 03 Andamios (Incluye desmontaje y montaje con certificado) Según oferta 260295',700,700,...Z]),
   F(['2437','ud','Descuento limpieza',-22,-22,9.9,0,9.9,-217.8,-0,-217.8])
 ];
 const CCS = [['CI','Coste indirecto'],['BR','Bajo rasante'],['URB','Urbanización'],['SRM','Sobre rasante madera'],['SRH','Sobre rasante hormigón'],['BAL','Balcón'],['SC','Soft Cost']];
 
-const S = { open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null };
+// Periodos del proveedor: septiembre es el actual; abril y marzo no tienen mediciones ni proforma
+const PERIODS = [
+  {m:9, name:'Septiembre 2026', num:5},
+  {m:8, name:'Agosto 2026', num:4, liq:'04/09/2026'},
+  {m:7, name:'Julio 2026', num:3, liq:'04/08/2026'},
+  {m:6, name:'Junio 2026', num:2, liq:'03/07/2026'},
+  {m:5, name:'Mayo 2026', num:1, liq:'04/06/2026'},
+  {m:4, name:'Abril 2026', num:0},
+  {m:3, name:'Marzo 2026', num:0}
+];
+const S = { open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9 };
+const curP = ()=>PERIODS.find(p=>p.m===S.period);
+const isPast = ()=>S.period!==9;
+const readOnly = ()=>S.liquidated || isPast();
+// Recalcula las cifras de cada partida para el periodo elegido a partir de los datos de septiembre
+function applyPeriod(){
+  const m = S.period;
+  for (const r of CONTRACTS.flatMap(c=>c.rows).concat(FUERA)){
+    const b = r.base;
+    if (m===9){ Object.assign(r, b); continue; }
+    const inMes = r.start===m, before = r.start && r.start<m;
+    r.imes = inMes ? b.iant : 0; r.iant = before ? b.iant : 0; r.ito = r.imes + r.iant;
+    r.mmes = inMes ? b.mant : 0; r.mant = before ? b.mant : 0; r.mto = r.mmes + r.mant;
+  }
+}
 
 // Formato de la plataforma: coma decimal, 3 decimales, punto de miles a partir de 5 cifras
 function fmt(n, dec=3){
@@ -329,9 +376,13 @@ function renderCards(){
   $('k-bar').style.width = Math.max(0,Math.min(100,av*100))+'%';
   $('k-bar-wrap').setAttribute('aria-label','Avance de contrato '+pct(av));
   const liq = $('k-liq');
-  if (S.liquidated){
+  $('k-num').textContent = 'Proforma nº ' + curP().num;
+  if (isPast()){
     liq.textContent='Liquidada'; liq.className='badge ok';
-    $('k-liq-action').innerHTML = `<span class="help">Liquidada el 03/10/2026 · <button class="add" style="display:inline;padding:0;font-size:12px;text-decoration:underline" type="button" data-act="unliq">Deshacer (solo prototipo)</button></span>`;
+    $('k-liq-action').innerHTML = `<span class="help">Liquidada el ${curP().liq}</span>`;
+  } else if (S.liquidated){
+    liq.textContent='Liquidada'; liq.className='badge ok';
+    $('k-liq-action').innerHTML = `<span class="help">Liquidada el 02/10/2026 · <button class="add" style="display:inline;padding:0;font-size:12px;text-decoration:underline" type="button" data-act="unliq">Deshacer (solo prototipo)</button></span>`;
   } else {
     liq.textContent='Abierta'; liq.className='badge';
     $('k-liq-action').innerHTML = `<button class="btn primary" type="button" data-act="liquidar">Liquidar proveedor</button>`;
@@ -362,7 +413,8 @@ function renderTable(){
   }
 
   const allF = visibleFuera(), vf = allF.filter(matches);
-  const toReview = FUERA.filter(f=>!f.reviewed).length;
+  const toReview = readOnly() ? 0 : FUERA.filter(f=>!f.reviewed).length;
+  const ro = readOnly();
   if (S.filter==='all' || allF.length){
     tImp += sum(allF,'imp'); tTO += sum(allF,'ito'); tAnt += sum(allF,'iant'); tMes += sum(allF,'imes');
     const badge = (toReview && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px" title="Líneas con el contrato asignado por defecto, sin confirmar">${IC.warn}${toReview} ${toReview===1?'partida':'partidas'} por revisar</span>` : '';
@@ -370,20 +422,29 @@ function renderTable(){
     if (S.fueraOpen || S.q){
       for (const f of vf){
         const ccName = f.cc==='—' ? 'Sin centro de coste' : (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
-        t.push(`<div class="g"><span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract}">${f.contract}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span><span class="c">${esc(f.cod)}</span><span class="c"><span class="t">${esc(f.con)}</span></span><span class="c e">${qty(f.cant)}</span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
+        const lead = ro
+          ? `<span class="c guide"><i></i></span><span class="c">${f.contract}</span><span class="c" title="${ccName}">${f.cc}</span>`
+          : `<span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract}">${f.contract}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span>`;
+        t.push(`<div class="g">${lead}<span class="c">${esc(f.cod)}</span><span class="c"><span class="t">${esc(f.con)}</span></span><span class="c e">${qty(f.cant)}</span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
       }
       if (!vf.length) t.push(`<div class="g"><div class="empty">${S.q?'Ninguna partida fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div></div>`);
-      if (S.filter==='all') t.push(`<div class="g"><div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir partida</button></div></div>`);
+      if (S.filter==='all' && !ro) t.push(`<div class="g"><div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir partida</button></div></div>`);
     }
   }
   const label = S.filter==='all' ? 'Total proveedor' : 'Total '+S.filter;
   t.push(`<div class="g total"><span class="c" style="grid-column:1/9">${label}</span><span class="c e nb">${eur(tImp)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(tTO)}</span><span class="c e">${eur(tAnt)}</span><span class="c e nb">${eur(tMes)}</span></div>`);
-  const tbl = $('table'); tbl.innerHTML = t.join(''); tbl.classList.toggle('ro', S.liquidated);
+  $('table').innerHTML = t.join('');
 }
 
 // ---------- menús flotantes (fixed, fuera del scroll de la tabla) ----------
 function menuHTML(){
   const m = S.menu; if (!m) return '';
+  if (m==='periodo'){
+    return PERIODS.map(p=>{
+      const sub = p.m===9 ? `Actual · abierto · Proforma nº ${p.num}` : p.num ? `Cerrado · Proforma nº ${p.num}` : 'Sin mediciones ni proforma';
+      return `<button class="mi ${S.period===p.m?'on':''}" type="button" role="option" aria-selected="${S.period===p.m}" data-act="setperiod" data-v="${p.m}" ${p.num?'':'disabled'}><span>${p.name}</span><small>${sub}</small></button>`;
+    }).join('');
+  }
   if (m==='filter'){
     const total = CONTRACTS.reduce((a,c)=>a+c.rows.length,0);
     const opts = [['all','Todos los contratos',`${CONTRACTS.length} contratos · ${total} partidas`]].concat(CONTRACTS.map(c=>[c.code,c.code,`${c.rows.length} partidas`]));
@@ -401,6 +462,7 @@ function menuHTML(){
 }
 function anchorFor(m){
   if (m==='filter') return $('filter-btn');
+  if (m==='periodo') return $('per-btn');
   if (m==='dl') return $('dl-btn');
   const [kind,id] = m.split('-'); return document.querySelector(`[data-act="${kind}"][data-id="${id}"]`);
 }
@@ -413,27 +475,41 @@ function placeMenu(){
   fl.setAttribute('aria-label', S.menu==='dl' ? 'Exportar un contrato' : 'Opciones');
   fl.innerHTML = menuHTML(); fl.hidden = false;
   const r = a.getBoundingClientRect(), w = fl.offsetWidth, h = fl.offsetHeight, vw = innerWidth, vh = innerHeight;
-  let left = S.menu==='dl' ? r.right - w : r.left;
+  let left = (S.menu==='dl' || S.menu==='periodo') ? r.right - w : r.left;
   left = Math.max(16, Math.min(left, vw - w - 16));
   let top = r.bottom + 4; if (top + h > vh - 16 && r.top - h - 4 > 16) top = r.top - h - 4;
   fl.style.left = left+'px'; fl.style.top = top+'px';
   $('filter-btn').setAttribute('aria-expanded', S.menu==='filter');
   $('dl-btn').setAttribute('aria-expanded', S.menu==='dl');
+  $('per-btn').setAttribute('aria-expanded', S.menu==='periodo');
 }
 function renderActionbar(){
   const n = FUERA.filter(f=>f.checked).length;
-  $('actionbar').hidden = n===0 || S.liquidated;
+  $('actionbar').hidden = n===0 || readOnly();
   $('ab-count').textContent = n===1 ? '1 seleccionado' : `${n} seleccionados`;
 }
 function render(){
-  $('prov-name').textContent = PROVIDER;
+  $('prov-name').textContent = PROVIDER; $('crumb-prov').textContent = PROVIDER;
+  const p = curP();
+  $('per-label').textContent = p.name; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado';
+  const none = !p.num;
+  $('empty').hidden = !none; $('content').hidden = none;
+  if (none){
+    $('empty-t').textContent = 'Sin proforma en ' + p.name.toLowerCase();
+    $('empty-p').textContent = 'Este proveedor no tenía mediciones en este periodo. Su primera proforma es de mayo 2026.';
+    placeMenu(); return;
+  }
+  const note = $('ro-note');
+  note.hidden = !isPast();
+  if (isPast()) note.textContent = `Periodo cerrado. Puedes consultar y exportar la proforma de ${p.name.toLowerCase()}, pero no editarla.`;
   $('filter-label').textContent = S.filter==='all' ? 'Todos los contratos' : S.filter;
+  applyPeriod();
   renderCards(); renderTable(); renderActionbar(); placeMenu();
 }
 
 let toastT;
 function toast(html){ const t=$('toast'); t.innerHTML=html; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true;},4500); }
-const pdfName = (code)=>`${PERIOD}_Proforma_${PROVIDER}_${code.slice(-4)}.pdf`;
+const pdfName = (code)=>`${curP().name.toLowerCase()}_Proforma_${PROVIDER}_${code.slice(-4)}.pdf`;
 
 document.addEventListener('click',(e)=>{
   const el = e.target.closest('[data-act]');
@@ -453,12 +529,14 @@ document.addEventListener('click',(e)=>{
     case 'setcc': f.cc = el.dataset.v; S.menu=null; break;
     case 'delete': { const n = FUERA.filter(x=>x.checked).length; FUERA = FUERA.filter(x=>!x.checked); toast(n===1?'Partida eliminada':`${n} partidas eliminadas`); break; }
     case 'addline': FUERA.push(F(['—','ud','Nueva partida',0,0,...Z])); S.fueraOpen=true; toast(`Partida añadida a ${CONTRACTS[0].code} por defecto`); break;
-    case 'liquidar': S.liquidated=true; FUERA.forEach(x=>x.checked=false); S.menu=null; toast('Proveedor liquidado. La confirmación es un flujo aparte y no está en este prototipo.'); break;
+    case 'liquidar': S.liquidated=true; FUERA.forEach(x=>{x.checked=false; x.reviewed=true;}); S.menu=null; toast('Proveedor liquidado. Las partidas fuera de contrato quedan confirmadas en su contrato. (El diálogo de confirmación es un flujo aparte.)'); break;
     case 'unliq': S.liquidated=false; break;
-    case 'apuntes': toast('Abriría Apuntes contables filtrado por este proveedor.'); return;
-    case 'periodo': toast('El selector de periodo no forma parte de este prototipo.'); return;
+    case 'periodo': S.menu = S.menu==='periodo'?null:'periodo'; placeMenu(); return;
+    case 'setperiod': S.period=Number(el.dataset.v); S.menu=null; FUERA.forEach(x=>x.checked=false); break;
+    case 'apuntes': toast('Abriría Apuntes contables de este proveedor (Épica 2).'); return;
+    case 'detalle': toast('Abriría Detalle costes de este proveedor (Épica 2).'); return;
     case 'proyecto': toast('El cambio de proyecto no forma parte de este prototipo.'); return;
-    case 'back': toast('Volvería al listado de Proformas.'); return;
+    case 'back': toast('Volvería a Control de costes · Proformas.'); return;
   }
   render();
 });
@@ -488,6 +566,9 @@ $('table').addEventListener('mouseout', (e)=>{ const el = e.target.closest('.t')
 $('tscroll').addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
 addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
 
+// Abril y marzo no se pueden elegir en el selector; el estado vacío se ve entrando por enlace (#abril)
+const H = {'#abril':4, '#marzo':3, '#agosto':8};
+if (H[location.hash]) S.period = H[location.hash];
 render();
 })();
 </script>
