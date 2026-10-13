@@ -53,6 +53,20 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .empty-state p{margin:0;color:var(--muted);max-width:52ch}
 .wrap{padding:24px 16px 120px}
 
+/* listado de proveedores */
+.lg-g{display:grid;grid-template-columns:48px minmax(280px,1fr) 160px 200px 200px 200px}
+.lt{min-width:1088px}
+.lt .c{height:36px}
+.lt .h{gap:6px}
+.sort{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;font-weight:500;width:100%;height:100%}
+.sort.e{justify-content:flex-end}
+.sort svg{color:var(--subtle);flex-shrink:0}
+.sort[aria-sort] svg{color:var(--fg)}
+.provlink{background:none;border:0;padding:0;text-align:left;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.lrow{cursor:pointer}
+.lrow:hover .c{background:var(--gray50)}
+.lrow:hover .provlink{text-decoration:underline}
+
 /* tarjetas */
 .cards{display:grid;grid-template-columns:1fr 1fr 2fr;gap:32px}
 .card{border:1px solid var(--gray200);border-radius:8px;padding:16px 20px;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:133px}
@@ -191,16 +205,34 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   <button class="chip" type="button" data-act="proyecto" aria-label="Cambiar proyecto: VELEZ"><b>011h</b><span>VELEZ</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
   <h1 id="prov-name"></h1>
 </header>
-<nav class="crumbs" aria-label="Migas de pan"><button type="button" data-act="back">Control de costes</button><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span id="crumb-prov" aria-current="page"></span></nav>
+<nav class="crumbs" id="crumbs" aria-label="Migas de pan"><button type="button" data-act="back">Control de costes</button><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span id="crumb-prov" aria-current="page"></span></nav>
 <div class="navrow">
   <div class="tabs"><button class="tab" type="button" aria-current="page">Proformas</button><button class="tab" type="button" data-act="apuntes">Apuntes contables</button><button class="tab" type="button" data-act="detalle">Detalle costes</button></div>
   <div class="per">
     <span class="lbl">Periodo</span>
     <button class="sel" type="button" id="per-btn" aria-haspopup="listbox" aria-expanded="false" data-act="periodo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b id="per-label">Septiembre 2026</b><span class="tag" id="per-tag">Actual · abierto</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+    <button class="btn primary" type="button" id="close-per" data-act="cerrar" hidden>Cerrar periodo</button>
   </div>
 </div>
 
 <main class="wrap">
+  <div id="v-list" hidden>
+  <section class="cards" aria-label="Resumen del proyecto">
+    <div class="card"><span class="lbl">Presupuesto del proyecto</span><span class="big num" id="l-pres"></span><span class="help" id="l-pres-help"></span></div>
+    <div class="card"><span class="lbl">Coste previsto</span><span class="big num">0 €</span></div>
+    <div class="card">
+      <div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num" id="l-av"></span></div>
+      <div class="bar" role="img" id="l-bar-wrap"><span class="bar-fill" id="l-bar"></span></div>
+      <div class="legend">
+        <span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Origen proformado</span><b class="num" id="l-or"></b></span>
+        <span class="lg"><span class="sw rest" aria-hidden="true"></span><span class="lbl">Saldo por proformar</span><b class="num" id="l-sa"></b></span>
+      </div>
+    </div>
+  </section>
+  <div class="toolbar"><div class="tb-left"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="lq" type="search" placeholder="Buscar" aria-label="Buscar proveedor" autocomplete="off"></label></div></div>
+  <p class="ro-note" id="l-note" hidden></p>
+  <div class="tscroll"><div class="table lt" id="ltable" role="table" aria-label="Proformas por proveedor"></div></div>
+  </div>
   <section class="empty-state" id="empty" hidden><h2 id="empty-t"></h2><p id="empty-p"></p></section>
   <div id="content">
   <section class="cards" aria-label="Resumen del proveedor">
@@ -297,6 +329,15 @@ let FUERA = [
   F(['QAF020','ud','Cambio Posicion 03 Andamios (Incluye desmontaje y montaje con certificado) Según oferta 260295',700,700,...Z]),
   F(['2437','ud','Descuento limpieza',-22,-22,9.9,0,9.9,-217.8,-0,-217.8])
 ];
+// Listado de Control de costes · Proformas (Figma 747:49321). ACME se calcula a partir de sus contratos.
+const PROVIDERS = [
+  ['ALGOMA EXTERIORES Y FACHADAS',1,319911.84,0],['ALQUIBALAT, S.L',1,3851.2,0],['Ambar Remasur, S.L.',1,22574.2,0],
+  ['AMV10 GESTIONES S.L.',2,135740,34618],[null,4,0,0],['ATK S. COOP. AND, S.L.',1,1667.5,0],
+  ['AUTONIVELANTES MARBELLA, S.L.',1,6943.872,0],['BLAITOSAN S.L.',1,5999,0],['FRANCISCO TERNERO S.L.',2,36616.742,36839.742],
+  ['ISOLGOMMA, S.R.L',1,2732.288,0],['LEVEL Prefabricados 2009 S.L.U.',2,8401.26,0],['MAT. DE CONSTR. EL FILETE, S.L.',1,3000,0],
+  ['PERFORACION Y AYUDAS A INSTALACIONES, S.L.',1,525,0],['TOI-TOI SANITARIOS MOVILES, S.A.',1,299.6,0],['TRANSVITORIA, S.L.',1,160,0],
+  ['VALLADOS JOSE ANTONIO CHAMIZO S.L.U',1,10045,9492.5],['ZEPPELINE VALENCIA S.L.',1,6856,0]
+];
 const CCS = [['CI','Coste indirecto'],['BR','Bajo rasante'],['URB','Urbanización'],['SRM','Sobre rasante madera'],['SRH','Sobre rasante hormigón'],['BAL','Balcón'],['SC','Soft Cost']];
 
 // Periodos del proveedor: septiembre es el actual; abril y marzo no tienen mediciones ni proforma
@@ -309,7 +350,7 @@ const PERIODS = [
   {m:4, name:'Abril 2026', num:0},
   {m:3, name:'Marzo 2026', num:0}
 ];
-const S = { open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9 };
+const S = { view:'list', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9 };
 const curP = ()=>PERIODS.find(p=>p.m===S.period);
 const isPast = ()=>S.period!==9;
 const readOnly = ()=>S.liquidated || isPast();
@@ -489,7 +530,51 @@ function renderActionbar(){
   $('actionbar').hidden = n===0 || readOnly();
   $('ab-count').textContent = n===1 ? '1 seleccionado' : `${n} seleccionados`;
 }
+function providerRows(){
+  applyPeriod();
+  const tot = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0);
+  const org = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + sum(FUERA,'ito');
+  return PROVIDERS.map(([n,k,t,o])=> n ? {name:n, n:k, total:t, org:o, acme:false} : {name:PROVIDER, n:k, total:tot, org:org, acme:true});
+}
+const SORTICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>`;
+function renderList(){
+  const all = providerRows();
+  const projTotal = sum(all,'total');
+  // En meses cerrados solo se listan los proveedores con proforma en ese mes (en el prototipo, solo ACME tiene histórico)
+  let rows = isPast() ? all.filter(r=>r.acme) : all;
+  const nContr = sum(all,'n');
+  const org = sum(rows,'org'), av = projTotal ? org/projTotal : 0;
+  $('l-pres').textContent = fmt(Math.round(projTotal),0) + ' €';
+  $('l-pres-help').textContent = `${all.length} proveedores · ${nContr} contratos`;
+  $('l-av').textContent = pct(av,1); $('l-or').textContent = eur(org); $('l-sa').textContent = eur(projTotal-org);
+  $('l-bar').style.width = Math.min(100,av*100)+'%'; $('l-bar-wrap').setAttribute('aria-label','Avance de contrato '+pct(av,1));
+  const note = $('l-note'); note.hidden = !isPast();
+  if (isPast()) note.textContent = `Periodo cerrado: se listan los proveedores con proforma en ${curP().name.toLowerCase()}. En este prototipo solo ${PROVIDER} tiene meses anteriores.`;
+  if (S.lq) rows = rows.filter(r=>r.name.toLowerCase().includes(S.lq));
+  const {k,dir} = S.sort;
+  rows = rows.slice().sort((a,b)=>{
+    const va = k==='saldo' ? a.total-a.org : a[k], vb = k==='saldo' ? b.total-b.org : b[k];
+    return (typeof va==='string' ? va.localeCompare(vb,'es',{sensitivity:'base'}) : va-vb) * dir;
+  });
+  const th = (key,label,end)=>{ const on = S.sort.k===key; return `<span class="c h${end?' e':''}" role="columnheader"><button class="sort${end?' e':''}" type="button" data-act="sort" data-k="${key}" ${on?`aria-sort="${dir>0?'ascending':'descending'}"`:''}>${label}${SORTICON}</button></span>`; };
+  const allSel = rows.length && rows.every(r=>S.lsel.has(r.name));
+  const t = [`<div class="lg-g" role="row"><span class="c h cen pad0 ck-cell"><input type="checkbox" data-act="lselall" ${allSel?'checked':''} aria-label="Seleccionar todos"></span>${th('name','Proveedor')}${th('n','Nº contratos',1)}${th('total','Total contratos',1)}${th('org','Origen proformado',1)}${th('saldo','Saldo',1)}</div>`];
+  for (const r of rows) t.push(`<div class="lg-g lrow" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c cen pad0 ck-cell"><input type="checkbox" data-act="lsel" data-name="${esc(r.name)}" ${S.lsel.has(r.name)?'checked':''} aria-label="Seleccionar ${esc(r.name)}"></span><span class="c"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button></span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e nb">${eur(r.total-r.org)}</span></div>`);
+  if (!rows.length) t.push(`<div class="lg-g"><div class="empty" style="grid-column:1/-1">Ningún proveedor coincide con la búsqueda.</div></div>`);
+  t.push(`<div class="lg-g total" role="row"><span class="c" style="grid-column:1/3">Total</span><span class="c e">${sum(rows,'n')}</span><span class="c e">${eur(sum(rows,'total'))}</span><span class="c e">${eur(sum(rows,'org'))}</span><span class="c e nb">${eur(sum(rows,'total')-sum(rows,'org'))}</span></div>`);
+  $('ltable').innerHTML = t.join('');
+}
 function render(){
+  const list = S.view==='list';
+  $('v-list').hidden = !list; $('crumbs').hidden = list;
+  $('close-per').hidden = !list || isPast();
+  document.title = list ? 'Control de costes · Proformas' : 'Proforma · ' + PROVIDER;
+  if (list){
+    $('prov-name').textContent = 'Control de costes';
+    const p = curP(); $('per-label').textContent = p.name; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado';
+    $('empty').hidden = true; $('content').hidden = true; $('actionbar').hidden = true;
+    renderList(); placeMenu(); return;
+  }
   $('prov-name').textContent = PROVIDER; $('crumb-prov').textContent = PROVIDER;
   const p = curP();
   $('per-label').textContent = p.name; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado';
@@ -539,12 +624,18 @@ document.addEventListener('click',(e)=>{
     case 'apuntes': toast('Abriría Apuntes contables de este proveedor (Épica 2).'); return;
     case 'detalle': toast('Abriría Detalle costes de este proveedor (Épica 2).'); return;
     case 'proyecto': toast('El cambio de proyecto no forma parte de este prototipo.'); return;
-    case 'back': toast('Volvería a Control de costes · Proformas.'); return;
+    case 'back': location.hash = ''; return;
+    case 'openprov': if (e.target.closest('input')) return; if (el.dataset.name===PROVIDER){ location.hash = 'proveedor'; } else { toast('En el prototipo solo se puede abrir la proforma de ' + PROVIDER + '.'); } return;
+    case 'sort': { const k = el.dataset.k; S.sort = S.sort.k===k ? {k, dir:-S.sort.dir} : {k, dir: k==='name'?1:-1}; break; }
+    case 'lsel': case 'lselall': return;
+    case 'cerrar': toast('Cerrar periodo es un flujo aparte y no está en este prototipo.'); return;
   }
   render();
 });
 document.addEventListener('change',(e)=>{
   const el = e.target, act = el.dataset.act;
+  if (act==='lsel'){ el.checked ? S.lsel.add(el.dataset.name) : S.lsel.delete(el.dataset.name); renderList(); return; }
+  if (act==='lselall'){ document.querySelectorAll('#ltable [data-act=lsel]').forEach(c=>{ el.checked ? S.lsel.add(c.dataset.name) : S.lsel.delete(c.dataset.name); }); renderList(); return; }
   if (act==='check'){ FUERA.find(x=>x.id===Number(el.dataset.id)).checked = el.checked; renderActionbar(); }
 });
 $('q').addEventListener('input',(e)=>{ S.q = e.target.value.trim().toLowerCase(); renderTable(); });
@@ -570,9 +661,19 @@ $('tscroll').addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:tru
 addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
 
 // Abril y marzo no se pueden elegir en el selector; el estado vacío se ve entrando por enlace (#abril)
+// Rutas: # (listado) · #proveedor · #abril / #marzo / #agosto (proveedor en ese mes)
 const H = {'#abril':4, '#marzo':3, '#agosto':8};
-if (H[location.hash]) S.period = H[location.hash];
-render();
+function route(){
+  S.menu = null;
+  if (H[location.hash]){ S.period = H[location.hash]; S.view = 'prov'; }
+  else S.view = location.hash==='#proveedor' ? 'prov' : 'list';
+  // un mes sin proforma solo existe para el proveedor; al volver al listado se vuelve al periodo actual
+  if (S.view==='list' && !curP().num) S.period = 9;
+  render(); scrollTo(0,0);
+}
+addEventListener('hashchange', route);
+$('lq').addEventListener('input',(e)=>{ S.lq = e.target.value.trim().toLowerCase(); renderList(); });
+route();
 })();
 </script>
 </body>
