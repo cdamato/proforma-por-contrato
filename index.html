@@ -205,7 +205,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   <button class="chip" type="button" data-act="proyecto" aria-label="Cambiar proyecto: VELEZ"><b>011h</b><span>VELEZ</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
   <h1 id="prov-name"></h1>
 </header>
-<nav class="crumbs" id="crumbs" aria-label="Migas de pan"><button type="button" data-act="back">Control de costes</button><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span id="crumb-prov" aria-current="page"></span></nav>
+<nav class="crumbs" id="crumbs" aria-label="Migas de pan"><button type="button" id="crumb-root" data-act="back">Control de costes</button><svg id="crumb-sep" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span id="crumb-prov" aria-current="page"></span></nav>
 <div class="navrow">
   <div class="tabs"><button class="tab" type="button" aria-current="page">Proformas</button><button class="tab" type="button" data-act="apuntes">Apuntes contables</button><button class="tab" type="button" data-act="detalle">Detalle costes</button></div>
   <div class="per">
@@ -566,7 +566,9 @@ function renderList(){
 }
 function render(){
   const list = S.view==='list';
-  $('v-list').hidden = !list; $('crumbs').hidden = list;
+  // Las migas se mantienen en las dos vistas para que las pestañas no cambien de posición
+  $('v-list').hidden = !list; $('crumb-root').hidden = list; $('crumb-sep').style.display = list ? 'none' : '';
+  $('crumb-prov').textContent = list ? 'Control de costes' : PROVIDER;
   $('close-per').hidden = !list || isPast();
   document.title = list ? 'Control de costes · Proformas' : 'Proforma · ' + PROVIDER;
   if (list){
