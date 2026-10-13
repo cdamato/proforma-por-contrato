@@ -229,9 +229,10 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
       </div>
     </div>
   </section>
-  <div class="toolbar"><div class="tb-left"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="lq" type="search" placeholder="Buscar" aria-label="Buscar proveedor" autocomplete="off"></label></div></div>
+  <div class="toolbar" id="l-tools"><div class="tb-left"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="lq" type="search" placeholder="Buscar" aria-label="Buscar proveedor" autocomplete="off"></label></div></div>
   <p class="ro-note" id="l-note" hidden></p>
-  <div class="tscroll"><div class="table lt" id="ltable" role="table" aria-label="Proformas por proveedor"></div></div>
+  <section class="empty-state" id="l-empty" hidden><h2 id="l-empty-t"></h2><p>Ningún proveedor tuvo mediciones en este periodo.</p></section>
+  <div class="tscroll" id="l-scroll"><div class="table lt" id="ltable" role="table" aria-label="Proformas por proveedor"></div></div>
   </div>
   <section class="empty-state" id="empty" hidden><h2 id="empty-t"></h2><p id="empty-p"></p></section>
   <div id="content">
@@ -338,6 +339,12 @@ const PROVIDERS = [
   ['PERFORACION Y AYUDAS A INSTALACIONES, S.L.',1,525,0],['TOI-TOI SANITARIOS MOVILES, S.A.',1,299.6,0],['TRANSVITORIA, S.L.',1,160,0],
   ['VALLADOS JOSE ANTONIO CHAMIZO S.L.U',1,10045,9492.5],['ZEPPELINE VALENCIA S.L.',1,6856,0]
 ];
+// Origen proformado acumulado por mes (5 = mayo … 9 = septiembre). Datos de ejemplo para navegar por meses cerrados.
+const HIST = {
+  'AMV10 GESTIONES S.L.': {5:0, 6:10000, 7:20000, 8:20000, 9:34618},
+  'FRANCISCO TERNERO S.L.': {5:12000, 6:24000, 7:30000, 8:30000, 9:36839.742},
+  'VALLADOS JOSE ANTONIO CHAMIZO S.L.U': {5:0, 6:0, 7:4000, 8:9492.5, 9:9492.5}
+};
 const CCS = [['CI','Coste indirecto'],['BR','Bajo rasante'],['URB','Urbanización'],['SRM','Sobre rasante madera'],['SRH','Sobre rasante hormigón'],['BAL','Balcón'],['SC','Soft Cost']];
 
 // Periodos del proveedor: septiembre es el actual; abril y marzo no tienen mediciones ni proforma
@@ -459,7 +466,7 @@ function renderTable(){
   const ro = readOnly();
   if (S.filter==='all' || allF.length){
     tImp += sum(allF,'imp'); tTO += sum(allF,'ito'); tAnt += sum(allF,'iant'); tMes += sum(allF,'imes');
-    const badge = (toReview && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px" title="Líneas con el contrato asignado por defecto, sin confirmar">${IC.warn}${toReview} ${toReview===1?'partida':'partidas'} por revisar</span>` : '';
+    const badge = (toReview && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px" title="Partidas asignadas por defecto al primer contrato que aún no se han revisado (contrato y centro de coste)">${IC.warn}${toReview} ${toReview===1?'partida':'partidas'} por revisar</span>` : '';
     t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c" style="grid-column:2/9">Fuera de contrato adjudicado${badge}</span><span class="c e nb">${eur(sum(allF,'imp'))}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(sum(allF,'ito'))}</span><span class="c e">${eur(sum(allF,'iant'))}</span><span class="c e nb">${eur(sum(allF,'imes'))}</span></div>`);
     if (S.fueraOpen || S.q){
       for (const f of vf){
@@ -483,8 +490,10 @@ function menuHTML(){
   const m = S.menu; if (!m) return '';
   if (m==='periodo'){
     return PERIODS.map(p=>{
-      const sub = p.m===9 ? `Actual · abierto · Proforma nº ${p.num}` : p.num ? `Cerrado · Proforma nº ${p.num}` : 'Sin mediciones ni proforma';
-      return `<button class="mi ${S.period===p.m?'on':''}" type="button" role="option" aria-selected="${S.period===p.m}" data-act="setperiod" data-v="${p.m}" ${p.num?'':'disabled'}><span>${p.name}</span><small>${sub}</small></button>`;
+      // En el listado se puede ir a cualquier mes; en el proveedor, los meses sin proforma están deshabilitados
+      const list = S.view==='list', off = !list && !p.num;
+      const sub = list ? (p.m===9 ? 'Actual · abierto' : 'Cerrado') : p.m===9 ? `Actual · abierto · Proforma nº ${p.num}` : p.num ? `Cerrado · Proforma nº ${p.num}` : 'Sin mediciones ni proforma';
+      return `<button class="mi ${S.period===p.m?'on':''}" type="button" role="option" aria-selected="${S.period===p.m}" data-act="setperiod" data-v="${p.m}" ${off?'disabled':''}><span>${p.name}</span><small>${sub}</small></button>`;
     }).join('');
   }
   if (m==='filter'){
@@ -534,22 +543,30 @@ function providerRows(){
   applyPeriod();
   const tot = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0);
   const org = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + sum(FUERA,'ito');
-  return PROVIDERS.map(([n,k,t,o])=> n ? {name:n, n:k, total:t, org:o, acme:false} : {name:PROVIDER, n:k, total:tot, org:org, acme:true});
+  const mes = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imes'),0) + sum(FUERA,'imes');
+  const m = S.period, h = (n,x)=> HIST[n] ? (HIST[n][x]||0) : 0;
+  return PROVIDERS.map(([n,k,t,o])=> n
+    ? {name:n, n:k, total:t, org: HIST[n] ? h(n,m) : (m===9 ? o : 0), mes: HIST[n] ? h(n,m)-h(n,m-1) : 0, acme:false}
+    : {name:PROVIDER, n:k, total:tot, org, mes, acme:true});
 }
 const SORTICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>`;
 function renderList(){
   const all = providerRows();
   const projTotal = sum(all,'total');
-  // En meses cerrados solo se listan los proveedores con proforma en ese mes (en el prototipo, solo ACME tiene histórico)
-  let rows = isPast() ? all.filter(r=>r.acme) : all;
+  // En meses cerrados solo se listan los proveedores con proforma (mediciones) en ese mes
+  let rows = isPast() ? all.filter(r=>Math.abs(r.mes)>0.0005) : all;
   const nContr = sum(all,'n');
-  const org = sum(rows,'org'), av = projTotal ? org/projTotal : 0;
+  // Las tarjetas son del proyecto: origen acumulado de todos los proveedores hasta ese mes
+  const org = sum(all,'org'), av = projTotal ? org/projTotal : 0;
+  const none = isPast() && !rows.length;
+  $('l-empty').hidden = !none; $('l-tools').hidden = none; $('l-scroll').hidden = none;
+  $('l-empty-t').textContent = 'Sin proformas en ' + curP().name.toLowerCase();
   $('l-pres').textContent = fmt(Math.round(projTotal),0) + ' €';
   $('l-pres-help').textContent = `${all.length} proveedores · ${nContr} contratos`;
   $('l-av').textContent = pct(av,1); $('l-or').textContent = eur(org); $('l-sa').textContent = eur(projTotal-org);
   $('l-bar').style.width = Math.min(100,av*100)+'%'; $('l-bar-wrap').setAttribute('aria-label','Avance de contrato '+pct(av,1));
-  const note = $('l-note'); note.hidden = !isPast();
-  if (isPast()) note.textContent = `Periodo cerrado: se listan los proveedores con proforma en ${curP().name.toLowerCase()}. En este prototipo solo ${PROVIDER} tiene meses anteriores.`;
+  const note = $('l-note'); note.hidden = !isPast() || none;
+  if (isPast()) note.textContent = `Periodo cerrado: solo aparecen los proveedores con proforma en ${curP().name.toLowerCase()}. Puedes consultarlas y exportarlas, pero no editarlas.`;
   if (S.lq) rows = rows.filter(r=>r.name.toLowerCase().includes(S.lq));
   const {k,dir} = S.sort;
   rows = rows.slice().sort((a,b)=>{
@@ -616,7 +633,7 @@ document.addEventListener('click',(e)=>{
     case 'exportone': S.menu=null; toast(`Exportando <code>${esc(pdfName(el.dataset.code))}</code>`); break;
     case 'assign': case 'cc': { const key = act+'-'+id; S.menu = S.menu===key?null:key; placeMenu(); return; }
     case 'setassign': f.contract = el.dataset.v; f.reviewed = true; S.menu=null; toast(`Partida asignada a ${f.contract}`); break;
-    case 'setcc': f.cc = el.dataset.v; S.menu=null; break;
+    case 'setcc': f.cc = el.dataset.v; f.reviewed = true; S.menu=null; break;
     case 'delete': { const n = FUERA.filter(x=>x.checked).length; FUERA = FUERA.filter(x=>!x.checked); toast(n===1?'Partida eliminada':`${n} partidas eliminadas`); break; }
     case 'addline': FUERA.push(F(['—','ud','Nueva partida',0,0,...Z])); S.fueraOpen=true; toast(`Partida añadida a ${CONTRACTS[0].code} por defecto`); break;
     case 'liquidar': S.liquidated=true; FUERA.forEach(x=>{x.checked=false; x.reviewed=true;}); S.menu=null; toast('Proveedor liquidado. Las partidas fuera de contrato quedan confirmadas en su contrato. (El diálogo de confirmación es un flujo aparte.)'); break;
@@ -662,15 +679,13 @@ $('table').addEventListener('mouseout', (e)=>{ const el = e.target.closest('.t')
 $('tscroll').addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
 addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
 
-// Abril y marzo no se pueden elegir en el selector; el estado vacío se ve entrando por enlace (#abril)
-// Rutas: # (listado) · #proveedor · #abril / #marzo / #agosto (proveedor en ese mes)
-const H = {'#abril':4, '#marzo':3, '#agosto':8};
+// Rutas: # (listado) · #proveedor · #agosto (proveedor en agosto) · #abril (listado de un mes sin proformas)
 function route(){
   S.menu = null;
-  if (H[location.hash]){ S.period = H[location.hash]; S.view = 'prov'; }
-  else S.view = location.hash==='#proveedor' ? 'prov' : 'list';
-  // un mes sin proforma solo existe para el proveedor; al volver al listado se vuelve al periodo actual
-  if (S.view==='list' && !curP().num) S.period = 9;
+  const h = location.hash;
+  if (h==='#agosto'){ S.period = 8; S.view = 'prov'; }
+  else if (h==='#abril'){ S.period = 4; S.view = 'list'; }
+  else S.view = h==='#proveedor' ? 'prov' : 'list';
   render(); scrollTo(0,0);
 }
 addEventListener('hashchange', route);
