@@ -705,6 +705,8 @@ function route(){
   if (h==='#agosto'){ S.period = 8; S.view = 'prov'; }
   else if (h==='#abril'){ S.period = 4; S.view = 'list'; }
   else S.view = h==='#proveedor' ? 'prov' : 'list';
+  // El bloque fuera de contrato se muestra siempre desplegado al entrar en un proveedor
+  if (S.view==='prov') S.fueraOpen = true;
   render(); scrollTo(0,0);
 }
 addEventListener('hashchange', route);
