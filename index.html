@@ -653,8 +653,10 @@ document.addEventListener('click',(e)=>{
     case 'unliq': S.liquidated=false; break;
     case 'periodo': S.menu = S.menu==='periodo'?null:'periodo'; placeMenu(); return;
     case 'setperiod': S.period=Number(el.dataset.v); S.menu=null; FUERA.forEach(x=>x.checked=false); break;
-    case 'apuntes': toast('Abriría Apuntes contables de este proveedor (Épica 2).'); return;
-    case 'detalle': toast('Abriría Detalle costes de este proveedor (Épica 2).'); return;
+    // Las pestañas tienen el alcance de la página: en Control de costes, todos los proveedores; dentro de un proveedor, solo ese
+    case 'apuntes': case 'detalle': {
+      const tab = act==='apuntes' ? 'Apuntes contables' : 'Detalle costes';
+      toast(S.view==='list' ? `Abriría ${tab} de todos los proveedores.` : `Abriría ${tab} solo de ${PROVIDER} (Épica 2).`); return; }
     case 'proyecto': toast('El cambio de proyecto no forma parte de este prototipo.'); return;
     case 'back': location.hash = ''; return;
     case 'contrato': e.preventDefault(); toast(`Abriría la página del contrato ${el.dataset.code} (obligaciones e información del contrato).`); return;
