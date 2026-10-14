@@ -143,7 +143,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .ck-cell input{width:18px;height:18px;margin:0;accent-color:#18181B}
 .total .c{background:var(--gray100);font-weight:500}
 .sub .c{background:var(--gray50);font-weight:500}
-.fuera .c{background:var(--warn-soft)}
+.fuera .c{background:var(--band-soft)}
+.blocksep{height:16px}
 .fuera .badge.warn{background:var(--warn-bg)}
 .clink{display:inline-flex;align-items:center;gap:6px;color:var(--fg);text-decoration:none;border-radius:4px}
 .clink:hover{text-decoration:underline}
@@ -479,7 +480,9 @@ function renderTable(){
     tImp += sum(allF,'imp'); tTO += sum(allF,'ito'); tAnt += sum(allF,'iant'); tMes += sum(allF,'imes');
     const what = CONTRACTS.length>1 ? 'revisa contrato y centro de coste' : 'revisa su centro de coste';
     const badge = (toReview && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px" title="Se asignan por defecto al primer contrato (${CONTRACTS[0].code}). Si no es el correcto, cámbialo; si lo es, confírmalo eligiéndolo de nuevo.">${IC.warn}${toReview} ${toReview===1?'partida asignada':'partidas asignadas'} por defecto · ${what}</span>` : '';
-    t.push(`<div class="g parent fuera"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c" style="grid-column:2/9">Fuera de contrato adjudicado${badge}</span><span class="c e nb">${eur(sum(allF,'imp'))}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(sum(allF,'ito'))}</span><span class="c e">${eur(sum(allF,'iant'))}</span><span class="c e nb">${eur(sum(allF,'imes'))}</span></div>`);
+    // Bloque aparte (como en el PDF): el título no repite cifras, las lleva el subtotal del bloque
+    t.push(`<div class="blocksep" aria-hidden="true"></div>`);
+    t.push(`<div class="g parent fuera"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c nb" style="grid-column:2/10">Fuera de contrato adjudicado${badge}</span><span class="gap"></span><span class="c nb" style="grid-column:11/14"></span><span class="gap"></span><span class="c nb" style="grid-column:15/18"></span></div>`);
     if (S.fueraOpen || S.q){
       for (const f of vf){
         const ccName = f.cc==='—' ? 'Sin centro de coste' : (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
