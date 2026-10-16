@@ -396,8 +396,7 @@ const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const $ = (id)=>document.getElementById(id);
 
 function contractStats(c, withFuera=false){
-  // En la tabla, la fila del contrato resume solo sus partidas (las de fuera de contrato tienen su propio grupo).
-  // Con el filtro por contrato, la tarjeta suma también las líneas fuera de contrato asignadas a ese contrato.
+  // La fila del contrato y la tarjeta de avance cuentan solo lo contratado; fuera de contrato tiene su propio subtotal.
   const assigned = FUERA.filter(f=>f.contract===c.code);
   const all = withFuera ? c.rows.concat(assigned) : c.rows;
   const imp = sum(c.rows,'imp'), origen = sum(all,'ito');
@@ -421,10 +420,10 @@ function renderCards(){
   let total, origen, help;
   if (S.filter==='all'){
     total = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0);
-    origen = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + sum(FUERA,'ito');
+    origen = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0);
     help = `${CONTRACTS.length} contratos · ${CONTRACTS.reduce((a,c)=>a+c.rows.length,0)} partidas`;
   } else {
-    const c = visibleContracts()[0], st = contractStats(c, true);
+    const c = visibleContracts()[0], st = contractStats(c);
     total = st.imp; origen = st.origen; help = `${c.code} · ${c.rows.length} partidas`;
   }
   const saldo = total-origen, av = total?origen/total:0;
