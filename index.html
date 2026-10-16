@@ -47,6 +47,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .per{display:flex;align-items:center;gap:12px;height:52px;margin-left:auto}
 .per .tag.ok{background:var(--gray100)}
 .mi:disabled{cursor:not-allowed;opacity:.45;background:none}
+.btn:disabled{cursor:not-allowed;background:var(--gray100);border-color:var(--gray200);color:#A1A1AA}
 .ro-note{display:flex;align-items:center;gap:8px;margin:0 0 16px;padding:10px 12px;border-radius:6px;background:var(--gray50);border:1px solid var(--gray200);font-size:13px;color:var(--muted)}
 .empty-state{padding:120px 16px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
 .empty-state h2{margin:0;font-size:18px;line-height:28px;font-weight:500}
@@ -395,6 +396,8 @@ const sum = (a,k)=>a.reduce((s,r)=>s+r[k],0);
 const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $ = (id)=>document.getElementById(id);
 
+const hasMed = (c)=> sum(c.rows,'mmes') + sum(FUERA.filter(f=>f.contract===c.code),'mmes') !== 0;
+const measured = ()=> CONTRACTS.filter(hasMed);
 function contractStats(c, withFuera=false){
   // La fila del contrato y la tarjeta de avance cuentan solo lo contratado; fuera de contrato tiene su propio subtotal.
   const assigned = FUERA.filter(f=>f.contract===c.code);
@@ -517,7 +520,9 @@ function menuHTML(){
     return opts.map(([v,l,s])=>`<button class="mi ${S.filter===v?'on':''}" type="button" role="option" aria-selected="${S.filter===v}" data-act="setfilter" data-v="${v}"><span>${l}</span><small>${s}</small></button>`).join('');
   }
   if (m==='dl'){
-    return `<div class="mh">Exportar un contrato (PDF)</div>` + CONTRACTS.map(c=>`<button class="mi row" type="button" role="menuitem" data-act="exportone" data-code="${c.code}"><span>${c.code}</span><small>${c.rows.length} partidas</small></button>`).join('');
+    // Cada PDF lleva las partidas del contrato y las fuera de contrato asignadas; sin medición en el mes no se puede descargar
+    return `<div class="mh">Exportar un contrato (PDF)</div>` + CONTRACTS.map(c=>{ const n = c.rows.length + FUERA.filter(f=>f.contract===c.code).length, ok = hasMed(c);
+      return `<button class="mi row" type="button" role="menuitem" data-act="exportone" data-code="${c.code}" ${ok?'':'disabled title="No hay mediciones este mes"'}><span>${c.code}</span><small>${n} partidas</small></button>`; }).join('');
   }
   const [kind, idStr] = m.split('-'); const f = FUERA.find(x=>x.id===Number(idStr)); if (!f) return '';
   if (kind==='assign'){
@@ -626,6 +631,8 @@ function render(){
   applyPeriod();
   // Opción A: Exportar es la acción principal del periodo actual; en periodos cerrados pasa a secundaria
   $('exp-btn').classList.toggle('primary', !isPast()); $('dl-btn').classList.toggle('primary', !isPast());
+  // Sin ningún contrato medido, «Exportar todos» se deshabilita; la flecha sigue abriendo el menú para ver por qué
+  { const none = !measured().length; $('exp-btn').disabled = none; $('exp-btn').title = none ? 'No hay mediciones este mes' : ''; }
   renderCards(); renderTable(); renderActionbar(); placeMenu();
 }
 
@@ -644,7 +651,8 @@ document.addEventListener('click',(e)=>{
     case 'setfilter': S.filter=el.dataset.v; S.menu=null; break;
     case 'dl': S.menu = S.menu==='dl'?null:'dl'; placeMenu(); return;
     case 'check': return;
-    case 'expall': S.menu=null; toast(`Exportando ZIP con ${CONTRACTS.length} PDF:<br>${CONTRACTS.map(c=>`<code>${esc(pdfName(c.code))}</code>`).join('<br>')}`); break;
+    case 'expall': { S.menu=null; const ms = measured(); if (!ms.length) return;
+      toast(ms.length===1 ? `Exportando <code>${esc(pdfName(ms[0].code))}</code>` : `Exportando ZIP con ${ms.length} PDF (solo contratos con medición):<br>${ms.map(c=>`<code>${esc(pdfName(c.code))}</code>`).join('<br>')}`); break; }
     case 'exportone': S.menu=null; toast(`Exportando <code>${esc(pdfName(el.dataset.code))}</code>`); break;
     case 'assign': case 'cc': { const key = act+'-'+id; S.menu = S.menu===key?null:key; placeMenu(); return; }
     case 'setassign': f.contract = el.dataset.v; f.reviewed = true; S.menu=null; toast(`Partida asignada a ${f.contract}`); break;
