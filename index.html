@@ -478,12 +478,12 @@ function renderTable(){
   // Como en el PDF de la proforma: subtotal de contratos, bloque fuera de contrato con su subtotal y total
   const showFuera = S.filter==='all' || allF.length;
   if (showFuera) t.push(subRow('sub', S.filter==='all' ? 'Subtotal contratos adjudicados' : 'Subtotal '+S.filter, tImp, tTO, tAnt, tMes));
-  const toReview = readOnly() ? 0 : FUERA.filter(f=>!f.reviewed).length;
   const ro = readOnly();
   if (S.filter==='all' || allF.length){
     tImp += sum(allF,'imp'); tTO += sum(allF,'ito'); tAnt += sum(allF,'iant'); tMes += sum(allF,'imes');
-    const what = CONTRACTS.length>1 ? 'revisa contrato y centro de coste' : 'revisa su centro de coste';
-    const badge = (toReview && S.filter==='all') ? `<span class="badge warn" style="margin-left:10px" title="Se asignan por defecto al primer contrato (${CONTRACTS[0].code}). Si no es el correcto, cámbialo; si lo es, confírmalo eligiéndolo de nuevo.">${IC.warn}${toReview} ${toReview===1?'partida asignada':'partidas asignadas'} por defecto · ${what}</span>` : '';
+    // Aviso fijo, sin contador (no hay dato de «revisada»): la asignación es por defecto y hay que revisarla
+    const tip = 'Son partidas proformadas que no estaban en ningún contrato adjudicado. Al añadirlas se les asigna por defecto el primer contrato firmado y un centro de coste, y van en el PDF de ese contrato, en su propio bloque. Revisa que el contrato y el centro de coste sean los correctos.';
+    const badge = (!ro && S.filter==='all' && FUERA.length) ? `<span class="badge warn" style="margin-left:10px" title="${tip}">${IC.warn}Asignadas por defecto · ¿qué significa?</span>` : '';
     // Bloque aparte (como en el PDF): el título no repite cifras, las lleva el subtotal del bloque
     t.push(`<div class="blocksep" aria-hidden="true"></div>`);
     t.push(`<div class="g parent fuera"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c nb" style="grid-column:2/10">Fuera de contrato adjudicado${badge}</span><span class="gap"></span><span class="c nb" style="grid-column:11/14"></span><span class="gap"></span><span class="c nb" style="grid-column:15/18"></span></div>`);
