@@ -165,6 +165,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .mi small{font-size:12px;line-height:16px;color:var(--muted);font-weight:400}
 .mi.row{flex-direction:row;align-items:center;justify-content:space-between}
 .sep{height:1px;background:var(--gray200);margin:4px 0}
+.menu.wide{min-width:320px}
+.mi.row small{white-space:nowrap}
 .menu.dl{width:300px;padding:12px;display:flex;flex-direction:column;gap:10px}
 .dl h3{margin:0;font-size:14px;font-weight:600}
 .ck{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;min-height:24px}
@@ -521,8 +523,8 @@ function menuHTML(){
   }
   if (m==='dl'){
     // Cada PDF lleva las partidas del contrato y las fuera de contrato asignadas; sin medición en el mes no se puede descargar
-    return `<div class="mh">Exportar un contrato (PDF)</div>` + CONTRACTS.map(c=>{ const n = c.rows.length + FUERA.filter(f=>f.contract===c.code).length, ok = hasMed(c);
-      return `<button class="mi row" type="button" role="menuitem" data-act="exportone" data-code="${c.code}" ${ok?'':'disabled title="No hay mediciones este mes"'}><span>${c.code}</span><small>${n} partidas</small></button>`; }).join('');
+    return `<div class="mh">Exportar un contrato (PDF)</div>` + CONTRACTS.map(c=>{ const nf = FUERA.filter(f=>f.contract===c.code).length, n = c.rows.length + nf, ok = hasMed(c);
+      return `<button class="mi row" type="button" role="menuitem" data-act="exportone" data-code="${c.code}" ${ok?'':'disabled title="No hay mediciones este mes"'}><span>${c.code}</span><small>${n} partidas${nf?` (${nf} fuera de contrato)`:''}</small></button>`; }).join('');
   }
   const [kind, idStr] = m.split('-'); const f = FUERA.find(x=>x.id===Number(idStr)); if (!f) return '';
   if (kind==='assign'){
@@ -541,7 +543,7 @@ function placeMenu(){
   const fl = $('float');
   if (!S.menu){ fl.hidden = true; fl.className = 'menu'; return; }
   const a = anchorFor(S.menu); if (!a){ S.menu = null; fl.hidden = true; return; }
-  fl.className = 'menu';
+  fl.className = S.menu==='dl' ? 'menu wide' : 'menu';
   fl.setAttribute('role', S.menu==='dl' ? 'menu' : 'listbox');
   fl.setAttribute('aria-label', S.menu==='dl' ? 'Exportar un contrato' : 'Opciones');
   fl.innerHTML = menuHTML(); fl.hidden = false;
