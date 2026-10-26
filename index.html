@@ -669,7 +669,7 @@ document.addEventListener('click',(e)=>{
       toast(S.view==='list' ? `Abriría ${tab} de todos los proveedores.` : `Abriría ${tab} solo de ${PROVIDER} (Épica 2).`); return; }
     case 'proyecto': toast('El cambio de proyecto no forma parte de este prototipo.'); return;
     case 'back': location.hash = ''; return;
-    case 'contrato': e.preventDefault(); toast(`Abriría la página del contrato ${el.dataset.code} (obligaciones e información del contrato).`); return;
+    case 'contrato': e.preventDefault(); toast(`Abriría la ficha del contrato ${el.dataset.code} en una pestaña nueva (obligaciones e información del contrato).`); return;
     case 'openprov': if (e.target.closest('input')) return; if (el.dataset.name===PROVIDER){ location.hash = 'proveedor'; } else { toast('En el prototipo solo se puede abrir la proforma de ' + PROVIDER + '.'); } return;
     case 'sort': { const k = el.dataset.k; S.sort = S.sort.k===k ? {k, dir:-S.sort.dir} : {k, dir: k==='name'?1:-1}; break; }
     case 'lsel': case 'lselall': return;
