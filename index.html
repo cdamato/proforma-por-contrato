@@ -517,8 +517,10 @@ function menuHTML(){
     }).join('');
   }
   if (m==='filter'){
-    const total = CONTRACTS.reduce((a,c)=>a+c.rows.length,0);
-    const opts = [['all','Todos los contratos',`${CONTRACTS.length} contratos · ${total} partidas`]].concat(CONTRACTS.map(c=>[c.code,c.code,`${c.rows.length} partidas`]));
+    // Mismo recuento que el menú de Exportar: al filtrar un contrato se ven también sus partidas fuera de contrato
+    const cnt = (n,nf)=> `${n+nf} partidas${nf?` (${nf} fuera de contrato)`:''}`;
+    const own = CONTRACTS.reduce((a,c)=>a+c.rows.length,0);
+    const opts = [['all','Todos los contratos',`${CONTRACTS.length} contratos · ${cnt(own, FUERA.length)}`]].concat(CONTRACTS.map(c=>[c.code,c.code,cnt(c.rows.length, FUERA.filter(f=>f.contract===c.code).length)]));
     return opts.map(([v,l,s])=>`<button class="mi ${S.filter===v?'on':''}" type="button" role="option" aria-selected="${S.filter===v}" data-act="setfilter" data-v="${v}"><span>${l}</span><small>${s}</small></button>`).join('');
   }
   if (m==='dl'){
@@ -543,7 +545,7 @@ function placeMenu(){
   const fl = $('float');
   if (!S.menu){ fl.hidden = true; fl.className = 'menu'; return; }
   const a = anchorFor(S.menu); if (!a){ S.menu = null; fl.hidden = true; return; }
-  fl.className = S.menu==='dl' ? 'menu wide' : 'menu';
+  fl.className = (S.menu==='dl' || S.menu==='filter') ? 'menu wide' : 'menu';
   fl.setAttribute('role', S.menu==='dl' ? 'menu' : 'listbox');
   fl.setAttribute('aria-label', S.menu==='dl' ? 'Exportar un contrato' : 'Opciones');
   fl.innerHTML = menuHTML(); fl.hidden = false;
