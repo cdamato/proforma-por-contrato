@@ -79,7 +79,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .ap-table .tb{border-radius:999px;padding:1px 8px;font-size:12px}
 .ap-count{font-size:13px;color:var(--muted);margin:0 0 8px}
 .ap-empty{padding:40px 16px;text-align:center;color:var(--muted);border:1px dashed var(--gray300);border-radius:8px}
-.mi-note{padding:6px 10px 6px;font-size:12px;color:var(--warn-fg);background:var(--warn-soft);border-radius:6px;margin-bottom:4px}
+.mi-note{padding:6px 10px 6px;font-size:12px;color:var(--fg);background:var(--warn-soft);border-radius:6px;margin-bottom:4px}
 .tab:hover{color:var(--fg)}
 .per{display:flex;align-items:center;gap:12px;height:52px;margin-left:auto}
 .per .tag.ok{background:var(--gray100)}
@@ -701,7 +701,7 @@ function render(){
   if (!ap) $('tab-proformas').setAttribute('aria-current','page');
   $('v-apuntes').hidden = !ap;
   // En Apuntes con «todos los periodos», el selector de arriba muestra «—» (sigue activo)
-  const perLabel = ()=>{ const p=curP(); const all = ap && S.apAll; $('per-label').textContent = all ? '—' : p.name; $('per-tag').hidden = all; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado'; };
+  const perLabel = ()=>{ const p=curP(); const all = ap && S.apAll; $('per-label').textContent = all ? '—' : p.name; $('per-tag').hidden = all; if (all) $('per-btn').title = 'Todos los periodos activo en Apuntes'; else $('per-btn').removeAttribute('title'); $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado'; };
   if (ap){
     $('v-list').hidden = true; $('content').hidden = true; $('empty').hidden = true; $('actionbar').hidden = true;
     $('crumb-root').hidden = list; $('crumb-sep').style.display = list ? 'none' : '';
