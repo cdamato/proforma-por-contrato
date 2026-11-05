@@ -45,6 +45,11 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .tab[aria-current="page"]{color:var(--fg);font-weight:500;border-bottom-color:var(--fg)}
 /* Apuntes contables */
 .ap-bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:16px 0}
+/* Control segmentado (SegmentGroup del 00_Pin0): el mes de arriba | todos los periodos, anchos fijos */
+.segp{display:inline-grid;grid-template-columns:160px 160px;height:36px;padding:3px;background:var(--gray100);border-radius:8px}
+.segp button{border:0;background:none;border-radius:6px;font:inherit;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+.segp button[aria-pressed="true"]{background:#fff;color:var(--fg);font-weight:500;box-shadow:0 1px 2px rgba(24,24,27,.12),0 0 0 1px rgba(24,24,27,.04)}
+.segp button:not([aria-pressed="true"]):hover{color:var(--fg)}
 .pchip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 6px 0 12px;border-radius:999px;background:var(--band-soft);color:#1E40AF;font-size:13px;font-weight:500;white-space:nowrap}
 .pchip button{width:22px;height:22px;border-radius:999px;border:0;background:none;color:inherit;display:flex;align-items:center;justify-content:center;padding:0}
 .pchip button:hover{background:rgba(30,64,175,.12)}
@@ -671,9 +676,8 @@ function renderApuntes(){
   const list = S.view==='list', p = curP();
   const provOf = a => a.prov || PROVIDER;
   // Chip de periodo: hereda el mes del selector de arriba; al quitarlo, todos los periodos (solo en Apuntes)
-  $('ap-chip').innerHTML = S.apAll
-    ? `<span class="pchip all">Todos los periodos<button type="button" data-act="apmonth" aria-label="Volver a filtrar por ${p.name.toLowerCase()}" title="Volver a ${p.name.toLowerCase()}">✕</button></span>`
-    : `<span class="pchip">Periodo: ${p.name.toLowerCase()}<button type="button" data-act="apall" aria-label="Quitar el filtro de periodo y ver todos los periodos" title="Ver todos los periodos">✕</button></span>`;
+  // Control segmentado: el primer segmento es el mes de arriba; el segundo, todos los periodos (solo en Apuntes)
+  $('ap-chip').innerHTML = `<span class="segp" role="group" aria-label="Periodo de los apuntes"><button type="button" data-act="apmonth" aria-pressed="${!S.apAll}">${p.name}</button><button type="button" data-act="apall" aria-pressed="${S.apAll}">Todos los periodos</button></span>`;
   const provs = [...new Set(APUNTES.map(provOf))].sort((a,b)=>a.localeCompare(b,'es'));
   const ps = $('ap-prov'); ps.hidden = !list;
   ps.innerHTML = `<option value="all">Todos los proveedores</option>` + provs.map(x=>`<option value="${esc(x)}" ${S.apProv===x?'selected':''}>${esc(x)}</option>`).join('');
