@@ -43,6 +43,32 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .tabs{display:flex;align-self:stretch;overflow-x:auto}
 .tab{display:flex;align-items:center;padding:0 12px;height:52px;background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:14px;color:var(--muted);white-space:nowrap}
 .tab[aria-current="page"]{color:var(--fg);font-weight:500;border-bottom-color:var(--fg)}
+/* Apuntes contables */
+.ap-bar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:16px 0}
+.pchip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 6px 0 12px;border-radius:999px;background:var(--band-soft);color:#1E40AF;font-size:13px;font-weight:500;white-space:nowrap}
+.pchip button{width:22px;height:22px;border-radius:999px;border:0;background:none;color:inherit;display:flex;align-items:center;justify-content:center;padding:0}
+.pchip button:hover{background:rgba(30,64,175,.12)}
+.pchip.all{background:var(--warn-soft);color:var(--warn-fg)}
+.pchip.all button:hover{background:rgba(154,52,18,.12)}
+.ap-sel{height:36px;border:1px solid var(--gray300);border-radius:6px;background:#fff;font:inherit;font-size:14px;padding:0 30px 0 10px;color:var(--fg)}
+.tipos{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tipos .lbl{font-size:12px;margin-right:2px}
+.tchip{border:0;border-radius:999px;padding:3px 10px;font-size:12px;line-height:18px;cursor:pointer;opacity:.55}
+.tchip[aria-pressed="true"]{opacity:1;box-shadow:0 0 0 1.5px currentColor inset}
+.t-todos{background:var(--gray100);color:#3F3F46}
+.t-acopio{background:#DBEAFE;color:#1E40AF}
+.t-anticipo{background:#FFEDD5;color:#9A3412}
+.t-cicd{background:#FCE7F3;color:#9D174D}
+.t-cdci{background:#EDE9FE;color:#5B21B6}
+.t-prevision{background:#CCFBF1;color:#115E59}
+.ap-table{width:100%;border-collapse:collapse;font-size:14px;min-width:980px}
+.ap-table th{background:var(--gray100);font-weight:500;text-align:left;padding:8px 10px;border-bottom:1px solid var(--gray200);white-space:nowrap}
+.ap-table td{padding:8px 10px;border-bottom:1px solid var(--gray200);border-right:1px solid var(--gray200);white-space:nowrap}
+.ap-table td:last-child,.ap-table th:last-child{text-align:right;border-right:0}
+.ap-table .tb{border-radius:999px;padding:1px 8px;font-size:12px}
+.ap-count{font-size:13px;color:var(--muted);margin:0 0 8px}
+.ap-empty{padding:40px 16px;text-align:center;color:var(--muted);border:1px dashed var(--gray300);border-radius:8px}
+.mi-note{padding:6px 10px 6px;font-size:12px;color:var(--warn-fg);background:var(--warn-soft);border-radius:6px;margin-bottom:4px}
 .tab:hover{color:var(--fg)}
 .per{display:flex;align-items:center;gap:12px;height:52px;margin-left:auto}
 .per .tag.ok{background:var(--gray100)}
@@ -217,7 +243,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 </header>
 <nav class="crumbs" id="crumbs" aria-label="Migas de pan"><button type="button" id="crumb-root" data-act="back">Control de costes</button><svg id="crumb-sep" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span id="crumb-prov" aria-current="page"></span></nav>
 <div class="navrow">
-  <div class="tabs"><button class="tab" type="button" aria-current="page">Proformas</button><button class="tab" type="button" data-act="apuntes">Apuntes contables</button><button class="tab" type="button" data-act="detalle">Detalle costes</button></div>
+  <div class="tabs"><button class="tab" type="button" id="tab-proformas" data-act="tabproformas">Proformas</button><button class="tab" type="button" id="tab-apuntes" data-act="tabapuntes">Apuntes contables</button><button class="tab" type="button" data-act="detalle">Detalle costes</button></div>
   <div class="per">
     <span class="lbl">Periodo</span>
     <button class="sel" type="button" id="per-btn" aria-haspopup="listbox" aria-expanded="false" data-act="periodo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b id="per-label">Septiembre 2026</b><span class="tag" id="per-tag">Actual · abierto</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
@@ -226,6 +252,18 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 </div>
 
 <main class="wrap">
+  <div id="v-apuntes" hidden>
+    <div class="ap-bar">
+      <button class="btn primary" type="button" id="ap-add" data-act="apadd">Añadir apunte</button>
+    </div>
+    <div class="ap-bar" style="margin-top:0">
+      <span id="ap-chip"></span>
+      <select class="ap-sel" id="ap-prov" aria-label="Proveedor"></select>
+      <div class="tipos" id="ap-tipos"></div>
+    </div>
+    <p class="ap-count" id="ap-count"></p>
+    <div class="tscroll"><table class="ap-table" id="ap-table"></table></div>
+  </div>
   <div id="v-list" hidden>
   <section class="cards" aria-label="Resumen del proyecto">
     <div class="card"><span class="lbl">Presupuesto del proyecto</span><span class="big num" id="l-pres"></span><span class="help" id="l-pres-help"></span></div>
@@ -355,6 +393,23 @@ const HIST = {
   'FRANCISCO TERNERO S.L.': {5:12000, 6:24000, 7:30000, 8:30000, 9:36839.742},
   'VALLADOS JOSE ANTONIO CHAMIZO S.L.U': {5:0, 6:0, 7:4000, 8:9492.5, 9:9492.5}
 };
+// Apuntes contables de ejemplo (m = mes 5..9). Se reparten entre varios meses para que «Todos los periodos» tenga sentido.
+const TIPOS = [['acopio','Acopio'],['anticipo','Anticipo'],['cicd','CI → CD'],['cdci','CD → CI'],['prevision','Previsión']];
+const APUNTES = [
+  ['acopio','18/09/2026',9,'HC-26150029',null,'Hierro corrugado B500S',2000],
+  ['anticipo','12/09/2026',9,'HC-26150046',null,'Anticipo torre móvil grande',750],
+  ['prevision','25/09/2026',9,'HC-26150072',null,'Previsión montaje bloque 2',3078.5],
+  ['cicd','20/09/2026',9,'—','VALLADOS JOSE ANTONIO CHAMIZO S.L.U','Vallado perimetral fase 2',1200],
+  ['acopio','28/08/2026',8,'HC-26150046',null,'Andamios y plataformas',900],
+  ['cdci','14/08/2026',8,'HC-26150029',null,'Reclasificación limpieza',-22],
+  ['anticipo','05/08/2026',8,'—','AMV10 GESTIONES S.L.','Anticipo gestión de residuos',1500],
+  ['prevision','22/07/2026',7,'HC-26150029',null,'Previsión alquiler adicional',212],
+  ['acopio','10/07/2026',7,'—','FRANCISCO TERNERO S.L.','Cemento Portland 42.5R',1500],
+  ['cicd','30/06/2026',6,'HC-26150046',null,'Traspaso coste indirecto',108],
+  ['anticipo','15/06/2026',6,'—','FRANCISCO TERNERO S.L.','Anticipo carpintería',2000],
+  ['acopio','20/05/2026',5,'HC-26150029',null,'Torre móvil unidad',690],
+  ['prevision','08/05/2026',5,'—','AMV10 GESTIONES S.L.','Previsión transporte',350]
+].map(([tipo,fecha,m,contrato,prov,con,imp])=>({tipo,fecha,m,contrato,prov:prov||null,con,imp}));
 const CCS = [['CI','Coste indirecto'],['BR','Bajo rasante'],['URB','Urbanización'],['SRM','Sobre rasante madera'],['SRH','Sobre rasante hormigón'],['BAL','Balcón'],['SC','Soft Cost']];
 
 // Periodos del proveedor: septiembre es el actual; abril y marzo no tienen mediciones ni proforma
@@ -367,7 +422,7 @@ const PERIODS = [
   {m:4, name:'Abril 2026', num:0},
   {m:3, name:'Marzo 2026', num:0}
 ];
-const S = { view:'list', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9 };
+const S = { view:'list', tab:'proformas', apAll:false, apProv:'all', apTipo:'todos', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9 };
 const curP = ()=>PERIODS.find(p=>p.m===S.period);
 const isPast = ()=>S.period!==9;
 const readOnly = ()=>S.liquidated || isPast();
@@ -509,11 +564,12 @@ function renderTable(){
 function menuHTML(){
   const m = S.menu; if (!m) return '';
   if (m==='periodo'){
-    return PERIODS.map(p=>{
+    const note = (S.tab==='apuntes' && S.apAll) ? `<div class="mi-note">Apuntes: todos los periodos. Elige un mes para volver a filtrar.</div>` : '';
+    return note + PERIODS.map(p=>{
       // En el listado se puede ir a cualquier mes; en el proveedor, los meses sin proforma están deshabilitados
-      const list = S.view==='list', off = !list && !p.num;
+      const list = S.view==='list', off = !list && !p.num && S.tab!=='apuntes';
       const sub = list ? (p.m===9 ? 'Actual · abierto' : 'Cerrado') : p.m===9 ? `Actual · abierto · Proforma nº ${p.num}` : p.num ? `Cerrado · Proforma nº ${p.num}` : 'Sin mediciones ni proforma';
-      return `<button class="mi ${S.period===p.m?'on':''}" type="button" role="option" aria-selected="${S.period===p.m}" data-act="setperiod" data-v="${p.m}" ${off?'disabled':''}><span>${p.name}</span><small>${sub}</small></button>`;
+      return `<button class="mi ${S.period===p.m && !(S.tab==='apuntes'&&S.apAll)?'on':''}" type="button" role="option" aria-selected="${S.period===p.m}" data-act="setperiod" data-v="${p.m}" ${off?'disabled':''}><span>${p.name}</span><small>${sub}</small></button>`;
     }).join('');
   }
   if (m==='filter'){
@@ -605,8 +661,46 @@ function renderList(){
   t.push(`<div class="lg-g total" role="row"><span class="c" style="grid-column:1/3">Total</span><span class="c e">${sum(rows,'n')}</span><span class="c e">${eur(sum(rows,'total'))}</span><span class="c e">${eur(sum(rows,'org'))}</span><span class="c e nb">${eur(sum(rows,'total')-sum(rows,'org'))}</span></div>`);
   $('ltable').innerHTML = t.join('');
 }
+function renderApuntes(){
+  const list = S.view==='list', p = curP();
+  const provOf = a => a.prov || PROVIDER;
+  // Chip de periodo: hereda el mes del selector de arriba; al quitarlo, todos los periodos (solo en Apuntes)
+  $('ap-chip').innerHTML = S.apAll
+    ? `<span class="pchip all">Todos los periodos<button type="button" data-act="apmonth" aria-label="Volver a filtrar por ${p.name.toLowerCase()}" title="Volver a ${p.name.toLowerCase()}">✕</button></span>`
+    : `<span class="pchip">Periodo: ${p.name.toLowerCase()}<button type="button" data-act="apall" aria-label="Quitar el filtro de periodo y ver todos los periodos" title="Ver todos los periodos">✕</button></span>`;
+  const provs = [...new Set(APUNTES.map(provOf))].sort((a,b)=>a.localeCompare(b,'es'));
+  const ps = $('ap-prov'); ps.hidden = !list;
+  ps.innerHTML = `<option value="all">Todos los proveedores</option>` + provs.map(x=>`<option value="${esc(x)}" ${S.apProv===x?'selected':''}>${esc(x)}</option>`).join('');
+  $('ap-tipos').innerHTML = `<span class="lbl">Tipo de apunte</span>` + [['todos','Todos']].concat(TIPOS).map(([k,l])=>`<button type="button" class="tchip t-${k}" data-act="aptipo" data-v="${k}" aria-pressed="${S.apTipo===k}">${l}</button>`).join('');
+  let rows = APUNTES.filter(a=> (S.apAll || a.m===S.period) && (list ? (S.apProv==='all' || provOf(a)===S.apProv) : provOf(a)===PROVIDER) && (S.apTipo==='todos' || a.tipo===S.apTipo));
+  rows.sort((a,b)=> b.m-a.m || b.fecha.localeCompare(a.fecha));
+  const pname = m => PERIODS.find(x=>x.m===m).name;
+  $('ap-count').textContent = `${rows.length} ${rows.length===1?'apunte':'apuntes'} · ${S.apAll ? 'todos los periodos' : p.name.toLowerCase()}`;
+  const tl = Object.fromEntries(TIPOS);
+  $('ap-table').innerHTML = rows.length
+    ? `<thead><tr><th>Tipo</th><th>Fecha</th><th>Periodo</th><th>Contrato</th>${list?'<th>Proveedor</th>':''}<th>Concepto</th><th>Importe</th></tr></thead><tbody>` +
+      rows.map(a=>`<tr><td><span class="tb t-${a.tipo}">${tl[a.tipo]}</span></td><td>${a.fecha}</td><td>${pname(a.m)}</td><td>${a.contrato}</td>${list?`<td>${esc(provOf(a))}</td>`:''}<td>${esc(a.con)}</td><td>${fmt(a.imp,2)} €</td></tr>`).join('') + '</tbody>'
+    : `<tbody><tr><td style="border:0;padding:0"><div class="ap-empty">No hay apuntes en ${S.apAll?'ningún periodo':p.name.toLowerCase()} con estos filtros.</div></td></tr></tbody>`;
+  // Añadir apunte usa el mes de arriba; solo en el periodo abierto
+  $('ap-add').disabled = isPast(); $('ap-add').title = isPast() ? `${p.name} está cerrado` : `Se creará en ${p.name.toLowerCase()}`;
+}
 function render(){
   const list = S.view==='list';
+  const ap = S.tab==='apuntes';
+  $('tab-proformas').setAttribute('aria-current', ap?'false':'page'); $('tab-apuntes').setAttribute('aria-current', ap?'page':'false');
+  if (!ap) $('tab-proformas').setAttribute('aria-current','page');
+  $('v-apuntes').hidden = !ap;
+  // En Apuntes con «todos los periodos», el selector de arriba muestra «—» (sigue activo)
+  const perLabel = ()=>{ const p=curP(); const all = ap && S.apAll; $('per-label').textContent = all ? '—' : p.name; $('per-tag').hidden = all; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado'; };
+  if (ap){
+    $('v-list').hidden = true; $('content').hidden = true; $('empty').hidden = true; $('actionbar').hidden = true;
+    $('crumb-root').hidden = list; $('crumb-sep').style.display = list ? 'none' : '';
+    $('crumb-prov').textContent = list ? 'Control de costes' : PROVIDER;
+    $('prov-name').textContent = list ? 'Control de costes' : PROVIDER;
+    $('close-per').hidden = true;
+    document.title = (list ? 'Control de costes' : PROVIDER) + ' · Apuntes contables';
+    perLabel(); renderApuntes(); placeMenu(); return;
+  }
   // Las migas se mantienen en las dos vistas para que las pestañas no cambien de posición
   $('v-list').hidden = !list; $('crumb-root').hidden = list; $('crumb-sep').style.display = list ? 'none' : '';
   $('crumb-prov').textContent = list ? 'Control de costes' : PROVIDER;
@@ -614,13 +708,13 @@ function render(){
   document.title = list ? 'Control de costes · Proformas' : 'Proforma · ' + PROVIDER;
   if (list){
     $('prov-name').textContent = 'Control de costes';
-    const p = curP(); $('per-label').textContent = p.name; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado';
+    const p = curP(); $('per-label').textContent = p.name; $('per-tag').hidden = false; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado';
     $('empty').hidden = true; $('content').hidden = true; $('actionbar').hidden = true;
     renderList(); placeMenu(); return;
   }
   $('prov-name').textContent = PROVIDER; $('crumb-prov').textContent = PROVIDER;
   const p = curP();
-  $('per-label').textContent = p.name; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado';
+  $('per-label').textContent = p.name; $('per-tag').hidden = false; $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado';
   const none = !p.num;
   $('empty').hidden = !none; $('content').hidden = none;
   if (none){
@@ -666,15 +760,20 @@ document.addEventListener('click',(e)=>{
     case 'liquidar': S.liquidated=true; FUERA.forEach(x=>{x.checked=false; x.reviewed=true;}); S.menu=null; toast('Proveedor liquidado. Las partidas fuera de contrato quedan confirmadas en su contrato. (El diálogo de confirmación es un flujo aparte.)'); break;
     case 'unliq': S.liquidated=false; break;
     case 'periodo': S.menu = S.menu==='periodo'?null:'periodo'; placeMenu(); return;
-    case 'setperiod': S.period=Number(el.dataset.v); S.menu=null; FUERA.forEach(x=>x.checked=false); break;
+    // Elegir un mes arriba vuelve a aplicarlo también en Apuntes (quita «todos los periodos»)
+    case 'setperiod': S.period=Number(el.dataset.v); S.apAll=false; S.menu=null; FUERA.forEach(x=>x.checked=false); break;
+    case 'tabproformas': S.tab='proformas'; S.menu=null; break;
+    case 'tabapuntes': S.tab='apuntes'; S.menu=null; break;
+    case 'apall': S.apAll=true; break;
+    case 'apmonth': S.apAll=false; break;
+    case 'aptipo': S.apTipo=el.dataset.v; break;
+    case 'apadd': toast(`Abriría el diálogo para crear un apunte en ${curP().name.toLowerCase()}.`); return;
     // Las pestañas tienen el alcance de la página: en Control de costes, todos los proveedores; dentro de un proveedor, solo ese
-    case 'apuntes': case 'detalle': {
-      const tab = act==='apuntes' ? 'Apuntes contables' : 'Detalle costes';
-      toast(S.view==='list' ? `Abriría ${tab} de todos los proveedores.` : `Abriría ${tab} solo de ${PROVIDER} (Épica 2).`); return; }
+    case 'detalle': toast(S.view==='list' ? 'Abriría Detalle costes de todos los proveedores.' : `Abriría Detalle costes solo de ${PROVIDER} (Épica 2).`); return;
     case 'proyecto': toast('El cambio de proyecto no forma parte de este prototipo.'); return;
     case 'back': location.hash = ''; return;
     case 'contrato': e.preventDefault(); toast(`Abriría la ficha del contrato ${el.dataset.code} en una pestaña nueva (obligaciones e información del contrato).`); return;
-    case 'openprov': if (e.target.closest('input')) return; if (el.dataset.name===PROVIDER){ location.hash = 'proveedor'; } else { toast('En el prototipo solo se puede abrir la proforma de ' + PROVIDER + '.'); } return;
+    case 'openprov': if (e.target.closest('input')) return; if (el.dataset.name===PROVIDER){ S.tab='proformas'; location.hash = 'proveedor'; } else { toast('En el prototipo solo se puede abrir la proforma de ' + PROVIDER + '.'); } return;
     case 'sort': { const k = el.dataset.k; S.sort = S.sort.k===k ? {k, dir:-S.sort.dir} : {k, dir: k==='name'?1:-1}; break; }
     case 'lsel': case 'lselall': return;
     case 'cerrar': toast('Cerrar periodo es un flujo aparte y no está en este prototipo.'); return;
@@ -715,12 +814,14 @@ function route(){
   const h = location.hash;
   if (h==='#agosto'){ S.period = 8; S.view = 'prov'; }
   else if (h==='#abril'){ S.period = 4; S.view = 'list'; }
+  else if (h==='#apuntes'){ S.view = 'list'; S.tab = 'apuntes'; }
   else S.view = h==='#proveedor' ? 'prov' : 'list';
   // El bloque fuera de contrato se muestra siempre desplegado al entrar en un proveedor
   if (S.view==='prov') S.fueraOpen = true;
   render(); scrollTo(0,0);
 }
 addEventListener('hashchange', route);
+$('ap-prov').addEventListener('change',(e)=>{ S.apProv = e.target.value; renderApuntes(); });
 $('lq').addEventListener('input',(e)=>{ S.lq = e.target.value.trim().toLowerCase(); renderList(); });
 route();
 })();
