@@ -158,8 +158,28 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .scroll-hint{display:none;font-size:12px;color:var(--muted);margin:0 0 8px}
 .table{width:100%;min-width:1683px}
-.g{display:grid;grid-template-columns:32px 141px 64px 70px minmax(300px,1fr) 100px 56px 112px 112px 12px 112px 112px 112px 12px 112px 112px 112px}
-.c{height:36px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--gray200);border-right:1px solid var(--gray200);white-space:nowrap;overflow:hidden;min-width:0;background:#fff}
+/* Epic 3 · Concepto legible: tabla al 100 %, cifras al ancho de su peor caso (17 caracteres con «€»),
+   Concepto con el resto (mínimo 280 px), Contrato y Código en una sola columna */
+#table{min-width:1890px}
+.g{display:grid;grid-template-columns:32px 150px 64px minmax(280px,1fr) 128px 64px 140px 156px 12px 128px 128px 128px 12px 156px 156px 156px}
+.c{min-height:36px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--gray200);border-right:1px solid var(--gray200);white-space:nowrap;overflow:hidden;min-width:0;background:#fff}
+/* Concepto en 2 líneas como máximo; el resto, en el tooltip */
+.c.cc2{white-space:normal;padding-block:8px}
+.cpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;line-height:18px}
+/* Cabeceras completas, en 2 líneas si no caben */
+.h.w2{white-space:normal;line-height:16px;padding-block:6px}
+/* Columnas fijas al hacer scroll: Contrato · Código y Concepto (CC se va con el scroll) */
+.sk{position:sticky;z-index:2}
+.sk0{left:0}.sk1{left:32px}.sk2{left:182px}
+.h.sk{z-index:3}
+.tscroll.scrolled .sk2{box-shadow:6px 0 6px -4px rgba(0,0,0,.16)}
+.ov{overflow:visible}
+.stl{position:sticky;left:8px;display:inline-flex;align-items:center}
+/* Código de partida bajo su contrato, con sangría */
+.idc{padding-left:20px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.stack{flex-direction:column;align-items:stretch;justify-content:center}
+.stack .cellsel{height:26px}
+.fcode{padding:0 8px 4px;font-size:12px;line-height:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .c.e{justify-content:flex-end;font-variant-numeric:tabular-nums}
 .c.nb{border-right:0}
 .gap{background:transparent}
@@ -189,8 +209,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .clink svg{color:var(--muted);flex-shrink:0}
 .add{display:flex;align-items:center;gap:6px;background:none;border:0;padding:6px 8px;border-radius:6px;font-size:12px;font-weight:500;color:#3F3F46}
 .add:hover{background:var(--gray100)}
-.addrow{grid-column:1/10;height:40px;display:flex;align-items:center;padding-left:4px;border-bottom:1px solid var(--gray200)}
-.empty{grid-column:1/10;padding:12px 8px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--gray200)}
+.addrow{grid-column:1/9;height:40px;display:flex;align-items:center;padding-left:4px;border-bottom:1px solid var(--gray200)}
+.empty{grid-column:1/9;padding:12px 8px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--gray200)}
 .tip{position:fixed;z-index:70;max-width:min(420px,calc(100vw - 32px));background:#18181B;color:#fff;font-size:12px;line-height:17px;padding:6px 10px;border-radius:6px;box-shadow:var(--shadow);pointer-events:none;white-space:normal}
 .ro .cellsel,.ro .add,.ro .ck-cell input{pointer-events:none;opacity:.5}
 
@@ -221,7 +241,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .toast code{font-family:inherit;color:#D4D4D8}
 
 /* responsive */
-@media (max-width:1714px){.scroll-hint{display:block}}
+@media (max-width:1922px){.scroll-hint{display:block}}
 @media (max-width:1180px){
   .cards{grid-template-columns:1fr 1fr;gap:16px}
   .cards .card:last-child{grid-column:1/-1}
@@ -522,9 +542,9 @@ const blankMed = `<span class="c"></span><span class="c"></span><span class="c n
 
 function renderTable(){
   const t = [];
-  t.push(`<div class="g"><span style="grid-column:1/11"></span><span class="c band" style="grid-column:11/18">Proforma subcontrata</span></div>`);
-  t.push(`<div class="g"><span class="c hb" style="grid-column:1/10">Contrato adjudicado</span><span class="gap"></span><span class="c hb cen" style="grid-column:11/14">Medición</span><span class="gap"></span><span class="c hb cen" style="grid-column:15/18">Importe</span></div>`);
-  t.push(`<div class="g"><span class="c h" style="grid-column:1/3">Contrato</span><span class="c h"><abbr title="Centro de coste" style="text-decoration:none">CC</abbr></span><span class="c h">Código</span><span class="c h">Concepto</span><span class="c h e">Cantidad</span><span class="c h">Ud.</span><span class="c h e">Precio unitario</span><span class="c h e nb">Importe</span><span class="gap"></span><span class="c h e">Total origen</span><span class="c h e">Prov. anterior</span><span class="c h e nb">Prov. mes</span><span class="gap"></span><span class="c h e">Total origen</span><span class="c h e">Prov. anterior</span><span class="c h e nb">Prov. mes</span></div>`);
+  t.push(`<div class="g"><span style="grid-column:1/10"></span><span class="c band" style="grid-column:10/17">Proforma subcontrata</span></div>`);
+  t.push(`<div class="g"><span class="c hb ov" style="grid-column:1/9"><span class="stl">Contrato adjudicado</span></span><span class="gap"></span><span class="c hb cen" style="grid-column:10/13">Medición</span><span class="gap"></span><span class="c hb cen" style="grid-column:14/17">Importe</span></div>`);
+  t.push(`<div class="g"><span class="c h w2 sk sk0" style="grid-column:1/3">Contrato · Código</span><span class="c h w2"><abbr title="Centro de coste" style="text-decoration:none">CC</abbr></span><span class="c h w2 sk sk2">Concepto</span><span class="c h w2 e">Cantidad</span><span class="c h w2">Ud.</span><span class="c h w2 e">Precio unitario</span><span class="c h w2 e nb">Importe</span><span class="gap"></span><span class="c h w2 e">Total origen</span><span class="c h w2 e">Provisión anterior</span><span class="c h w2 e nb">Provisión mes</span><span class="gap"></span><span class="c h w2 e">Total origen</span><span class="c h w2 e">Provisión anterior</span><span class="c h w2 e nb">Provisión mes</span></div>`);
 
   let tImp=0,tTO=0,tAnt=0,tMes=0;
   for (const c of visibleContracts()){
@@ -534,12 +554,12 @@ function renderTable(){
     tImp += st.imp; tTO += sum(c.rows,'ito'); tAnt += sum(c.rows,'iant'); tMes += sum(c.rows,'imes');
     if (S.q && !rows.length) continue;
     const extra = '';
-    t.push(`<div class="g parent"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c"><a class="clink" href="#contrato" data-act="contrato" data-code="${c.code}" title="Abrir el contrato ${c.code}">${c.code}${IC.out}</a></span><span class="c meta" style="grid-column:3/9"><span class="t">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
+    t.push(`<div class="g parent"><span class="c sk sk0" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c sk sk1"><a class="clink" href="#contrato" data-act="contrato" data-code="${c.code}" title="Abrir el contrato ${c.code}">${c.code}${IC.out}</a></span><span class="c"></span><span class="c meta cc2 sk sk2"><span class="t cpt">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c" style="grid-column:5/8"></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
     if (open) for (const r of rows)
-      t.push(`<div class="g"><span class="c guide"><i></i></span><span class="c"></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c">${esc(r.cod)}</span><span class="c"><span class="t">${esc(r.con)}</span></span><span class="c e">${qty(r.cant)}</span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
+      t.push(`<div class="g"><span class="c guide sk sk0"><i></i></span><span class="c sk sk1"><span class="idc" title="Código de la partida">${esc(r.cod)}</span></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c cc2 sk sk2"><span class="t cpt">${esc(r.con)}</span></span><span class="c e">${qty(r.cant)}</span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
   }
 
-  const subRow = (cls,label,a,b,c,d)=>`<div class="g ${cls}"><span class="c" style="grid-column:1/9">${label}</span><span class="c e nb">${eur(a)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(b)}</span><span class="c e">${eur(c)}</span><span class="c e nb">${eur(d)}</span></div>`;
+  const subRow = (cls,label,a,b,c,d)=>`<div class="g ${cls}"><span class="c ov sk sk0" style="grid-column:1/3;z-index:4">${label}</span><span class="c"></span><span class="c sk sk2"></span><span class="c" style="grid-column:5/8"></span><span class="c e nb">${eur(a)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(b)}</span><span class="c e">${eur(c)}</span><span class="c e nb">${eur(d)}</span></div>`;
   const allF = visibleFuera(), vf = allF.filter(matches);
   // Como en el PDF de la proforma: subtotal de contratos, bloque fuera de contrato con su subtotal y total
   const showFuera = S.filter==='all' || allF.length;
@@ -552,14 +572,14 @@ function renderTable(){
     const badge = (!ro && S.filter==='all' && FUERA.length) ? `<span class="badge warn" style="margin-left:10px" title="${tip}">${IC.warn}Asignadas por defecto · ¿qué significa?</span>` : '';
     // Bloque aparte (como en el PDF): el título no repite cifras, las lleva el subtotal del bloque
     t.push(`<div class="blocksep" aria-hidden="true"></div>`);
-    t.push(`<div class="g parent fuera"><span class="c" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c nb" style="grid-column:2/10">Fuera de contrato adjudicado${badge}</span><span class="gap"></span><span class="c nb" style="grid-column:11/14"></span><span class="gap"></span><span class="c nb" style="grid-column:15/18"></span></div>`);
+    t.push(`<div class="g parent fuera"><span class="c sk sk0" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c nb ov sk sk1" style="z-index:4">Fuera de contrato adjudicado${badge}</span><span class="c nb" style="grid-column:3/9"></span><span class="gap"></span><span class="c nb" style="grid-column:10/13"></span><span class="gap"></span><span class="c nb" style="grid-column:14/17"></span></div>`);
     if (S.fueraOpen || S.q){
       for (const f of vf){
         const ccName = f.cc==='—' ? 'Sin centro de coste' : (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
         const lead = ro
-          ? `<span class="c guide"><i></i></span><span class="c">${f.contract}</span><span class="c" title="${ccName}">${f.cc}</span>`
-          : `<span class="c cen ck-cell pad0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract}">${f.contract}${IC.caret}</button></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span>`;
-        t.push(`<div class="g">${lead}<span class="c">${esc(f.cod)}</span><span class="c"><span class="t">${esc(f.con)}</span></span><span class="c e">${qty(f.cant)}</span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
+          ? `<span class="c guide sk sk0"><i></i></span><span class="c stack sk sk1"><span style="padding:0 8px">${f.contract}</span><small class="fcode" title="Código de la partida">${esc(f.cod)}</small></span><span class="c" title="${ccName}">${f.cc}</span>`
+          : `<span class="c cen ck-cell pad0 sk sk0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0 stack sk sk1"><button class="cellsel" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract}">${f.contract}${IC.caret}</button><small class="fcode" title="Código de la partida">${esc(f.cod)}</small></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span>`;
+        t.push(`<div class="g">${lead}<span class="c cc2 sk sk2"><span class="t cpt">${esc(f.con)}</span></span><span class="c e">${qty(f.cant)}</span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
       }
       if (!vf.length) t.push(`<div class="g"><div class="empty">${S.q?'Ninguna partida fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div></div>`);
       if (S.filter==='all' && !ro) t.push(`<div class="g"><div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir partida</button></div></div>`);
@@ -567,7 +587,7 @@ function renderTable(){
     t.push(subRow('sub fuera','Subtotal fuera de contrato', sum(allF,'imp'), sum(allF,'ito'), sum(allF,'iant'), sum(allF,'imes')));
   }
   const label = S.filter==='all' ? 'Total proveedor' : 'Total '+S.filter;
-  t.push(`<div class="g total"><span class="c" style="grid-column:1/9">${label}</span><span class="c e nb">${eur(tImp)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(tTO)}</span><span class="c e">${eur(tAnt)}</span><span class="c e nb">${eur(tMes)}</span></div>`);
+  t.push(`<div class="g total"><span class="c ov sk sk0" style="grid-column:1/3;z-index:4">${label}</span><span class="c"></span><span class="c sk sk2"></span><span class="c" style="grid-column:5/8"></span><span class="c e nb">${eur(tImp)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(tTO)}</span><span class="c e">${eur(tAnt)}</span><span class="c e nb">${eur(tMes)}</span></div>`);
   $('table').innerHTML = t.join('');
 }
 
@@ -806,7 +826,7 @@ addEventListener('scroll', ()=>{ if (S.menu) placeMenu(); }, {passive:true});
 // Tooltip para texto truncado (conceptos y resúmenes de contrato)
 const tip = $('tip');
 function showTip(el){
-  if (!el || el.scrollWidth <= el.clientWidth + 1){ tip.hidden = true; return; }
+  if (!el || (el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1)){ tip.hidden = true; return; }
   tip.textContent = el.textContent; tip.hidden = false;
   const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
   let left = Math.max(16, Math.min(r.left - 10, innerWidth - w - 16));
@@ -815,7 +835,7 @@ function showTip(el){
 }
 $('table').addEventListener('mouseover', (e)=>{ const el = e.target.closest('.t'); if (el) showTip(el); });
 $('table').addEventListener('mouseout', (e)=>{ const el = e.target.closest('.t'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
-$('tscroll').addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
+$('tscroll').addEventListener('scroll', ()=>{ tip.hidden = true; $('tscroll').classList.toggle('scrolled', $('tscroll').scrollLeft>0); }, {passive:true});
 addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
 
 // Rutas: # (listado) · #proveedor · #agosto (proveedor en agosto) · #abril (listado de un mes sin proformas)
