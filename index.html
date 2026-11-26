@@ -159,8 +159,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .table{width:100%;min-width:1683px}
 /* Epic 3 · Concepto legible: tabla al 100 %, cifras al ancho de su peor caso (17 caracteres con «€»),
    Concepto con el resto (mínimo 280 px), Contrato y Código en una sola columna */
-#table{min-width:1890px}
-.g{display:grid;grid-template-columns:32px 150px 64px minmax(280px,1fr) 128px 64px 140px 156px 12px 128px 128px 128px 12px 156px 156px 156px}
+#table{min-width:1858px}
+.g{display:grid;grid-template-columns:32px 150px 64px minmax(280px,1fr) 128px 64px 140px 148px 12px 128px 128px 128px 12px 148px 148px 148px}
 .c{min-height:36px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--gray200);border-right:1px solid var(--gray200);white-space:nowrap;overflow:hidden;min-width:0;background:#fff}
 /* Concepto en 2 líneas como máximo; el resto, en el tooltip */
 .c.cc2{white-space:normal;padding-block:8px}
@@ -189,6 +189,9 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .idc{padding-left:20px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .stack{flex-direction:column;align-items:stretch;justify-content:center}
 .stack .cellsel{height:26px}
+.codein{margin-left:20px;width:calc(100% - 28px);height:28px;border:1px solid var(--gray300);border-radius:6px;padding:0 8px;font:inherit;font-size:13px;background:#fff;color:var(--fg)}
+.codein::placeholder{color:#A1A1AA}
+.codein:focus{outline:2px solid #18181B;outline-offset:-1px}
 .fcode{padding:0 8px 4px;font-size:12px;line-height:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .c.e{justify-content:flex-end;font-variant-numeric:tabular-nums}
 .c.nb{border-right:0}
@@ -364,7 +367,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 </main>
 
 <div class="menu" id="float" hidden></div>
-<div class="actionbar" id="actionbar" hidden><span id="ab-count"></span><button class="btn danger" type="button" data-act="delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3"/></svg>Eliminar</button></div>
+<div class="actionbar" id="actionbar" hidden><span id="ab-count"></span><button class="btn" type="button" id="ab-assign" data-act="bulkassign" aria-haspopup="listbox" aria-expanded="false">Asignar a contrato<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><button class="btn danger" type="button" data-act="delete"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3"/></svg>Eliminar</button></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <div class="tip" id="tip" role="tooltip" hidden></div>
 
@@ -486,7 +489,8 @@ function fmt(n, dec=3){
   if (i.length >= 5) i = i.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
   return (neg?'-':'') + i + (dec?','+d:'');
 }
-const eur = (n)=>fmt(n)+' €';
+const eur = (n)=>fmt(n,2)+' €';           // importes: 2 decimales (Pol, 26/11)
+const eurPU = (n)=>fmt(n,3)+' €';         // precio unitario: 3 decimales (hay precios como 0,040 €)
 // Cantidades: sin decimales forzados (hasta 3 si los tiene)
 const qty = (n)=>{ if (Math.abs(n) < 0.0005) return '0'; const s = fmt(n); return s.includes(',') ? s.replace(/,?0+$/,'') : s; };
 const pct = (n,d=2)=>{ const v = Math.round(n*Math.pow(10,d+2))/Math.pow(10,d); return v.toFixed(d).replace(/\.?0+$/,'').replace('.',',') + ' %'; };
@@ -566,7 +570,7 @@ function renderTable(){
     const extra = '';
     t.push(`<div class="g parent"><span class="c sk sk0" style="padding:0 4px"><button class="tog" type="button" data-act="toggle" data-code="${c.code}" aria-expanded="${open}" aria-label="${open?'Plegar':'Desplegar'} ${c.code}">${IC.chev(open)}</button></span><span class="c sk sk1"><a class="clink" href="#contrato" data-act="contrato" data-code="${c.code}" title="Abrir el contrato ${c.code}">${c.code}${IC.out}</a></span><span class="c"></span><span class="c meta sk sk2 spill"><span class="t">${c.rows.length} partidas · avance ${pct(st.av,1)} · saldo ${eur(st.saldo)}${extra}</span></span><span class="c" style="grid-column:5/8"></span><span class="c e nb">${eur(st.imp)}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(st.ito)}</span><span class="c e">${eur(st.iant)}</span><span class="c e nb">${eur(st.imes)}</span></div>`);
     if (open) for (const r of rows)
-      t.push(`<div class="g"><span class="c guide sk sk0"><i></i></span><span class="c sk sk1"><span class="idc" title="Código de la partida">${esc(r.cod)}</span></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c cc2 sk sk2"><span class="t cpt">${esc(r.con)}</span></span><span class="c e">${qty(r.cant)}</span><span class="c">${esc(r.ud)}</span><span class="c e">${eur(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
+      t.push(`<div class="g"><span class="c guide sk sk0"><i></i></span><span class="c sk sk1"><span class="idc" title="Código de la partida">${esc(r.cod)}</span></span><span class="c"><abbr title="Coste indirecto" style="text-decoration:none">${r.cc}</abbr></span><span class="c cc2 sk sk2"><span class="t cpt">${esc(r.con)}</span></span><span class="c e">${qty(r.cant)}</span><span class="c">${esc(r.ud)}</span><span class="c e">${eurPU(r.pu)}</span><span class="c e nb">${eur(r.imp)}</span><span class="gap"></span>${nums(r)}</div>`);
   }
 
   const subRow = (cls,label,a,b,c,d)=>`<div class="g ${cls}"><span class="c ov nb sk sk0" style="grid-column:1/3;z-index:4">${label}</span><span class="c nb"></span><span class="c nb sk sk2"></span><span class="c" style="grid-column:5/8"></span><span class="c e nb">${eur(a)}</span><span class="gap"></span>${blankMed}<span class="gap"></span><span class="c e">${eur(b)}</span><span class="c e">${eur(c)}</span><span class="c e nb">${eur(d)}</span></div>`;
@@ -584,12 +588,19 @@ function renderTable(){
     t.push(`<div class="blocksep" aria-hidden="true"></div>`);
     t.push(`<div class="g parent fuera"><span class="c sk sk0" style="padding:0 4px"><button class="tog" type="button" data-act="togglefuera" aria-expanded="${S.fueraOpen}" aria-label="${S.fueraOpen?'Plegar':'Desplegar'} fuera de contrato">${IC.chev(S.fueraOpen)}</button></span><span class="c nb ov sk sk1" style="z-index:4">Fuera de contrato adjudicado${badge}</span><span class="c nb" style="grid-column:3/9"></span><span class="gap"></span><span class="c nb" style="grid-column:10/13"></span><span class="gap"></span><span class="c nb" style="grid-column:14/17"></span></div>`);
     if (S.fueraOpen || S.q){
-      for (const f of vf){
-        const ccName = f.cc==='—' ? 'Sin centro de coste' : (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
-        const lead = ro
-          ? `<span class="c guide sk sk0"><i></i></span><span class="c stack sk sk1"><span style="padding:0 8px">${f.contract}</span><small class="fcode" title="Código de la partida">${esc(f.cod)}</small></span><span class="c" title="${ccName}">${f.cc}</span>`
-          : `<span class="c cen ck-cell pad0 sk sk0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0 stack sk sk1"><button class="cellsel" type="button" data-act="assign" data-id="${f.id}" aria-haspopup="listbox" aria-label="Contrato de la línea: ${f.contract}">${f.contract}${IC.caret}</button><small class="fcode" title="Código de la partida">${esc(f.cod)}</small></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span>`;
-        t.push(`<div class="g">${lead}<span class="c cc2 sk sk2"><span class="t cpt">${esc(f.con)}</span></span><span class="c e">${qty(f.cant)}</span><span class="c">${esc(f.ud)}</span><span class="c e">${eur(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
+      // Como en los contratos adjudicados: cada contrato en su fila y sus líneas debajo, con el código editable
+      const groups = CONTRACTS.map(c=>[c, vf.filter(f=>f.contract===c.code)]).filter(([,fs])=>fs.length);
+      for (const [c,fs] of groups){
+        const s2 = k=>sum(fs,k);
+        t.push(`<div class="g parent"><span class="c sk sk0"></span><span class="c sk sk1"><a class="clink" href="#contrato" data-act="contrato" data-code="${c.code}" title="Abrir el contrato ${c.code}">${c.code}${IC.out}</a></span><span class="c"></span><span class="c meta sk sk2 spill"><span class="t">${fs.length} ${fs.length===1?'línea':'líneas'} · van en el PDF de este contrato</span></span><span class="c" style="grid-column:5/8"></span><span class="c e nb">${eur(s2('imp'))}</span><span class="gap"></span>${dashMed}<span class="gap"></span><span class="c e">${eur(s2('ito'))}</span><span class="c e">${eur(s2('iant'))}</span><span class="c e nb">${eur(s2('imes'))}</span></div>`);
+        for (const f of fs){
+          const ccName = f.cc==='—' ? 'Sin centro de coste' : (CCS.find(x=>x[0]===f.cc)||CCS[0])[1];
+          const code = f.cod==='—' ? '' : f.cod;
+          const lead = ro
+            ? `<span class="c guide sk sk0"><i></i></span><span class="c sk sk1"><span class="idc" title="Código de la partida">${esc(code)}</span></span><span class="c" title="${ccName}">${f.cc}</span>`
+            : `<span class="c cen ck-cell pad0 sk sk0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0 sk sk1"><input class="codein" type="text" value="${esc(code)}" placeholder="Código" data-act="code" data-id="${f.id}" aria-label="Código de la partida: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span>`;
+          t.push(`<div class="g">${lead}<span class="c cc2 sk sk2"><span class="t cpt">${esc(f.con)}</span></span><span class="c e">${qty(f.cant)}</span><span class="c">${esc(f.ud)}</span><span class="c e">${eurPU(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
+        }
       }
       if (!vf.length) t.push(`<div class="g"><div class="empty">${S.q?'Ninguna partida fuera de contrato coincide con la búsqueda.':'No hay líneas fuera de contrato.'}</div></div>`);
       if (S.filter==='all' && !ro) t.push(`<div class="g"><div class="addrow"><button class="add" type="button" data-act="addline">${IC.plus}Añadir partida</button></div></div>`);
@@ -626,6 +637,11 @@ function menuHTML(){
     return `<div class="mh">Exportar un contrato (PDF)</div>` + CONTRACTS.map(c=>{ const nf = FUERA.filter(f=>f.contract===c.code).length, n = c.rows.length + nf, ok = hasMed(c);
       return `<button class="mi row" type="button" role="menuitem" data-act="exportone" data-code="${c.code}" ${ok?'':'disabled title="No hay mediciones este mes"'}><span>${c.code}</span><small>${n} partidas${nf?` (${nf} fuera de contrato)`:''}</small></button>`; }).join('');
   }
+  if (m==='bulkassign'){
+    const sel = FUERA.filter(x=>x.checked);
+    return `<div class="mh">Asignar ${sel.length===1?'la línea':'las '+sel.length+' líneas'} a</div>` + CONTRACTS.map(c=>{ const all = sel.length && sel.every(x=>x.contract===c.code);
+      return `<button class="mi ${all?'on':''}" type="button" role="option" aria-selected="${all}" data-act="setbulk" data-v="${c.code}"><span>${c.code}</span><small>${c.rows.length} partidas · ${c.note}</small></button>`; }).join('');
+  }
   const [kind, idStr] = m.split('-'); const f = FUERA.find(x=>x.id===Number(idStr)); if (!f) return '';
   if (kind==='assign'){
     return CONTRACTS.map(c=>`<button class="mi ${f.contract===c.code?'on':''}" type="button" role="option" aria-selected="${f.contract===c.code}" data-act="setassign" data-id="${f.id}" data-v="${c.code}"><span>${c.code}</span><small>${c.rows.length} partidas · ${c.note}</small></button>`).join('');
@@ -637,6 +653,7 @@ function anchorFor(m){
   if (m==='filter') return $('filter-btn');
   if (m==='periodo') return $('per-btn');
   if (m==='dl') return $('dl-btn');
+  if (m==='bulkassign') return $('ab-assign');
   const [kind,id] = m.split('-'); return document.querySelector(`[data-act="${kind}"][data-id="${id}"]`);
 }
 function placeMenu(){
@@ -655,6 +672,7 @@ function placeMenu(){
   $('filter-btn').setAttribute('aria-expanded', S.menu==='filter');
   $('dl-btn').setAttribute('aria-expanded', S.menu==='dl');
   $('per-btn').setAttribute('aria-expanded', S.menu==='periodo');
+  $('ab-assign').setAttribute('aria-expanded', S.menu==='bulkassign');
 }
 function renderActionbar(){
   const n = FUERA.filter(f=>f.checked).length;
@@ -796,6 +814,9 @@ document.addEventListener('click',(e)=>{
     case 'assign': case 'cc': { const key = act+'-'+id; S.menu = S.menu===key?null:key; placeMenu(); return; }
     case 'setassign': f.contract = el.dataset.v; f.reviewed = true; S.menu=null; toast(`Partida asignada a ${f.contract}`); break;
     case 'setcc': f.cc = el.dataset.v; f.reviewed = true; S.menu=null; break;
+    case 'code': return;
+    case 'bulkassign': S.menu = S.menu==='bulkassign'?null:'bulkassign'; placeMenu(); return;
+    case 'setbulk': { const sel = FUERA.filter(x=>x.checked); sel.forEach(x=>{ x.contract = el.dataset.v; x.reviewed = true; x.checked = false; }); S.menu=null; toast(sel.length===1 ? `Línea asignada a ${el.dataset.v}` : `${sel.length} líneas asignadas a ${el.dataset.v}`); break; }
     case 'delete': { const n = FUERA.filter(x=>x.checked).length; FUERA = FUERA.filter(x=>!x.checked); toast(n===1?'Partida eliminada':`${n} partidas eliminadas`); break; }
     case 'addline': FUERA.push(F(['—','ud','Nueva partida',0,0,...Z])); S.fueraOpen=true; toast(`Partida añadida a ${CONTRACTS[0].code} por defecto`); break;
     case 'liquidar': S.liquidated=true; FUERA.forEach(x=>{x.checked=false; x.reviewed=true;}); S.menu=null; toast('Proveedor liquidado. Las partidas fuera de contrato quedan confirmadas en su contrato. (El diálogo de confirmación es un flujo aparte.)'); break;
@@ -827,6 +848,7 @@ document.addEventListener('change',(e)=>{
   if (act==='lselall'){ document.querySelectorAll('#ltable [data-act=lsel]').forEach(c=>{ el.checked ? S.lsel.add(c.dataset.name) : S.lsel.delete(c.dataset.name); }); renderList(); return; }
   if (act==='check'){ FUERA.find(x=>x.id===Number(el.dataset.id)).checked = el.checked; renderActionbar(); }
 });
+document.addEventListener('input',(e)=>{ const el = e.target; if (el.dataset && el.dataset.act==='code'){ const f = FUERA.find(x=>x.id===Number(el.dataset.id)); if (f) f.cod = el.value.trim() || '—'; } });
 $('q').addEventListener('input',(e)=>{ S.q = e.target.value.trim().toLowerCase(); renderTable(); });
 document.addEventListener('keydown',(e)=>{ if (e.key==='Escape' && S.menu){ S.menu=null; placeMenu(); } });
 const follow = ()=>{ if (S.menu) placeMenu(); };
