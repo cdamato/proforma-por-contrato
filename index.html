@@ -283,12 +283,12 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 /* Detalle costes (tarea 3, Epic 4): árbol categoría › proveedor › contrato, desplegado al entrar */
 .dc-bar{display:flex;gap:8px;align-items:center;margin:0 0 12px}
 .dc-bar .btn.sq{width:32px;padding:0}
-.dct{border-collapse:separate;border-spacing:0;width:100%;min-width:1584px;font-size:14px}
+.dct{border-collapse:separate;border-spacing:0;width:100%;min-width:1700px;font-size:14px}
 .dct th,.dct td{padding:8px 12px;border-bottom:1px solid var(--gray200);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;background:#fff}
 .dct .l{text-align:left}
-.dct .s1{position:sticky;left:0;z-index:2;width:156px;min-width:156px;max-width:156px}
-.dct .s2{position:sticky;left:156px;z-index:2;width:424px;min-width:424px;max-width:424px;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--gray200)}
-.dct .s12{position:sticky;left:0;z-index:2;max-width:580px;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--gray200)}
+.dct .s1{position:sticky;left:0;z-index:2;width:420px;min-width:420px;max-width:420px;overflow:hidden;text-overflow:ellipsis}
+.dct .s2{position:sticky;left:420px;z-index:2;width:200px;min-width:200px;max-width:200px;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--gray200)}
+.dct .s12{position:sticky;left:0;z-index:2;max-width:620px;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--gray200)}
 .dct thead th{font-weight:500}
 .dct thead tr.gr th{border:0;padding:0;background:#fff}
 .dct thead tr.gr th.gh{padding:6px 12px;text-align:center;font-weight:500}
@@ -302,15 +302,14 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .dct tr.pv td{background:var(--gray50);font-weight:500}
 .dct tr.cat,.dct tr.pv{cursor:pointer}
 .dct tr.pv:hover td,.dct tr.cat:hover td{background:var(--gray200)}
-.dchev{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border:0;background:none;padding:0;margin-right:6px;border-radius:4px;color:var(--muted);vertical-align:-4px}
-.dchev:hover{background:rgba(24,24,27,.06)}
-.dct .in1{padding-left:28px}
-.dct .in2{padding-left:54px}
-.dct .lbl2{padding-left:52px}
-.dct .sp{display:inline-block;width:26px}
-.dct .cnt{color:var(--muted);font-weight:400}
-.dct .ag{color:var(--muted)}
+.dchev{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border:0;background:none;padding:0;margin-right:6px;border-radius:4px;color:var(--fg);vertical-align:middle}
+.dchev:hover{background:var(--gray200)}
+.dct td.l{vertical-align:middle}
+.dct .lv0{padding-left:8px}.dct .lv1{padding-left:38px}.dct .lv2{padding-left:98px}
+.dct .sp{display:inline-block;width:30px}
+.dct .cnt,.dct .ag,.dct .cd{color:var(--muted);font-weight:400}
 .dct tr.trl td{color:var(--muted)}
+.dc-leg{display:inline-flex;gap:8px;align-items:center;font-size:12px;color:var(--muted);margin-left:8px}
 .badge.sm{font-size:12px;line-height:16px;padding:1px 6px;margin-left:8px;vertical-align:1px}
 @media (prefers-reduced-motion:reduce){.bar-fill{transition:none}}
 </style>
@@ -347,6 +346,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
     <div class="dc-bar">
       <button class="btn sq" type="button" data-act="dccols" aria-label="Configurar columnas" title="Configurar columnas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg></button>
       <button class="btn" type="button" id="dc-fold" data-act="dcfold"></button>
+      <span class="dc-leg" id="dc-leg" hidden></span>
       <button class="btn" type="button" data-act="dcxls" style="margin-left:auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</button>
     </div>
     <div class="tscroll" id="dc-scroll"><table class="dct" id="dct"></table></div>
@@ -829,46 +829,52 @@ function dcData(){
 const dcVals = (r)=>[r.ini, r.amp, r.ini+r.amp, ...r.pr, ...r.tr];
 const dcSum = (rows)=>rows.reduce((a,r)=>a.map((x,i)=>x+dcVals(r)[i]), [0,0,0,0,0,0,0,0,0]);
 const dcGroups = (rows)=>{ const m = new Map(); rows.forEach(r=>{ if(!m.has(r.p)) m.set(r.p,[]); m.get(r.p).push(r); }); return [...m].map(([p,rs])=>({p,rs})); };
-function dcKeys(){ return dcData().flatMap(c=>['c|'+c.name].concat(dcGroups(c.rows).filter(g=>g.rs.length>1).map(g=>'p|'+c.name+'|'+g.p))); }
+function dcKeys(){ return dcData().flatMap(c=>['c|'+c.name].concat(dcGroups(c.rows).map(g=>'p|'+c.name+'|'+g.p))); }
 const dcAllOpen = ()=>!dcKeys().some(k=>k.startsWith('p|') && S.dcClosed.has(k));
 const CHEV_D = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const CHEV_R = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+const CDCI = {CD:'coste directo', CI:'coste indirecto'};
+const trTxt = (a,b)=>`Traspaso de ${CDCI[a]} a ${CDCI[b]}`;
 const TRICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3"/><path d="M17 17H6l3 3"/></svg>';
 function renderDetalle(){
   const list = S.view==='list', cats = dcData();
   const tdn = (v)=>v.map(x=>`<td>${eur(x)}</td>`).join('');
   // La línea de traspaso no es un contrato: sin importes de contrato y con la etiqueta de dónde viene
   const tdr = (r)=>r.from ? '<td>—</td><td>—</td><td>—</td>'+tdn(dcVals(r).slice(3)) : tdn(dcVals(r));
-  const agT = (r)=>{ if (r.from) return ''; const t = r.ag[0] + (r.ag.length>1 ? ` +${r.ag.length-1}` : ''); return `<span class="ag"${r.ag.length>1?` data-tip="${esc(r.ag.join(', '))}" tabindex="0"`:''}>${esc(t)}</span>`; };
-  const trB = (r)=>r.from ? `<span class="badge sm">${TRICON}Traspaso desde ${r.from}</span>` : '';
+  // Agrupación de compra: la primera y «+N» si hay más (todas en el tooltip). En la de traspaso, «CD → CI» con el texto entero en el tooltip y en la leyenda.
+  const agT = (r,G)=>{ if (r.from) return `<span class="badge sm" style="margin-left:0" data-tip="${esc(trTxt(r.from,G))}" tabindex="0">${r.from} → ${G}</span>`; const t = r.ag[0] + (r.ag.length>1 ? ` +${r.ag.length-1}` : ''); return `<span class="ag"${r.ag.length>1?` data-tip="${esc(r.ag.join(', '))}" tabindex="0"`:''}>${esc(t)}</span>`; };
   const chev = (k,name)=>{ const o = !S.dcClosed.has(k); return `<button type="button" class="dchev" data-act="dctg" data-k="${esc(k)}" aria-expanded="${o}" aria-label="${o?'Plegar':'Desplegar'} ${esc(name)}">${o?CHEV_D:CHEV_R}</button>`; };
+  // Columna de árbol a la izquierda (categoría › proveedor › contrato) y la agrupación de compra en la siguiente
   let h = `<thead><tr class="gr"><th class="s1"></th><th class="s2"></th><th class="gh g1" colspan="3">Contrato proveedor</th><th class="gh g2" colspan="3">Proformas proveedores</th><th class="gh g3" colspan="3">Traspaso a CI-CD</th></tr>
-    <tr class="hd"><th class="l s1">Contrato</th><th class="l s2">${list?'Proveedor':'Agrupación de compra'}</th><th>Importe inicial</th><th>Ampliación</th><th>Contrato total</th><th>Origen</th><th>Anterior</th><th>Periodo</th><th>Origen</th><th>Anterior</th><th>Periodo</th></tr></thead><tbody>`;
+    <tr class="hd"><th class="l s1">${list?'Proveedor · Contrato':'Contrato'}</th><th class="l s2">Agrupación de compra</th><th>Importe inicial</th><th>Ampliación</th><th>Contrato total</th><th>Origen</th><th>Anterior</th><th>Periodo</th><th>Origen</th><th>Anterior</th><th>Periodo</th></tr></thead><tbody>`;
   h += `<tr class="t1"><td class="l s12" colspan="2">TOTAL HARD COST + CI</td>${tdn(dcSum(cats.flatMap(c=>c.rows)))}</tr>`;
   ['CD','CI'].forEach(G=>{
     const cs = cats.filter(c=>c.grp===G); if (!cs.length) return;
     h += `<tr class="t2"><td class="l s12" colspan="2">TOTAL ${G}</td>${tdn(dcSum(cs.flatMap(c=>c.rows)))}</tr>`;
     cs.forEach(c=>{
       const ck = 'c|'+c.name, co = !S.dcClosed.has(ck);
-      h += `<tr class="cat" data-act="dctg" data-k="${esc(ck)}"><td class="l s12" colspan="2">${chev(ck,c.name)}${esc(c.name)}</td>${tdn(dcSum(c.rows))}</tr>`;
+      h += `<tr class="cat" data-act="dctg" data-k="${esc(ck)}"><td class="l s12 lv0" colspan="2">${chev(ck,c.name)}${esc(c.name)}</td>${tdn(dcSum(c.rows))}</tr>`;
       if (!co) return;
       // Vista del proveedor: los contratos van directamente bajo su categoría
-      if (!list){ c.rows.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}><td class="l s1 in2">${r.code}</td><td class="l s2">${agT(r)}${trB(r)}</td>${tdr(r)}</tr>`; }); return; }
+      if (!list){ c.rows.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}><td class="l s1 lv1"><span class="sp"></span>${r.code}</td><td class="l s2">${agT(r,G)}</td>${tdr(r)}</tr>`; }); return; }
       dcGroups(c.rows).forEach(g=>{
-        // Un solo contrato: una fila con el nombre y la agrupación al lado
-        if (g.rs.length===1){ const r = g.rs[0], a = agT(r);
-          h += `<tr${r.from?' class="trl"':''}><td class="l s1 in2">${r.code}</td><td class="l s2"><span class="sp"></span>${esc(r.p)}${a?` <span class="ag">·</span> ${a}`:''}${trB(r)}</td>${tdr(r)}</tr>`; return; }
+        // Todos los proveedores igual, también con un solo contrato: su fila y los contratos debajo
         const pk = 'p|'+c.name+'|'+g.p, po = !S.dcClosed.has(pk);
-        h += `<tr class="pv" data-act="dctg" data-k="${esc(pk)}"><td class="l s1"></td><td class="l s2">${chev(pk,g.p)}${esc(g.p)} <span class="cnt">· ${g.rs.length} contratos</span></td>${tdn(dcSum(g.rs))}</tr>`;
-        if (po) g.rs.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}><td class="l s1 in2">${r.code}</td><td class="l s2 lbl2">${agT(r)}${trB(r)}</td>${tdr(r)}</tr>`; });
+        h += `<tr class="pv" data-act="dctg" data-k="${esc(pk)}"><td class="l s1 lv1">${chev(pk,g.p)}${esc(g.p)} <span class="cnt">· ${g.rs.length} ${g.rs.length===1?'contrato':'contratos'}</span></td><td class="l s2"></td>${tdn(dcSum(g.rs))}</tr>`;
+        if (po) g.rs.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}><td class="l s1 lv2">${r.code}</td><td class="l s2">${agT(r,G)}</td>${tdr(r)}</tr>`; });
       });
     });
   });
   $('dct').innerHTML = h + '</tbody>';
+  // Leyenda del traspaso, solo si hay alguna línea de traspaso a la vista
+  const tr = cats.find(c=>c.rows.some(r=>r.from));
+  $('dc-leg').hidden = !tr;
+  if (tr){ const r = tr.rows.find(x=>x.from); $('dc-leg').innerHTML = `<span class="badge sm" style="margin-left:0">${r.from} → ${tr.grp}</span>${esc(trTxt(r.from,tr.grp))}`; }
   // En la vista del proveedor no hay grupos de proveedor que plegar
   $('dc-fold').hidden = !list;
   $('dc-fold').textContent = dcAllOpen() ? 'Plegar todo' : 'Desplegar todo';
 }
+
 function render(){
   const list = S.view==='list';
   const ap = S.tab==='apuntes', dt = S.tab==='detalle';
@@ -1010,8 +1016,8 @@ $('table').addEventListener('mouseover', (e)=>{ const el = e.target.closest('.t,
 $('table').addEventListener('mouseout', (e)=>{ const el = e.target.closest('.t, [data-tip]'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
 $('table').addEventListener('focusin', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
 $('table').addEventListener('focusout', ()=>{ tip.hidden = true; });
-$('dct').addEventListener('mouseover', (e)=>{ const el = e.target.closest('[data-tip], .s2'); if (el) showTip(el); });
-$('dct').addEventListener('mouseout', (e)=>{ const el = e.target.closest('[data-tip], .s2'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
+$('dct').addEventListener('mouseover', (e)=>{ const el = e.target.closest('[data-tip], .s1, .s2'); if (el) showTip(el); });
+$('dct').addEventListener('mouseout', (e)=>{ const el = e.target.closest('[data-tip], .s1, .s2'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
 $('dct').addEventListener('focusin', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
 $('dct').addEventListener('focusout', ()=>{ tip.hidden = true; });
 $('dc-scroll').addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
