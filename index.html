@@ -156,7 +156,6 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 
 /* tabla */
 .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.scroll-hint{display:none;font-size:12px;color:var(--muted);margin:0 0 8px}
 .table{width:100%;min-width:1683px}
 /* Epic 3 · Concepto legible: tabla al 100 %, cifras al ancho de su peor caso (17 caracteres con «€»),
    Concepto con el resto (mínimo 280 px), Contrato y Código en una sola columna */
@@ -252,7 +251,6 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .toast code{font-family:inherit;color:#D4D4D8}
 
 /* responsive */
-@media (max-width:1922px){.scroll-hint{display:block}}
 @media (max-width:1180px){
   .cards{grid-template-columns:1fr 1fr;gap:16px}
   .cards .card:last-child{grid-column:1/-1}
@@ -361,7 +359,6 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   </div>
 
   <p class="ro-note" id="ro-note" hidden></p>
-  <p class="scroll-hint">Desliza la tabla en horizontal para ver todas las columnas.</p>
   <div class="tswrap"><div class="tscroll" id="tscroll"><div class="table" id="table"></div></div><div class="skshadow" id="skshadow" hidden></div></div>
   </div>
 </main>
