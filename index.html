@@ -98,14 +98,14 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 /* Tarea 2 · quién se ha pasado: franja y fila tintada por estado (Pin0: red fuera de margen, orange superado, yellow a punto; fuera de contrato en yellow/solid) */
 .lrow.st-r .c{background:#FEF2F2}.lrow.st-o .c{background:#FFF7ED}
 .lrow.st-r:hover .c{background:#FEE2E2}.lrow.st-o:hover .c{background:#FFEDD5}
-.lrow.st-r .c:first-child{box-shadow:inset 4px 0 0 #DC2626}.lrow.st-o .c:first-child{box-shadow:inset 4px 0 0 #EA580C}.lrow.st-y .c:first-child{box-shadow:inset 4px 0 0 #CA8A04}
+.lrow.st-r .c:first-child{box-shadow:inset 4px 0 0 #DC2626}.lrow.st-o .c:first-child{box-shadow:inset 4px 0 0 #EA580C}
 .lt .lrow .c{height:auto;min-height:36px}
 .lt .c.two{height:auto;min-height:36px;flex-direction:column;align-items:flex-start;justify-content:center;padding-block:6px;gap:2px}
 .why{display:flex;align-items:center;gap:6px;font-size:12px;line-height:16px}
 .why.r{color:#991919}.why.o{color:#92310A}.why.g{color:var(--muted)}
-.neg-r{color:#991919;font-weight:600}.neg-o{color:#92310A;font-weight:600}.neg-y{color:#713F12;font-weight:600}
+.neg-r{color:#991919;font-weight:600}.neg-o{color:#92310A;font-weight:600}
 .stdot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 9px}
-.stdot.r{background:#DC2626}.stdot.o{background:#EA580C}.stdot.y{background:#CA8A04}.stdot.a{background:#FDE047;border-radius:2px}
+.stdot.r{background:#DC2626}.stdot.o{background:#EA580C}.stdot.a{background:#FDE047;border-radius:2px}
 .segf{display:inline-flex;background:var(--gray100);border-radius:8px;padding:3px;gap:2px;height:36px;align-items:center}
 .segf button{border:0;background:none;border-radius:6px;padding:0 12px;height:30px;font:inherit;font-size:13px;color:#3F3F46;display:inline-flex;align-items:center;gap:7px}
 .segf button[aria-pressed="true"]{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600;color:var(--fg)}
@@ -520,10 +520,11 @@ const $ = (id)=>document.getElementById(id);
 const hasMed = (c)=> sum(c.rows,'mmes') + sum(FUERA.filter(f=>f.contract===c.code),'mmes') !== 0;
 const measured = ()=> CONTRACTS.filter(hasMed);
 // Estado del proveedor (regla oficial por proveedor: hasta 3000 € por encima del saldo; «a punto» = 10 %, hipótesis pendiente de OPS)
-const MARGEN = 3000, PCT_PUNTO = 0.10;
-const EST = {r:'Fuera de margen', o:'Superado', y:'A punto'};
-const estado = (t,sd)=> sd < -MARGEN ? 'r' : sd < 0 ? 'o' : (t>0 && sd <= PCT_PUNTO*t ? 'y' : '');
-const porque = (e,t,sd)=> e==='y' ? `queda el ${Math.round(sd/t*100)} % del contrato` : e==='o' ? `le quedan ${eur(sd+MARGEN)} de margen` : e==='r' ? `${eur(-(sd+MARGEN))} por encima del margen` : '';
+// El margen lo fija negocio; 3000 € es el valor de ejemplo.
+const MARGEN = 3000;
+const EST = {r:'Fuera de margen', o:'Superado'};
+const estado = (t,sd)=> sd < -MARGEN ? 'r' : sd < 0 ? 'o' : '';
+const porque = (e,t,sd)=> e==='o' ? `le quedan ${eur(sd+MARGEN)} de margen` : e==='r' ? `${eur(-(sd+MARGEN))} por encima del margen` : '';
 function contractStats(c, withFuera=false){
   // La fila del contrato y la tarjeta de avance cuentan solo lo contratado; fuera de contrato tiene su propio subtotal.
   const assigned = FUERA.filter(f=>f.contract===c.code);
@@ -736,11 +737,11 @@ function renderList(){
   $('l-empty-t').textContent = 'Sin proformas en ' + curP().name.toLowerCase();
   // Estado y fuera de contrato de cada proveedor
   all.forEach(r=>{ r.s = r.total-r.org; r.e = estado(r.total, r.s); r.oc = r.acme ? sum(FUERA,'ito') : 0; });
-  const over = all.filter(r=>r.e==='r'||r.e==='o'), soon = all.filter(r=>r.e==='y'), ocAll = sum(all,'oc'), ocN = all.filter(r=>r.oc).length;
+  const over = all.filter(r=>r.e==='r'||r.e==='o'), ocAll = sum(all,'oc'), ocN = all.filter(r=>r.oc).length;
   // Cabecera: informa (no filtra). Los nombres de los que se han pasado llevan directo a su proforma.
   const card1 = over.length
-    ? `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num neg">${eur(sum(over,'s'))}</span><span class="help">en ${over.length} ${over.length===1?'proveedor':'proveedores'}:</span><span class="plinks">${over.map(r=>`<button class="plink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>`).join('')}</span>${soon.length?`<span class="help">${soon.length} más a punto de agotarlo</span>`:''}</div>`
-    : `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num">${eur(0)}</span><span class="help">Ningún proveedor se ha pasado${soon.length?` · ${soon.length} a punto de agotarlo`:''}</span></div>`;
+    ? `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num neg">${eur(sum(over,'s'))}</span><span class="help">en ${over.length} ${over.length===1?'proveedor':'proveedores'}:</span><span class="plinks">${over.map(r=>`<button class="plink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>`).join('')}</span></div>`
+    : `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num">${eur(0)}</span><span class="help">Ningún proveedor se ha pasado</span></div>`;
   const ocW = projTotal ? Math.min(100-av*100, ocAll/projTotal*100) : 0;
   $('l-cards').innerHTML = card1 +
     `<div class="card"><span class="lbl">Proformado del periodo</span><span class="big num">${eur(sum(all,'mes'))}</span><span class="help">${curP().name}</span></div>` +
@@ -749,7 +750,7 @@ function renderList(){
     `<div class="card"><div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num">${pct(av,1)}</span></div><div class="bar two" role="img" aria-label="Avance de contrato ${pct(av,1)}"><span class="bar-fill" style="width:${Math.min(100,(av*100)-ocW)}%"></span><span class="bar-fill oc" style="width:${ocW}%"></span></div><div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span></span></div></div>`;
   // Barra: filtro por estado (mismos colores que la tabla) y botón de fuera de contrato
   const n = k=>all.filter(r=>r.e===k).length;
-  $('l-filters').innerHTML = `<span class="segf" role="group" aria-label="Filtrar por estado"><button type="button" data-act="lstate" data-v="all" aria-pressed="${S.lstate==='all'}">Todos <b>${all.length}</b></button>${['r','o','y'].map(k=>`<button type="button" data-act="lstate" data-v="${k}" aria-pressed="${S.lstate===k}" ${n(k)?'':'disabled'}><span class="stdot ${k}"></span>${EST[k]} <b>${n(k)}</b></button>`).join('')}</span><button class="tglf" type="button" data-act="loc" aria-pressed="${S.loc}" ${ocN?'':'disabled'}><span class="stdot a"></span>Con fuera de contrato <b>${ocN}</b></button>`;
+  $('l-filters').innerHTML = `<span class="segf" role="group" aria-label="Filtrar por estado"><button type="button" data-act="lstate" data-v="all" aria-pressed="${S.lstate==='all'}">Todos <b>${all.length}</b></button>${['r','o'].map(k=>`<button type="button" data-act="lstate" data-v="${k}" aria-pressed="${S.lstate===k}" ${n(k)?'':'disabled'}><span class="stdot ${k}"></span>${EST[k]} <b>${n(k)}</b></button>`).join('')}</span><button class="tglf" type="button" data-act="loc" aria-pressed="${S.loc}" ${ocN?'':'disabled'}><span class="stdot a"></span>Con fuera de contrato <b>${ocN}</b></button>`;
   const note = $('l-note'); note.hidden = !isPast() || none;
   if (isPast()) note.textContent = `Periodo cerrado: solo aparecen los proveedores con proforma en ${curP().name.toLowerCase()}. Puedes consultarlas y exportarlas, pero no editarlas.`;
   if (S.lq) rows = rows.filter(r=>r.name.toLowerCase().includes(S.lq));
@@ -770,7 +771,7 @@ function renderList(){
     const multi = r.acme && !r.e && pasados.length ? `<span class="why g">${pasados.length} de ${CONTRACTS.length} contratos por encima (${pasados.map(c=>c.code).join(', ')})</span>` : '';
     const why = (r.e==='r'||r.e==='o') ? `<span class="why ${r.e}"><span class="stdot ${r.e}"></span><b>${EST[r.e]}</b> · ${porque(r.e,r.total,r.s)}</span>` : '';
     const sub = why || multi;
-    t.push(`<div class="lg-g lrow${r.e?' st-'+r.e:''}" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c cen pad0 ck-cell"><input type="checkbox" data-act="lsel" data-name="${esc(r.name)}" ${S.lsel.has(r.name)?'checked':''} aria-label="Seleccionar ${esc(r.name)}"></span><span class="c${sub?' two':''}"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}"${r.e==='y'?` title="A punto · ${porque('y',r.total,r.s)}"`:''}>${esc(r.name)}</button>${sub}</span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e">${eur(r.mes)}</span>${S.loc?`<span class="c e">${r.oc?eur(r.oc):'—'}</span>`:''}<span class="c e nb"><span class="${r.e?'neg-'+r.e:''}">${eur(r.s)}</span></span></div>`);
+    t.push(`<div class="lg-g lrow${r.e?' st-'+r.e:''}" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c cen pad0 ck-cell"><input type="checkbox" data-act="lsel" data-name="${esc(r.name)}" ${S.lsel.has(r.name)?'checked':''} aria-label="Seleccionar ${esc(r.name)}"></span><span class="c${sub?' two':''}"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>${sub}</span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e">${eur(r.mes)}</span>${S.loc?`<span class="c e">${r.oc?eur(r.oc):'—'}</span>`:''}<span class="c e nb"><span class="${r.e?'neg-'+r.e:''}">${eur(r.s)}</span></span></div>`);
   }
   if (!rows.length) t.push(`<div class="lg-g"><div class="empty" style="grid-column:1/-1">Ningún proveedor coincide con la búsqueda.</div></div>`);
   t.push(`<div class="lg-g total" role="row"><span class="c" style="grid-column:1/3">Total</span><span class="c e">${sum(rows,'n')}</span><span class="c e">${eur(sum(rows,'total'))}</span><span class="c e">${eur(sum(rows,'org'))}</span><span class="c e">${eur(sum(rows,'mes'))}</span>${S.loc?`<span class="c e">${eur(sum(rows,'oc'))}</span>`:''}<span class="c e nb">${eur(sum(rows,'total')-sum(rows,'org'))}</span></div>`);
