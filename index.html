@@ -92,8 +92,37 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .wrap{padding:24px 16px 120px}
 
 /* listado de proveedores */
-.lg-g{display:grid;grid-template-columns:48px minmax(280px,1fr) 160px 200px 200px 200px}
-.lt{min-width:1088px}
+.lg-g{display:grid;grid-template-columns:48px minmax(300px,1fr) 120px 170px 170px 170px 170px}
+.lt.oc .lg-g{grid-template-columns:48px minmax(300px,1fr) 120px 170px 170px 170px 170px 170px}
+.lt{min-width:1150px}
+/* Tarea 2 · quién se ha pasado: franja y fila tintada por estado (rojo fuera de margen, naranja superado, ámbar a punto) */
+.lrow.st-r .c{background:#FEF2F2}.lrow.st-o .c{background:#FFF7ED}
+.lrow.st-r:hover .c{background:#FEE2E2}.lrow.st-o:hover .c{background:#FFEDD5}
+.lrow.st-r .c:first-child{box-shadow:inset 4px 0 0 #DC2626}.lrow.st-o .c:first-child{box-shadow:inset 4px 0 0 #EA580C}.lrow.st-y .c:first-child{box-shadow:inset 4px 0 0 #CA8A04}
+.lt .lrow .c{height:auto;min-height:36px}
+.lt .c.two{height:auto;min-height:36px;flex-direction:column;align-items:flex-start;justify-content:center;padding-block:6px;gap:2px}
+.why{display:flex;align-items:center;gap:6px;font-size:12px;line-height:16px}
+.why.r{color:#991B1B}.why.o{color:#9A3412}.why.g{color:var(--muted)}
+.neg-r{color:#B91C1C;font-weight:600}.neg-o{color:#C2410C;font-weight:600}.neg-y{color:#A16207;font-weight:600}
+.stdot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 9px}
+.stdot.r{background:#DC2626}.stdot.o{background:#EA580C}.stdot.y{background:#CA8A04}.stdot.a{background:#D97706;border-radius:2px}
+.segf{display:inline-flex;background:var(--gray100);border-radius:8px;padding:3px;gap:2px;height:36px;align-items:center}
+.segf button{border:0;background:none;border-radius:6px;padding:0 12px;height:30px;font:inherit;font-size:13px;color:#3F3F46;display:inline-flex;align-items:center;gap:7px}
+.segf button[aria-pressed="true"]{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600;color:var(--fg)}
+.segf button:disabled{opacity:.45}
+.segf b,.tglf b{font-weight:700}
+.tglf{height:36px;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--gray300);border-radius:8px;padding:0 12px;background:#fff;font:inherit;font-size:13px;color:var(--fg)}
+.tglf[aria-pressed="true"]{border-color:#D97706;background:#FFFBEB;font-weight:600}
+.tglf:disabled{opacity:.45}
+.cards.c5{grid-template-columns:1.25fr 1fr 1fr 1fr 1.25fr;gap:16px}
+.cards.c6{grid-template-columns:1.1fr 1fr 1fr 1fr 1fr 1.3fr;gap:16px}
+.big.neg{color:#B91C1C}
+.plinks{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;line-height:16px}
+.plink{background:none;border:0;padding:0;font:inherit;color:#1D4ED8;text-decoration:underline;cursor:pointer;text-align:left}
+.bar.two{display:flex}
+.bar-fill.oc{background:#F59E0B;border-radius:0}
+.sw.oc{background:#F59E0B}
+.est-big{display:flex;align-items:center;gap:8px;font-size:18px;line-height:28px;font-weight:600}
 .lt .c{height:36px}
 .lt .h{gap:6px}
 .sort{display:inline-flex;align-items:center;gap:6px;background:none;border:0;padding:0;font-weight:500;width:100%;height:100%}
@@ -312,43 +341,29 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
     <div class="tscroll"><table class="ap-table" id="ap-table"></table></div>
   </div>
   <div id="v-list" hidden>
-  <section class="cards" aria-label="Resumen del proyecto">
-    <div class="card"><span class="lbl">Presupuesto del proyecto</span><span class="big num" id="l-pres"></span><span class="help" id="l-pres-help"></span></div>
-    <div class="card"><span class="lbl">Coste previsto</span><span class="big num">0 €</span></div>
-    <div class="card">
-      <div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num" id="l-av"></span></div>
-      <div class="bar" role="img" id="l-bar-wrap"><span class="bar-fill" id="l-bar"></span></div>
-      <div class="legend">
-        <span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Origen proformado</span><b class="num" id="l-or"></b></span>
-        <span class="lg"><span class="sw rest" aria-hidden="true"></span><span class="lbl">Saldo por proformar</span><b class="num" id="l-sa"></b></span>
-      </div>
-    </div>
-  </section>
-  <div class="toolbar" id="l-tools"><div class="tb-left"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="lq" type="search" placeholder="Buscar" aria-label="Buscar proveedor" autocomplete="off"></label></div></div>
+  <section class="cards c5" id="l-cards" aria-label="Resumen del proyecto"></section>
+  <div class="toolbar" id="l-tools"><div class="tb-left"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="lq" type="search" placeholder="Buscar" aria-label="Buscar proveedor" autocomplete="off"></label><span id="l-filters" style="display:inline-flex;gap:8px;flex-wrap:wrap"></span></div></div>
   <p class="ro-note" id="l-note" hidden></p>
   <section class="empty-state" id="l-empty" hidden><h2 id="l-empty-t"></h2><p>Ningún proveedor tuvo mediciones en este periodo.</p></section>
   <div class="tscroll" id="l-scroll"><div class="table lt" id="ltable" role="table" aria-label="Proformas por proveedor"></div></div>
   </div>
   <section class="empty-state" id="empty" hidden><h2 id="empty-t"></h2><p id="empty-p"></p></section>
   <div id="content">
-  <section class="cards" aria-label="Resumen del proveedor">
-    <div class="card">
-      <span class="lbl">Total contratado</span>
-      <span class="big num" id="k-total"></span>
-      <span class="help" id="k-total-help"></span>
-    </div>
+  <section class="cards c6" aria-label="Resumen del proveedor">
+    <div class="card" id="k-est"></div>
     <div class="card">
       <div class="liq-head lbl" id="k-num">Proforma nº 5</div>
       <div class="liq-row">Liquidación: <span class="badge" id="k-liq"></span></div>
       <div id="k-liq-action"></div>
     </div>
+    <div class="card"><span class="lbl">Proformado del periodo</span><span class="big num" id="k-per"></span><span class="help" id="k-per-help"></span></div>
+    <div class="card"><span class="lbl">Saldo disponible</span><span class="big num" id="k-sa"></span><span class="help" id="k-total-help"></span></div>
+    <div class="card"><span class="lbl">Fuera de contrato</span><span class="big num" id="k-oc"></span><span class="help" id="k-oc-help"></span></div>
     <div class="card">
       <div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num" id="k-av"></span></div>
-      <div class="bar" role="img" id="k-bar-wrap"><span class="bar-fill" id="k-bar"></span></div>
-      <div class="legend">
-        <span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Origen proformado</span><b class="num" id="k-or"></b></span>
-        <span class="lg"><span class="sw rest" aria-hidden="true"></span><span class="lbl">Saldo disponible</span><b class="num" id="k-sa"></b></span>
-      </div>
+      <div class="bar two" role="img" id="k-bar-wrap"><span class="bar-fill" id="k-bar"></span><span class="bar-fill oc" id="k-bar-oc"></span></div>
+      <div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span></span></div>
+      <span class="help" id="k-or-help"></span>
     </div>
   </section>
 
@@ -470,7 +485,7 @@ const PERIODS = [
   {m:4, name:'Abril 2026', num:0},
   {m:3, name:'Marzo 2026', num:0}
 ];
-const S = { view:'list', tab:'proformas', apAll:false, apProv:'all', apTipo:'todos', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9 };
+const S = { lstate:'all', loc:false, view:'list', tab:'proformas', apAll:false, apProv:'all', apTipo:'todos', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9 };
 const curP = ()=>PERIODS.find(p=>p.m===S.period);
 const isPast = ()=>S.period!==9;
 const readOnly = ()=>S.liquidated || isPast();
@@ -504,6 +519,11 @@ const $ = (id)=>document.getElementById(id);
 
 const hasMed = (c)=> sum(c.rows,'mmes') + sum(FUERA.filter(f=>f.contract===c.code),'mmes') !== 0;
 const measured = ()=> CONTRACTS.filter(hasMed);
+// Estado del proveedor (regla oficial por proveedor: hasta 3000 € por encima del saldo; «a punto» = 10 %, hipótesis pendiente de OPS)
+const MARGEN = 3000, PCT_PUNTO = 0.10;
+const EST = {r:'Fuera de margen', o:'Superado', y:'A punto'};
+const estado = (t,sd)=> sd < -MARGEN ? 'r' : sd < 0 ? 'o' : (t>0 && sd <= PCT_PUNTO*t ? 'y' : '');
+const porque = (e,t,sd)=> e==='y' ? `queda el ${Math.round(sd/t*100)} % del contrato` : e==='o' ? `le quedan ${eur(sd+MARGEN)} de margen` : e==='r' ? `${eur(-(sd+MARGEN))} por encima del margen` : '';
 function contractStats(c, withFuera=false){
   // La fila del contrato y la tarjeta de avance cuentan solo lo contratado; fuera de contrato tiene su propio subtotal.
   const assigned = FUERA.filter(f=>f.contract===c.code);
@@ -526,19 +546,28 @@ const IC = {
 };
 
 function renderCards(){
-  let total, origen, help;
+  let total, origen, help, fz;
   if (S.filter==='all'){
     total = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0);
     origen = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0);
     help = `${CONTRACTS.length} contratos · ${CONTRACTS.reduce((a,c)=>a+c.rows.length,0)} partidas`;
+    fz = FUERA;
   } else {
     const c = visibleContracts()[0], st = contractStats(c);
     total = st.imp; origen = st.origen; help = `${c.code} · ${c.rows.length} partidas`;
+    fz = FUERA.filter(f=>f.contract===c.code);
   }
-  const saldo = total-origen, av = total?origen/total:0;
-  $('k-total').textContent = eur(total); $('k-total-help').textContent = help;
-  $('k-av').textContent = pct(av); $('k-or').textContent = eur(origen); $('k-sa').textContent = eur(saldo);
+  const saldo = total-origen, av = total?origen/total:0, oc = sum(fz,'ito');
+  // Estado: siempre del proveedor (la regla es por proveedor), con lo contratado y lo fuera de contrato
+  const pT = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0), pO = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + sum(FUERA,'ito'), pS = pT-pO, e = estado(pT,pS);
+  $('k-est').innerHTML = `<span class="lbl">Estado</span>` + (e ? `<span class="est-big"><span class="stdot ${e}"></span>${EST[e]}</span><span class="help">${porque(e,pT,pS)}</span>` : `<span class="est-big">Con saldo</span><span class="help">Margen si se pasa: ${eur(MARGEN)}</span>`);
+  const per = (S.filter==='all' ? CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imes'),0) : contractStats(visibleContracts()[0]).imes) + sum(fz,'imes');
+  $('k-per').textContent = eur(per); $('k-per-help').textContent = curP().name;
+  $('k-sa').textContent = eur(saldo); $('k-total-help').textContent = `Total contratado: ${eur(total)} · ${help}`;
+  $('k-oc').textContent = eur(oc); $('k-oc-help').textContent = fz.length ? `${fz.length} ${fz.length===1?'línea':'líneas'}` : 'Sin líneas';
+  $('k-av').textContent = pct(av); $('k-or-help').textContent = `Origen proformado: ${eur(origen)}`;
   $('k-bar').style.width = Math.max(0,Math.min(100,av*100))+'%';
+  $('k-bar-oc').style.width = Math.max(0,Math.min(100-av*100,total?oc/total*100:0))+'%';
   $('k-bar-wrap').setAttribute('aria-label','Avance de contrato '+pct(av));
   const liq = $('k-liq');
   $('k-num').textContent = 'Proforma nº ' + curP().num;
@@ -705,13 +734,28 @@ function renderList(){
   const none = isPast() && !rows.length;
   $('l-empty').hidden = !none; $('l-tools').hidden = none; $('l-scroll').hidden = none;
   $('l-empty-t').textContent = 'Sin proformas en ' + curP().name.toLowerCase();
-  $('l-pres').textContent = fmt(Math.round(projTotal),0) + ' €';
-  $('l-pres-help').textContent = `${all.length} proveedores · ${nContr} contratos`;
-  $('l-av').textContent = pct(av,1); $('l-or').textContent = eur(org); $('l-sa').textContent = eur(projTotal-org);
-  $('l-bar').style.width = Math.min(100,av*100)+'%'; $('l-bar-wrap').setAttribute('aria-label','Avance de contrato '+pct(av,1));
+  // Estado y fuera de contrato de cada proveedor
+  all.forEach(r=>{ r.s = r.total-r.org; r.e = estado(r.total, r.s); r.oc = r.acme ? sum(FUERA,'ito') : 0; });
+  const over = all.filter(r=>r.e==='r'||r.e==='o'), soon = all.filter(r=>r.e==='y'), ocAll = sum(all,'oc'), ocN = all.filter(r=>r.oc).length;
+  // Cabecera: informa (no filtra). Los nombres de los que se han pasado llevan directo a su proforma.
+  const card1 = over.length
+    ? `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num neg">${eur(sum(over,'s'))}</span><span class="help">en ${over.length} ${over.length===1?'proveedor':'proveedores'}:</span><span class="plinks">${over.map(r=>`<button class="plink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>`).join('')}</span>${soon.length?`<span class="help">${soon.length} más a punto de agotarlo</span>`:''}</div>`
+    : `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num">${eur(0)}</span><span class="help">Ningún proveedor se ha pasado${soon.length?` · ${soon.length} a punto de agotarlo`:''}</span></div>`;
+  const ocW = projTotal ? Math.min(100-av*100, ocAll/projTotal*100) : 0;
+  $('l-cards').innerHTML = card1 +
+    `<div class="card"><span class="lbl">Proformado del periodo</span><span class="big num">${eur(sum(all,'mes'))}</span><span class="help">${curP().name}</span></div>` +
+    `<div class="card"><span class="lbl">Saldo disponible</span><span class="big num">${eur(projTotal-org)}</span><span class="help">Total contratado: ${eur(projTotal)} · ${all.length} proveedores · ${nContr} contratos</span></div>` +
+    `<div class="card"><span class="lbl">Fuera de contrato</span><span class="big num">${eur(ocAll)}</span><span class="help">${ocN ? `en ${ocN} ${ocN===1?'proveedor':'proveedores'}` : 'Ningún proveedor'}</span></div>` +
+    `<div class="card"><div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num">${pct(av,1)}</span></div><div class="bar two" role="img" aria-label="Avance de contrato ${pct(av,1)}"><span class="bar-fill" style="width:${Math.min(100,(av*100)-ocW)}%"></span><span class="bar-fill oc" style="width:${ocW}%"></span></div><div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span></span></div></div>`;
+  // Barra: filtro por estado (mismos colores que la tabla) y botón de fuera de contrato
+  const n = k=>all.filter(r=>r.e===k).length;
+  $('l-filters').innerHTML = `<span class="segf" role="group" aria-label="Filtrar por estado"><button type="button" data-act="lstate" data-v="all" aria-pressed="${S.lstate==='all'}">Todos <b>${all.length}</b></button>${['r','o','y'].map(k=>`<button type="button" data-act="lstate" data-v="${k}" aria-pressed="${S.lstate===k}" ${n(k)?'':'disabled'}><span class="stdot ${k}"></span>${EST[k]} <b>${n(k)}</b></button>`).join('')}</span><button class="tglf" type="button" data-act="loc" aria-pressed="${S.loc}" ${ocN?'':'disabled'}><span class="stdot a"></span>Con fuera de contrato <b>${ocN}</b></button>`;
   const note = $('l-note'); note.hidden = !isPast() || none;
   if (isPast()) note.textContent = `Periodo cerrado: solo aparecen los proveedores con proforma en ${curP().name.toLowerCase()}. Puedes consultarlas y exportarlas, pero no editarlas.`;
   if (S.lq) rows = rows.filter(r=>r.name.toLowerCase().includes(S.lq));
+  if (S.lstate!=='all') rows = rows.filter(r=>r.e===S.lstate);
+  if (S.loc) rows = rows.filter(r=>r.oc>0);
+  $('ltable').classList.toggle('oc', S.loc);
   const {k,dir} = S.sort;
   rows = rows.slice().sort((a,b)=>{
     const va = k==='saldo' ? a.total-a.org : a[k], vb = k==='saldo' ? b.total-b.org : b[k];
@@ -719,10 +763,17 @@ function renderList(){
   });
   const th = (key,label,end)=>{ const on = S.sort.k===key; return `<span class="c h${end?' e':''}" role="columnheader"><button class="sort${end?' e':''}" type="button" data-act="sort" data-k="${key}" ${on?`aria-sort="${dir>0?'ascending':'descending'}"`:''}>${label}${SORTICON}</button></span>`; };
   const allSel = rows.length && rows.every(r=>S.lsel.has(r.name));
-  const t = [`<div class="lg-g" role="row"><span class="c h cen pad0 ck-cell"><input type="checkbox" data-act="lselall" ${allSel?'checked':''} aria-label="Seleccionar todos"></span>${th('name','Proveedor')}${th('n','Nº contratos',1)}${th('total','Total contratos',1)}${th('org','Origen proformado',1)}${th('saldo','Saldo',1)}</div>`];
-  for (const r of rows) t.push(`<div class="lg-g lrow" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c cen pad0 ck-cell"><input type="checkbox" data-act="lsel" data-name="${esc(r.name)}" ${S.lsel.has(r.name)?'checked':''} aria-label="Seleccionar ${esc(r.name)}"></span><span class="c"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button></span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e nb">${eur(r.total-r.org)}</span></div>`);
+  const t = [`<div class="lg-g" role="row"><span class="c h cen pad0 ck-cell"><input type="checkbox" data-act="lselall" ${allSel?'checked':''} aria-label="Seleccionar todos"></span>${th('name','Proveedor')}${th('n','Nº contratos',1)}${th('total','Total contratado',1)}${th('org','Origen proformado',1)}${th('mes',curP().name,1)}${S.loc?th('oc','Fuera de contrato',1):''}${th('saldo','Saldo disponible',1)}</div>`];
+  // Contratos por encima dentro de un proveedor en margen (solo hay detalle por contrato de ACME en el prototipo)
+  const pasados = CONTRACTS.filter(c=>contractStats(c).saldo<0);
+  for (const r of rows){
+    const multi = r.acme && !r.e && pasados.length ? `<span class="why g">${pasados.length} de ${CONTRACTS.length} contratos por encima (${pasados.map(c=>c.code).join(', ')})</span>` : '';
+    const why = (r.e==='r'||r.e==='o') ? `<span class="why ${r.e}"><span class="stdot ${r.e}"></span><b>${EST[r.e]}</b> · ${porque(r.e,r.total,r.s)}</span>` : '';
+    const sub = why || multi;
+    t.push(`<div class="lg-g lrow${r.e?' st-'+r.e:''}" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c cen pad0 ck-cell"><input type="checkbox" data-act="lsel" data-name="${esc(r.name)}" ${S.lsel.has(r.name)?'checked':''} aria-label="Seleccionar ${esc(r.name)}"></span><span class="c${sub?' two':''}"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}"${r.e==='y'?` title="A punto · ${porque('y',r.total,r.s)}"`:''}>${esc(r.name)}</button>${sub}</span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e">${eur(r.mes)}</span>${S.loc?`<span class="c e">${r.oc?eur(r.oc):'—'}</span>`:''}<span class="c e nb"><span class="${r.e?'neg-'+r.e:''}">${eur(r.s)}</span></span></div>`);
+  }
   if (!rows.length) t.push(`<div class="lg-g"><div class="empty" style="grid-column:1/-1">Ningún proveedor coincide con la búsqueda.</div></div>`);
-  t.push(`<div class="lg-g total" role="row"><span class="c" style="grid-column:1/3">Total</span><span class="c e">${sum(rows,'n')}</span><span class="c e">${eur(sum(rows,'total'))}</span><span class="c e">${eur(sum(rows,'org'))}</span><span class="c e nb">${eur(sum(rows,'total')-sum(rows,'org'))}</span></div>`);
+  t.push(`<div class="lg-g total" role="row"><span class="c" style="grid-column:1/3">Total</span><span class="c e">${sum(rows,'n')}</span><span class="c e">${eur(sum(rows,'total'))}</span><span class="c e">${eur(sum(rows,'org'))}</span><span class="c e">${eur(sum(rows,'mes'))}</span>${S.loc?`<span class="c e">${eur(sum(rows,'oc'))}</span>`:''}<span class="c e nb">${eur(sum(rows,'total')-sum(rows,'org'))}</span></div>`);
   $('ltable').innerHTML = t.join('');
 }
 function renderApuntes(){
@@ -840,6 +891,8 @@ document.addEventListener('click',(e)=>{
     case 'back': location.hash = ''; return;
     case 'contrato': e.preventDefault(); toast(`Abriría la ficha del contrato ${el.dataset.code} en una pestaña nueva (obligaciones e información del contrato).`); return;
     case 'openprov': if (e.target.closest('input')) return; if (el.dataset.name===PROVIDER){ S.tab='proformas'; location.hash = 'proveedor'; } else { toast('En el prototipo solo se puede abrir la proforma de ' + PROVIDER + '.'); } return;
+    case 'lstate': S.lstate = el.dataset.v; break;
+    case 'loc': S.loc = !S.loc; if (S.loc) S.sort = {k:'oc', dir:-1}; else if (S.sort.k==='oc') S.sort = {k:'name', dir:1}; break;
     case 'sort': { const k = el.dataset.k; S.sort = S.sort.k===k ? {k, dir:-S.sort.dir} : {k, dir: k==='name'?1:-1}; break; }
     case 'lsel': case 'lselall': return;
     case 'cerrar': toast('Cerrar periodo es un flujo aparte y no está en este prototipo.'); return;
