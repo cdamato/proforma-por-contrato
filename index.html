@@ -189,9 +189,13 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .idc{padding-left:20px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .stack{flex-direction:column;align-items:stretch;justify-content:center}
 .stack .cellsel{height:26px}
-.codein{margin-left:20px;width:calc(100% - 28px);height:28px;border:1px solid var(--gray300);border-radius:6px;padding:0 8px;font:inherit;font-size:13px;background:#fff;color:var(--fg)}
+/* Código de la partida en fuera de contrato: como en la plataforma, la celda entera es editable (sin caja);
+   al enfocarla, borde verde de 2 px en toda la celda */
+.c.edit{padding:0;align-items:stretch}
+.codein{flex:1;min-width:0;border:2px solid transparent;border-radius:0;background:transparent;padding:0 10px 0 26px;font:inherit;font-size:14px;color:var(--fg)}
 .codein::placeholder{color:#A1A1AA}
-.codein:focus{outline:2px solid #18181B;outline-offset:-1px}
+.codein:hover{background:var(--gray50)}
+.codein:focus{outline:none;border-color:#527A53;background:#fff}
 .fcode{padding:0 8px 4px;font-size:12px;line-height:14px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
 .c.e{justify-content:flex-end;font-variant-numeric:tabular-nums}
 .c.nb{border-right:0}
@@ -598,7 +602,7 @@ function renderTable(){
           const code = f.cod==='—' ? '' : f.cod;
           const lead = ro
             ? `<span class="c guide sk sk0"><i></i></span><span class="c sk sk1"><span class="idc" title="Código de la partida">${esc(code)}</span></span><span class="c" title="${ccName}">${f.cc}</span>`
-            : `<span class="c cen ck-cell pad0 sk sk0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c pad0 sk sk1"><input class="codein" type="text" value="${esc(code)}" placeholder="Código" data-act="code" data-id="${f.id}" aria-label="Código de la partida: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span>`;
+            : `<span class="c cen ck-cell pad0 sk sk0"><input type="checkbox" id="ck-${f.id}" data-act="check" data-id="${f.id}" ${f.checked?'checked':''} aria-label="Seleccionar línea: ${esc(f.con)}"></span><span class="c edit sk sk1"><input class="codein" type="text" value="${esc(code)}" placeholder="Código" data-act="code" data-id="${f.id}" aria-label="Código de la partida: ${esc(f.con)}"></span><span class="c pad0"><button class="cellsel" type="button" data-act="cc" data-id="${f.id}" title="${ccName}" aria-haspopup="listbox" aria-label="Centro de coste: ${ccName}">${f.cc}${IC.caret}</button></span>`;
           t.push(`<div class="g">${lead}<span class="c cc2 sk sk2"><span class="t cpt">${esc(f.con)}</span></span><span class="c e">${qty(f.cant)}</span><span class="c">${esc(f.ud)}</span><span class="c e">${eurPU(f.pu)}</span><span class="c e nb">${eur(f.imp)}</span><span class="gap"></span>${nums(f)}</div>`);
         }
       }
