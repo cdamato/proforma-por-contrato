@@ -280,6 +280,38 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   .tb-left .sel{flex:1 1 auto;justify-content:space-between}
   .tb-right{width:100%;justify-content:space-between}
 }
+/* Detalle costes (tarea 3, Epic 4): árbol categoría › proveedor › contrato, desplegado al entrar */
+.dc-bar{display:flex;gap:8px;align-items:center;margin:0 0 12px}
+.dc-bar .btn.sq{width:32px;padding:0}
+.dct{border-collapse:separate;border-spacing:0;width:100%;min-width:1584px;font-size:14px}
+.dct th,.dct td{padding:8px 12px;border-bottom:1px solid var(--gray200);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;background:#fff}
+.dct .l{text-align:left}
+.dct .s1{position:sticky;left:0;z-index:2;width:156px;min-width:156px;max-width:156px}
+.dct .s2{position:sticky;left:156px;z-index:2;width:424px;min-width:424px;max-width:424px;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--gray200)}
+.dct .s12{position:sticky;left:0;z-index:2;max-width:580px;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--gray200)}
+.dct thead th{font-weight:500}
+.dct thead tr.gr th{border:0;padding:0;background:#fff}
+.dct thead tr.gr th.gh{padding:6px 12px;text-align:center;font-weight:500}
+.dct thead tr.gr th.g1{background:#1F2937;color:#fff}
+.dct thead tr.gr th.g2{background:#93AFCF;color:#0F172A}
+.dct thead tr.gr th.g3{background:#B7C9DD;color:#0F172A}
+.dct thead tr.hd th{background:var(--gray50)}
+.dct tr.t1 td{background:var(--gray300);font-weight:600}
+.dct tr.t2 td{background:var(--gray200);font-weight:600}
+.dct tr.cat td{background:var(--gray100);font-weight:500}
+.dct tr.pv td{background:var(--gray50);font-weight:500}
+.dct tr.cat,.dct tr.pv{cursor:pointer}
+.dct tr.pv:hover td,.dct tr.cat:hover td{background:var(--gray200)}
+.dchev{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border:0;background:none;padding:0;margin-right:6px;border-radius:4px;color:var(--muted);vertical-align:-4px}
+.dchev:hover{background:rgba(24,24,27,.06)}
+.dct .in1{padding-left:28px}
+.dct .in2{padding-left:54px}
+.dct .lbl2{padding-left:52px}
+.dct .sp{display:inline-block;width:26px}
+.dct .cnt{color:var(--muted);font-weight:400}
+.dct .ag{color:var(--muted)}
+.dct tr.trl td{color:var(--muted)}
+.badge.sm{font-size:12px;line-height:16px;padding:1px 6px;margin-left:8px;vertical-align:1px}
 @media (prefers-reduced-motion:reduce){.bar-fill{transition:none}}
 </style>
 </head>
@@ -290,7 +322,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 </header>
 <nav class="crumbs" id="crumbs" aria-label="Migas de pan"><button type="button" id="crumb-root" data-act="back">Control de costes</button><svg id="crumb-sep" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span id="crumb-prov" aria-current="page"></span></nav>
 <div class="navrow">
-  <div class="tabs"><button class="tab" type="button" id="tab-proformas" data-act="tabproformas">Proformas</button><button class="tab" type="button" id="tab-apuntes" data-act="tabapuntes">Apuntes contables</button><button class="tab" type="button" data-act="detalle">Detalle costes</button></div>
+  <div class="tabs"><button class="tab" type="button" id="tab-proformas" data-act="tabproformas">Proformas</button><button class="tab" type="button" id="tab-apuntes" data-act="tabapuntes">Apuntes contables</button><button class="tab" type="button" id="tab-detalle" data-act="tabdetalle">Detalle costes</button></div>
   <div class="per">
     <span class="lbl">Periodo</span>
     <button class="sel" type="button" id="per-btn" aria-haspopup="listbox" aria-expanded="false" data-act="periodo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><b id="per-label">Septiembre 2026</b><span class="tag" id="per-tag">Actual · abierto</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
@@ -310,6 +342,14 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
     </div>
     <p class="ap-count" id="ap-count"></p>
     <div class="tscroll"><table class="ap-table" id="ap-table"></table></div>
+  </div>
+  <div id="v-detalle" hidden>
+    <div class="dc-bar">
+      <button class="btn sq" type="button" data-act="dccols" aria-label="Configurar columnas" title="Configurar columnas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg></button>
+      <button class="btn" type="button" id="dc-fold" data-act="dcfold"></button>
+      <button class="btn" type="button" data-act="dcxls" style="margin-left:auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</button>
+    </div>
+    <div class="tscroll" id="dc-scroll"><table class="dct" id="dct"></table></div>
   </div>
   <div id="v-list" hidden>
   <section class="cards" aria-label="Resumen del proyecto">
@@ -470,7 +510,7 @@ const PERIODS = [
   {m:4, name:'Abril 2026', num:0},
   {m:3, name:'Marzo 2026', num:0}
 ];
-const S = { view:'list', tab:'proformas', apAll:false, apProv:'all', apTipo:'todos', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9 };
+const S = { view:'list', tab:'proformas', apAll:false, apProv:'all', apTipo:'todos', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9, dcClosed:new Set() };
 const curP = ()=>PERIODS.find(p=>p.m===S.period);
 const isPast = ()=>S.period!==9;
 const readOnly = ()=>S.liquidated || isPast();
@@ -747,14 +787,104 @@ function renderApuntes(){
   // Añadir apunte usa el mes de arriba; solo en el periodo abierto
   $('ap-add').disabled = isPast(); $('ap-add').title = isPast() ? `${p.name} está cerrado` : `Se creará en ${p.name.toLowerCase()}`;
 }
+// ===== Detalle costes (tarea 3, Epic 4) =====
+// Una fila por contrato, agrupada por proveedor dentro de cada categoría. Proveedores reales de VELEZ en dev (27/11);
+// ACME sale de sus contratos del prototipo. ini = importe inicial, amp = ampliación, pr/tr = [origen, anterior, periodo].
+const hc = (n)=>'HC-2615'+String(n).padStart(4,'0');
+const DCR = (n,p,ag,ini,pr,tro)=>({code:hc(n),p,ag,ini,amp:0,pr,tr:[tro||0,tro||0,0]});
+const DC_STATIC = [
+  {grp:'CD', name:'1 Coste directo Subcontratas e industriales', rows:[
+    DCR(2,'FRANCISCO TERNERO S.L.',['MOVIMIENTO DE TIERRAS'],33666.74,[33889.74,33889.74,0]),
+    DCR(7,'COMA PROYECTOS MAGINA SL',['BOMBEO HORMIGÓN','ENCOFRADOR','SUMINISTRO ACERO','SUMINISTRO HORMIGÓN'],557686.60,[301118.17,287707.19,13410.98],-42795.44),
+    DCR(45,'ELECTROTEC NERJA SL',['INSTALACIONES'],7647.24,[11133.11,11133.11,0],-15120.48),
+    DCR(63,'ELECTROTEC NERJA SL',['INSTALACIONES'],417324.05,[18495.55,10158.27,8337.28]),
+    DCR(16,'Ifametal S.A.',['MONTAJE ACERO'],81926.56,[93793.47,93793.47,0]),
+    DCR(48,'Ifametal S.A.',['MONTAJE ACERO'],299942.53,[243359.26,206627.84,36731.42])]},
+  {grp:'CD', name:'2 Coste directo Materiales', rows:[
+    DCR(22,'HORMIGONES Y CEMENTOS ANDALUCES SL',['SUMINISTRO HORMIGÓN'],3658.60,[3658.60,3658.60,0]),
+    DCR(77,'HORMIGONES Y CEMENTOS ANDALUCES SL',['SUMINISTRO HORMIGÓN'],24908.15,[18240.30,15112.80,3127.50]),
+    DCR(78,'HORMIGONES Y CEMENTOS ANDALUCES SL',['SUMINISTRO HORMIGÓN'],32465.20,[0,0,0]),
+    DCR(23,'SALTOKI, S.A.',['INSTALACIONES'],50431.01,[21870.44,19020.10,2850.34])]},
+  {grp:'CI', name:'Coste indirecto', rows:[
+    DCR(6,'AMV10 GESTIONES S.L.',['INDIRECTOS'],4700,[3566,3566,0]),
+    DCR(26,'AMV10 GESTIONES S.L.',['INDIRECTOS'],131040,[46746,39312,7434]),
+    'ACME',
+    Object.assign(DCR(7,'COMA PROYECTOS MAGINA SL',[],0,[0,0,0],42795.44),{from:'CD'}),
+    DCR(17,'ELECTROTEC NERJA SL',['INSTALACIONES'],5487.56,[3987.36,3987.36,0],15120.48)]}
+];
+// Contratos de ACME con las cifras del periodo elegido (las mismas que la pestaña Proformas)
+function acmeRows(){
+  applyPeriod();
+  return CONTRACTS.map(c=>{
+    const rs = c.rows.concat(FUERA.filter(f=>f.contract===c.code));
+    const sum = (k)=>rs.reduce((a,r)=>a+r[k],0);
+    return {code:c.code, p:PROVIDER, ag:['ANDAMIOS'], ini:c.rows.reduce((a,r)=>a+r.imp,0), amp:0, pr:[sum('ito'),sum('iant'),sum('imes')], tr:[0,0,0]};
+  });
+}
+function dcData(){
+  const acme = acmeRows();
+  const cats = DC_STATIC.map(c=>({...c, rows:c.rows.flatMap(r=>r==='ACME'?acme:[r])}));
+  return S.view==='list' ? cats : cats.map(c=>({...c, rows:c.rows.filter(r=>r.p===PROVIDER)})).filter(c=>c.rows.length);
+}
+const dcVals = (r)=>[r.ini, r.amp, r.ini+r.amp, ...r.pr, ...r.tr];
+const dcSum = (rows)=>rows.reduce((a,r)=>a.map((x,i)=>x+dcVals(r)[i]), [0,0,0,0,0,0,0,0,0]);
+const dcGroups = (rows)=>{ const m = new Map(); rows.forEach(r=>{ if(!m.has(r.p)) m.set(r.p,[]); m.get(r.p).push(r); }); return [...m].map(([p,rs])=>({p,rs})); };
+function dcKeys(){ return dcData().flatMap(c=>['c|'+c.name].concat(dcGroups(c.rows).filter(g=>g.rs.length>1).map(g=>'p|'+c.name+'|'+g.p))); }
+const dcAllOpen = ()=>!dcKeys().some(k=>k.startsWith('p|') && S.dcClosed.has(k));
+const CHEV_D = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+const CHEV_R = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+const TRICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3"/><path d="M17 17H6l3 3"/></svg>';
+function renderDetalle(){
+  const list = S.view==='list', cats = dcData();
+  const tdn = (v)=>v.map(x=>`<td>${eur(x)}</td>`).join('');
+  // La línea de traspaso no es un contrato: sin importes de contrato y con la etiqueta de dónde viene
+  const tdr = (r)=>r.from ? '<td>—</td><td>—</td><td>—</td>'+tdn(dcVals(r).slice(3)) : tdn(dcVals(r));
+  const agT = (r)=>{ if (r.from) return ''; const t = r.ag[0] + (r.ag.length>1 ? ` +${r.ag.length-1}` : ''); return `<span class="ag"${r.ag.length>1?` data-tip="${esc(r.ag.join(', '))}" tabindex="0"`:''}>${esc(t)}</span>`; };
+  const trB = (r)=>r.from ? `<span class="badge sm">${TRICON}Traspaso desde ${r.from}</span>` : '';
+  const chev = (k,name)=>{ const o = !S.dcClosed.has(k); return `<button type="button" class="dchev" data-act="dctg" data-k="${esc(k)}" aria-expanded="${o}" aria-label="${o?'Plegar':'Desplegar'} ${esc(name)}">${o?CHEV_D:CHEV_R}</button>`; };
+  let h = `<thead><tr class="gr"><th class="s1"></th><th class="s2"></th><th class="gh g1" colspan="3">Contrato proveedor</th><th class="gh g2" colspan="3">Proformas proveedores</th><th class="gh g3" colspan="3">Traspaso a CI-CD</th></tr>
+    <tr class="hd"><th class="l s1">Contrato</th><th class="l s2">${list?'Proveedor':'Agrupación de compra'}</th><th>Importe inicial</th><th>Ampliación</th><th>Contrato total</th><th>Origen</th><th>Anterior</th><th>Periodo</th><th>Origen</th><th>Anterior</th><th>Periodo</th></tr></thead><tbody>`;
+  h += `<tr class="t1"><td class="l s12" colspan="2">TOTAL HARD COST + CI</td>${tdn(dcSum(cats.flatMap(c=>c.rows)))}</tr>`;
+  ['CD','CI'].forEach(G=>{
+    const cs = cats.filter(c=>c.grp===G); if (!cs.length) return;
+    h += `<tr class="t2"><td class="l s12" colspan="2">TOTAL ${G}</td>${tdn(dcSum(cs.flatMap(c=>c.rows)))}</tr>`;
+    cs.forEach(c=>{
+      const ck = 'c|'+c.name, co = !S.dcClosed.has(ck);
+      h += `<tr class="cat" data-act="dctg" data-k="${esc(ck)}"><td class="l s12" colspan="2">${chev(ck,c.name)}${esc(c.name)}</td>${tdn(dcSum(c.rows))}</tr>`;
+      if (!co) return;
+      // Vista del proveedor: los contratos van directamente bajo su categoría
+      if (!list){ c.rows.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}><td class="l s1 in2">${r.code}</td><td class="l s2">${agT(r)}${trB(r)}</td>${tdr(r)}</tr>`; }); return; }
+      dcGroups(c.rows).forEach(g=>{
+        // Un solo contrato: una fila con el nombre y la agrupación al lado
+        if (g.rs.length===1){ const r = g.rs[0], a = agT(r);
+          h += `<tr${r.from?' class="trl"':''}><td class="l s1 in2">${r.code}</td><td class="l s2"><span class="sp"></span>${esc(r.p)}${a?` <span class="ag">·</span> ${a}`:''}${trB(r)}</td>${tdr(r)}</tr>`; return; }
+        const pk = 'p|'+c.name+'|'+g.p, po = !S.dcClosed.has(pk);
+        h += `<tr class="pv" data-act="dctg" data-k="${esc(pk)}"><td class="l s1"></td><td class="l s2">${chev(pk,g.p)}${esc(g.p)} <span class="cnt">· ${g.rs.length} contratos</span></td>${tdn(dcSum(g.rs))}</tr>`;
+        if (po) g.rs.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}><td class="l s1 in2">${r.code}</td><td class="l s2 lbl2">${agT(r)}${trB(r)}</td>${tdr(r)}</tr>`; });
+      });
+    });
+  });
+  $('dct').innerHTML = h + '</tbody>';
+  // En la vista del proveedor no hay grupos de proveedor que plegar
+  $('dc-fold').hidden = !list;
+  $('dc-fold').textContent = dcAllOpen() ? 'Plegar todo' : 'Desplegar todo';
+}
 function render(){
   const list = S.view==='list';
-  const ap = S.tab==='apuntes';
-  $('tab-proformas').setAttribute('aria-current', ap?'false':'page'); $('tab-apuntes').setAttribute('aria-current', ap?'page':'false');
-  if (!ap) $('tab-proformas').setAttribute('aria-current','page');
-  $('v-apuntes').hidden = !ap;
+  const ap = S.tab==='apuntes', dt = S.tab==='detalle';
+  $('tab-proformas').setAttribute('aria-current', !ap&&!dt?'page':'false'); $('tab-apuntes').setAttribute('aria-current', ap?'page':'false'); $('tab-detalle').setAttribute('aria-current', dt?'page':'false');
+  $('v-apuntes').hidden = !ap; $('v-detalle').hidden = !dt;
   // En Apuntes con «todos los periodos», el selector de arriba muestra «—» (sigue activo)
   const perLabel = ()=>{ const p=curP(); const all = ap && S.apAll; $('per-label').textContent = all ? '—' : p.name; $('per-tag').hidden = all; if (all) $('per-btn').title = 'Todos los periodos activo en Apuntes'; else $('per-btn').removeAttribute('title'); $('per-tag').textContent = p.m===9 ? 'Actual · abierto' : 'Cerrado'; };
+  if (dt){
+    $('v-list').hidden = true; $('content').hidden = true; $('empty').hidden = true; $('actionbar').hidden = true;
+    $('crumb-root').hidden = list; $('crumb-sep').style.display = list ? 'none' : '';
+    $('crumb-prov').textContent = list ? 'Control de costes' : PROVIDER;
+    $('prov-name').textContent = list ? 'Control de costes' : PROVIDER;
+    $('close-per').hidden = true;
+    document.title = (list ? 'Control de costes' : PROVIDER) + ' · Detalle costes';
+    perLabel(); renderDetalle(); placeMenu(); return;
+  }
   if (ap){
     $('v-list').hidden = true; $('content').hidden = true; $('empty').hidden = true; $('actionbar').hidden = true;
     $('crumb-root').hidden = list; $('crumb-sep').style.display = list ? 'none' : '';
@@ -835,7 +965,11 @@ document.addEventListener('click',(e)=>{
     case 'aptipo': S.apTipo=el.dataset.v; break;
     case 'apadd': toast(`Abriría el diálogo para crear un apunte en ${curP().name.toLowerCase()}.`); return;
     // Las pestañas tienen el alcance de la página: en Control de costes, todos los proveedores; dentro de un proveedor, solo ese
-    case 'detalle': toast(S.view==='list' ? 'Abriría Detalle costes de todos los proveedores.' : `Abriría Detalle costes solo de ${PROVIDER} (Épica 2).`); return;
+    case 'tabdetalle': S.tab='detalle'; S.menu=null; break;
+    case 'dctg': { const k = el.dataset.k; S.dcClosed.has(k) ? S.dcClosed.delete(k) : S.dcClosed.add(k); break; }
+    case 'dcfold': if (dcAllOpen()) dcKeys().filter(k=>k.startsWith('p|')).forEach(k=>S.dcClosed.add(k)); else S.dcClosed.clear(); break;
+    case 'dccols': toast('Configurar columnas funciona como hoy y no forma parte de este prototipo.'); return;
+    case 'dcxls': toast(`Descargando <code>Detalle costes_${esc(S.view==='list'?'VELEZ':PROVIDER)}_${curP().name.toLowerCase()}.xlsx</code>: las mismas filas que la pantalla, con cada proveedor en un grupo del esquema de Excel e importes como número.`); return;
     case 'proyecto': toast('El cambio de proyecto no forma parte de este prototipo.'); return;
     case 'back': location.hash = ''; return;
     case 'contrato': e.preventDefault(); toast(`Abriría la ficha del contrato ${el.dataset.code} en una pestaña nueva (obligaciones e información del contrato).`); return;
@@ -876,6 +1010,11 @@ $('table').addEventListener('mouseover', (e)=>{ const el = e.target.closest('.t,
 $('table').addEventListener('mouseout', (e)=>{ const el = e.target.closest('.t, [data-tip]'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
 $('table').addEventListener('focusin', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
 $('table').addEventListener('focusout', ()=>{ tip.hidden = true; });
+$('dct').addEventListener('mouseover', (e)=>{ const el = e.target.closest('[data-tip], .s2'); if (el) showTip(el); });
+$('dct').addEventListener('mouseout', (e)=>{ const el = e.target.closest('[data-tip], .s2'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
+$('dct').addEventListener('focusin', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
+$('dct').addEventListener('focusout', ()=>{ tip.hidden = true; });
+$('dc-scroll').addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
 // La sombra va del borde de Concepto hasta el final de la tabla, solo mientras hay scroll
 function placeShadow(){
   const sc = $('tscroll'), sh = $('skshadow'), ref = document.querySelector('#table .h.sk2'), first = document.querySelector('#table > .g:nth-child(2)');
@@ -895,6 +1034,8 @@ function route(){
   if (h==='#agosto'){ S.period = 8; S.view = 'prov'; }
   else if (h==='#abril'){ S.period = 4; S.view = 'list'; }
   else if (h==='#apuntes'){ S.view = 'list'; S.tab = 'apuntes'; }
+  else if (h==='#detalle'){ S.view = 'list'; S.tab = 'detalle'; }
+  else if (h==='#detalle-proveedor'){ S.view = 'prov'; S.tab = 'detalle'; }
   else S.view = h==='#proveedor' ? 'prov' : 'list';
   // El bloque fuera de contrato se muestra siempre desplegado al entrar en un proveedor
   if (S.view==='prov') S.fueraOpen = true;
