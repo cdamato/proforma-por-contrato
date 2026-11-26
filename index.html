@@ -13,7 +13,7 @@
 :root{
   --bg:#FFFFFF; --chrome:#F4F4F5; --gray50:#FAFAFA; --gray100:#F4F4F5; --gray200:#E4E4E7; --gray300:#D4D4D8;
   --fg:#18181B; --muted:#52525B; --subtle:#71717A;
-  --brand:#527A53; --brand-hover:#3D5C3F; --bar:#4ADE80;
+  --brand:#527A53; --brand-hover:#3D5C3F; --bar:#000000; /* Progress de Pin0 (Gray): relleno fg/default, pista bg/muted */
   --band:#BFDBFE; --band-soft:#EFF6FF;
   --warn-bg:#FFEDD5; --warn-soft:#FFF7ED; --warn-fg:#9A3412; --ok-bg:#DCFCE7; --ok-fg:#166534; --danger:#B91C1C; --danger-bg:#FEF2F2;
   --shadow:0 8px 24px rgba(24,24,27,.10),0 2px 6px rgba(24,24,27,.06);
@@ -117,8 +117,10 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .tglf{height:36px;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--gray300);border-radius:8px;padding:0 12px;background:#fff;font:inherit;font-size:13px;color:var(--fg)}
 .tglf[aria-pressed="true"]{border-color:var(--fg);background:var(--gray100);font-weight:600}
 .tglf:disabled{opacity:.45}
-.cards.c5{grid-template-columns:1.25fr 1fr 1fr 1fr 1.25fr;gap:16px}
-.cards.c6{grid-template-columns:1.1fr 1fr 1fr 1fr 1fr 1.3fr;gap:16px}
+.cards.c4{grid-template-columns:1fr 1fr 1fr 1.4fr;gap:16px}
+/* Estado dentro de la tarjeta de saldo: Badge subtle del DS, solo si se ha pasado */
+.stbadge{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:12px;line-height:16px;font-weight:500;border-radius:6px;padding:2px 8px}
+.stbadge.o{background:#FFEDD5;color:#92310A}.stbadge.r{background:#FEE2E2;color:#991919}
 .big.neg{color:#EF4444}
 .plinks{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;line-height:16px}
 .plink{background:none;border:0;padding:0;font:inherit;color:var(--brand-hover);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
@@ -344,7 +346,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
     <div class="tscroll"><table class="ap-table" id="ap-table"></table></div>
   </div>
   <div id="v-list" hidden>
-  <section class="cards c5" id="l-cards" aria-label="Resumen del proyecto"></section>
+  <section class="cards c4" id="l-cards" aria-label="Resumen del proyecto"></section>
   <div class="toolbar" id="l-tools"><div class="tb-left"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="lq" type="search" placeholder="Buscar" aria-label="Buscar proveedor" autocomplete="off"></label><span id="l-filters" style="display:inline-flex;gap:8px;flex-wrap:wrap"></span></div><div class="tb-right" id="l-right"></div></div>
   <p class="ro-note" id="l-note" hidden></p>
   <section class="empty-state" id="l-empty" hidden><h2 id="l-empty-t"></h2><p>Ningún proveedor tuvo mediciones en este periodo.</p></section>
@@ -352,21 +354,18 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   </div>
   <section class="empty-state" id="empty" hidden><h2 id="empty-t"></h2><p id="empty-p"></p></section>
   <div id="content">
-  <section class="cards c6" aria-label="Resumen del proveedor">
-    <div class="card" id="k-est"></div>
+  <section class="cards c4" aria-label="Resumen del proveedor">
     <div class="card">
       <div class="liq-head lbl" id="k-num">Proforma nº 5</div>
       <div class="liq-row">Liquidación: <span class="badge" id="k-liq"></span></div>
       <div id="k-liq-action"></div>
     </div>
+    <div class="card"><span class="lbl">Saldo disponible</span><span class="big num" id="k-sa"></span><span id="k-est"></span><span class="help" id="k-total-help"></span></div>
     <div class="card"><span class="lbl">Proformado del periodo</span><span class="big num" id="k-per"></span><span class="help" id="k-per-help"></span></div>
-    <div class="card"><span class="lbl">Saldo disponible</span><span class="big num" id="k-sa"></span><span class="help" id="k-total-help"></span></div>
-    <div class="card"><span class="lbl">Fuera de contrato</span><span class="big num" id="k-oc"></span><span class="help" id="k-oc-help"></span></div>
     <div class="card">
       <div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num" id="k-av"></span></div>
       <div class="bar two" role="img" id="k-bar-wrap"><span class="bar-fill" id="k-bar"></span><span class="bar-fill oc" id="k-bar-oc"></span></div>
-      <div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span></span></div>
-      <span class="help" id="k-or-help"></span>
+      <div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span><b class="num" id="k-or"></b></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span><b class="num" id="k-oc"></b><span class="lbl" id="k-oc-help"></span></span></div>
     </div>
   </section>
 
@@ -564,12 +563,14 @@ function renderCards(){
   const saldo = total-origen, av = total?origen/total:0, oc = sum(fz,'ito');
   // Estado: siempre del proveedor (la regla es por proveedor), con lo contratado y lo fuera de contrato
   const pT = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0), pO = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + sum(FUERA,'ito'), pS = pT-pO, e = estado(pT,pS);
-  $('k-est').innerHTML = `<span class="lbl">Estado</span>` + (e ? `<span class="est-big"><span class="stdot ${e}"></span>${EST[e]}</span><span class="help">${porque(e,pT,pS)}</span>` : `<span class="est-big">Con saldo</span><span class="help">Margen si se pasa: ${eur(MARGEN)}</span>`);
+  // El estado va dentro de la tarjeta de saldo, solo si el proveedor se ha pasado
+  $('k-est').innerHTML = e ? `<span class="stbadge ${e}"><span class="stdot ${e}"></span>${EST[e]} · ${porque(e,pT,pS)}</span>` : '';
+  $('k-sa').className = 'big num' + (e ? ' neg-'+e : '');
   const per = (S.filter==='all' ? CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imes'),0) : contractStats(visibleContracts()[0]).imes) + sum(fz,'imes');
   $('k-per').textContent = eur(per); $('k-per-help').textContent = curP().name;
   $('k-sa').textContent = eur(saldo); $('k-total-help').textContent = `Total contratado: ${eur(total)}`;
-  $('k-oc').textContent = eur(oc); $('k-oc-help').textContent = fz.length ? `${fz.length} ${fz.length===1?'línea':'líneas'}` : 'Sin líneas';
-  $('k-av').textContent = pct(av); $('k-or-help').textContent = `Origen proformado: ${eur(origen)}`;
+  $('k-oc').textContent = eur(oc); $('k-oc-help').textContent = fz.length ? `· ${fz.length} ${fz.length===1?'línea':'líneas'}` : '';
+  $('k-av').textContent = pct(av); $('k-or').textContent = eur(origen);
   $('k-bar').style.width = Math.max(0,Math.min(100,av*100))+'%';
   $('k-bar-oc').style.width = Math.max(0,Math.min(100-av*100,total?oc/total*100:0))+'%';
   $('k-bar-wrap').setAttribute('aria-label','Avance de contrato '+pct(av));
@@ -750,8 +751,7 @@ function renderList(){
   $('l-cards').innerHTML = card1 +
     `<div class="card"><span class="lbl">Proformado del periodo</span><span class="big num">${eur(sum(all,'mes'))}</span><span class="help">${curP().name}</span></div>` +
     `<div class="card"><span class="lbl">Saldo disponible</span><span class="big num">${eur(projTotal-org)}</span><span class="help">Total contratado: ${eur(projTotal)}</span></div>` +
-    `<div class="card"><span class="lbl">Fuera de contrato</span><span class="big num">${eur(ocAll)}</span><span class="help">${ocN ? `en ${ocN} ${ocN===1?'proveedor':'proveedores'}` : 'Ningún proveedor'}</span></div>` +
-    `<div class="card"><div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num">${pct(av,1)}</span></div><div class="bar two" role="img" aria-label="Avance de contrato ${pct(av,1)}"><span class="bar-fill" style="width:${Math.min(100,(av*100)-ocW)}%"></span><span class="bar-fill oc" style="width:${ocW}%"></span></div><div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span></span></div></div>`;
+    `<div class="card"><div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num">${pct(av,1)}</span></div><div class="bar two" role="img" aria-label="Avance de contrato ${pct(av,1)}"><span class="bar-fill" style="width:${Math.min(100,(av*100)-ocW)}%"></span><span class="bar-fill oc" style="width:${ocW}%"></span></div><div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span><b class="num">${eur(org-ocAll)}</b></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span><b class="num">${eur(ocAll)}</b>${ocN?`<span class="lbl">· ${ocN} ${ocN===1?'proveedor':'proveedores'}</span>`:''}</span></div></div>`;
   // Barra: un segmentado de vistas. «Se han pasado» junta los dos estados; cada fila dice cuál es.
   $('l-filters').innerHTML = `<span class="segf" role="group" aria-label="Vista"><button type="button" data-act="lstate" data-v="all" aria-pressed="${S.lstate==='all'}">Todos <b>${all.length}</b></button><button type="button" data-act="lstate" data-v="over" aria-pressed="${S.lstate==='over'}" ${over.length?'':'disabled'}><span class="stdot ro"></span>Se han pasado <b>${over.length}</b></button><button type="button" data-act="lstate" data-v="oc" aria-pressed="${S.lstate==='oc'}" ${ocN?'':'disabled'}><span class="stdot a"></span>Con fuera de contrato <b>${ocN}</b></button></span>`;
   const note = $('l-note'); note.hidden = !isPast() || none;
