@@ -92,10 +92,13 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .wrap{padding:24px 16px 120px}
 
 /* listado de proveedores */
-.lg-g{display:grid;grid-template-columns:48px minmax(300px,1fr) 120px 170px 170px 170px 170px}
-.lt.oc .lg-g{grid-template-columns:48px minmax(300px,1fr) 120px 170px 170px 170px 170px 170px}
+.lg-g{display:grid;grid-template-columns:minmax(300px,1fr) 120px 170px 170px 170px 170px 52px}
+.lt.oc .lg-g{grid-template-columns:minmax(300px,1fr) 120px 170px 170px 170px 170px 170px 52px}
+/* Descarga por fila: IconButton ghost del DS, solo si el proveedor tiene proforma */
+.dlbtn{width:32px;height:32px;border:0;background:none;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#3F3F46}
+.dlbtn:hover{background:var(--gray100)}
 .lt{min-width:1150px}
-/* Tarea 2 · quién se ha pasado: franja y fila tintada por estado (Pin0: red fuera de margen, orange superado, yellow a punto; fuera de contrato en yellow/solid) */
+/* Tarea 2 · quién se ha pasado: franja y fila tintada por estado (Pin0: red fuera de margen, orange superado; cifras en fg/error y fg/warning; fuera de contrato en yellow/solid) */
 .lrow.st-r .c{background:#FEF2F2}.lrow.st-o .c{background:#FFF7ED}
 .lrow.st-r:hover .c{background:#FEE2E2}.lrow.st-o:hover .c{background:#FFEDD5}
 .lrow.st-r .c:first-child{box-shadow:inset 4px 0 0 #DC2626}.lrow.st-o .c:first-child{box-shadow:inset 4px 0 0 #EA580C}
@@ -103,9 +106,9 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .lt .c.two{height:auto;min-height:36px;flex-direction:column;align-items:flex-start;justify-content:center;padding-block:6px;gap:2px}
 .why{display:flex;align-items:center;gap:6px;font-size:12px;line-height:16px}
 .why.r{color:#991919}.why.o{color:#92310A}.why.g{color:var(--muted)}
-.neg-r{color:#991919;font-weight:600}.neg-o{color:#92310A;font-weight:600}
+.neg-r{color:#EF4444;font-weight:600}.neg-o{color:#EA580C;font-weight:600}
 .stdot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 9px}
-.stdot.r{background:#DC2626}.stdot.o{background:#EA580C}.stdot.a{background:#FDE047;border-radius:2px}
+.stdot.ro{background:linear-gradient(90deg,#DC2626 50%,#EA580C 50%)}.stdot.r{background:#DC2626}.stdot.o{background:#EA580C}.stdot.a{background:#FDE047;border-radius:2px}
 .segf{display:inline-flex;background:var(--gray100);border-radius:8px;padding:3px;gap:2px;height:36px;align-items:center}
 .segf button{border:0;background:none;border-radius:6px;padding:0 12px;height:30px;font:inherit;font-size:13px;color:#3F3F46;display:inline-flex;align-items:center;gap:7px}
 .segf button[aria-pressed="true"]{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600;color:var(--fg)}
@@ -116,7 +119,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .tglf:disabled{opacity:.45}
 .cards.c5{grid-template-columns:1.25fr 1fr 1fr 1fr 1.25fr;gap:16px}
 .cards.c6{grid-template-columns:1.1fr 1fr 1fr 1fr 1fr 1.3fr;gap:16px}
-.big.neg{color:#991919}
+.big.neg{color:#EF4444}
 .plinks{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;line-height:16px}
 .plink{background:none;border:0;padding:0;font:inherit;color:var(--brand-hover);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
 .bar.two{display:flex}
@@ -342,7 +345,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   </div>
   <div id="v-list" hidden>
   <section class="cards c5" id="l-cards" aria-label="Resumen del proyecto"></section>
-  <div class="toolbar" id="l-tools"><div class="tb-left"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="lq" type="search" placeholder="Buscar" aria-label="Buscar proveedor" autocomplete="off"></label><span id="l-filters" style="display:inline-flex;gap:8px;flex-wrap:wrap"></span></div></div>
+  <div class="toolbar" id="l-tools"><div class="tb-left"><label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#52525B" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="lq" type="search" placeholder="Buscar" aria-label="Buscar proveedor" autocomplete="off"></label><span id="l-filters" style="display:inline-flex;gap:8px;flex-wrap:wrap"></span></div><div class="tb-right" id="l-right"></div></div>
   <p class="ro-note" id="l-note" hidden></p>
   <section class="empty-state" id="l-empty" hidden><h2 id="l-empty-t"></h2><p>Ningún proveedor tuvo mediciones en este periodo.</p></section>
   <div class="tscroll" id="l-scroll"><div class="table lt" id="ltable" role="table" aria-label="Proformas por proveedor"></div></div>
@@ -564,7 +567,7 @@ function renderCards(){
   $('k-est').innerHTML = `<span class="lbl">Estado</span>` + (e ? `<span class="est-big"><span class="stdot ${e}"></span>${EST[e]}</span><span class="help">${porque(e,pT,pS)}</span>` : `<span class="est-big">Con saldo</span><span class="help">Margen si se pasa: ${eur(MARGEN)}</span>`);
   const per = (S.filter==='all' ? CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imes'),0) : contractStats(visibleContracts()[0]).imes) + sum(fz,'imes');
   $('k-per').textContent = eur(per); $('k-per-help').textContent = curP().name;
-  $('k-sa').textContent = eur(saldo); $('k-total-help').textContent = `Total contratado: ${eur(total)} · ${help}`;
+  $('k-sa').textContent = eur(saldo); $('k-total-help').textContent = `Total contratado: ${eur(total)}`;
   $('k-oc').textContent = eur(oc); $('k-oc-help').textContent = fz.length ? `${fz.length} ${fz.length===1?'línea':'líneas'}` : 'Sin líneas';
   $('k-av').textContent = pct(av); $('k-or-help').textContent = `Origen proformado: ${eur(origen)}`;
   $('k-bar').style.width = Math.max(0,Math.min(100,av*100))+'%';
@@ -723,6 +726,7 @@ function providerRows(){
     ? {name:n, n:k, total:t, org: HIST[n] ? h(n,m) : (m===9 ? o : 0), mes: HIST[n] ? h(n,m)-h(n,m-1) : 0, acme:false}
     : {name:PROVIDER, n:k, total:tot, org, mes, acme:true});
 }
+const DLICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>`;
 const SORTICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>`;
 function renderList(){
   const all = providerRows();
@@ -738,43 +742,45 @@ function renderList(){
   // Estado y fuera de contrato de cada proveedor
   all.forEach(r=>{ r.s = r.total-r.org; r.e = estado(r.total, r.s); r.oc = r.acme ? sum(FUERA,'ito') : 0; });
   const over = all.filter(r=>r.e==='r'||r.e==='o'), ocAll = sum(all,'oc'), ocN = all.filter(r=>r.oc).length;
-  // Cabecera: informa (no filtra). Los nombres de los que se han pasado llevan directo a su proforma.
+  // Cabecera: informa; «Ver» lleva a la vista «Se han pasado» de la tabla.
   const card1 = over.length
-    ? `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num neg">${eur(sum(over,'s'))}</span><span class="help">en ${over.length} ${over.length===1?'proveedor':'proveedores'}:</span><span class="plinks">${over.map(r=>`<button class="plink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>`).join('')}</span></div>`
+    ? `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num neg">${eur(sum(over,'s'))}</span><span class="help">en ${over.length} ${over.length===1?'proveedor':'proveedores'} · <button class="plink" type="button" data-act="lstate" data-v="over" data-scroll="1">Ver</button></span></div>`
     : `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num">${eur(0)}</span><span class="help">Ningún proveedor se ha pasado</span></div>`;
   const ocW = projTotal ? Math.min(100-av*100, ocAll/projTotal*100) : 0;
   $('l-cards').innerHTML = card1 +
     `<div class="card"><span class="lbl">Proformado del periodo</span><span class="big num">${eur(sum(all,'mes'))}</span><span class="help">${curP().name}</span></div>` +
-    `<div class="card"><span class="lbl">Saldo disponible</span><span class="big num">${eur(projTotal-org)}</span><span class="help">Total contratado: ${eur(projTotal)} · ${all.length} proveedores · ${nContr} contratos</span></div>` +
+    `<div class="card"><span class="lbl">Saldo disponible</span><span class="big num">${eur(projTotal-org)}</span><span class="help">Total contratado: ${eur(projTotal)}</span></div>` +
     `<div class="card"><span class="lbl">Fuera de contrato</span><span class="big num">${eur(ocAll)}</span><span class="help">${ocN ? `en ${ocN} ${ocN===1?'proveedor':'proveedores'}` : 'Ningún proveedor'}</span></div>` +
     `<div class="card"><div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num">${pct(av,1)}</span></div><div class="bar two" role="img" aria-label="Avance de contrato ${pct(av,1)}"><span class="bar-fill" style="width:${Math.min(100,(av*100)-ocW)}%"></span><span class="bar-fill oc" style="width:${ocW}%"></span></div><div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span></span></div></div>`;
-  // Barra: filtro por estado (mismos colores que la tabla) y botón de fuera de contrato
-  const n = k=>all.filter(r=>r.e===k).length;
-  $('l-filters').innerHTML = `<span class="segf" role="group" aria-label="Filtrar por estado"><button type="button" data-act="lstate" data-v="all" aria-pressed="${S.lstate==='all'}">Todos <b>${all.length}</b></button>${['r','o'].map(k=>`<button type="button" data-act="lstate" data-v="${k}" aria-pressed="${S.lstate===k}" ${n(k)?'':'disabled'}><span class="stdot ${k}"></span>${EST[k]} <b>${n(k)}</b></button>`).join('')}</span><button class="tglf" type="button" data-act="loc" aria-pressed="${S.loc}" ${ocN?'':'disabled'}><span class="stdot a"></span>Con fuera de contrato <b>${ocN}</b></button>`;
+  // Barra: un segmentado de vistas. «Se han pasado» junta los dos estados; cada fila dice cuál es.
+  $('l-filters').innerHTML = `<span class="segf" role="group" aria-label="Vista"><button type="button" data-act="lstate" data-v="all" aria-pressed="${S.lstate==='all'}">Todos <b>${all.length}</b></button><button type="button" data-act="lstate" data-v="over" aria-pressed="${S.lstate==='over'}" ${over.length?'':'disabled'}><span class="stdot ro"></span>Se han pasado <b>${over.length}</b></button><button type="button" data-act="lstate" data-v="oc" aria-pressed="${S.lstate==='oc'}" ${ocN?'':'disabled'}><span class="stdot a"></span>Con fuera de contrato <b>${ocN}</b></button></span>`;
   const note = $('l-note'); note.hidden = !isPast() || none;
   if (isPast()) note.textContent = `Periodo cerrado: solo aparecen los proveedores con proforma en ${curP().name.toLowerCase()}. Puedes consultarlas y exportarlas, pero no editarlas.`;
   if (S.lq) rows = rows.filter(r=>r.name.toLowerCase().includes(S.lq));
-  if (S.lstate!=='all') rows = rows.filter(r=>r.e===S.lstate);
-  if (S.loc) rows = rows.filter(r=>r.oc>0);
-  $('ltable').classList.toggle('oc', S.loc);
+  const loc = S.lstate==='oc';
+  if (S.lstate==='over') rows = rows.filter(r=>r.e);
+  if (loc) rows = rows.filter(r=>r.oc>0);
+  $('ltable').classList.toggle('oc', loc);
   const {k,dir} = S.sort;
   rows = rows.slice().sort((a,b)=>{
     const va = k==='saldo' ? a.total-a.org : a[k], vb = k==='saldo' ? b.total-b.org : b[k];
     return (typeof va==='string' ? va.localeCompare(vb,'es',{sensitivity:'base'}) : va-vb) * dir;
   });
   const th = (key,label,end)=>{ const on = S.sort.k===key; return `<span class="c h${end?' e':''}" role="columnheader"><button class="sort${end?' e':''}" type="button" data-act="sort" data-k="${key}" ${on?`aria-sort="${dir>0?'ascending':'descending'}"`:''}>${label}${SORTICON}</button></span>`; };
-  const allSel = rows.length && rows.every(r=>S.lsel.has(r.name));
-  const t = [`<div class="lg-g" role="row"><span class="c h cen pad0 ck-cell"><input type="checkbox" data-act="lselall" ${allSel?'checked':''} aria-label="Seleccionar todos"></span>${th('name','Proveedor')}${th('n','Nº contratos',1)}${th('total','Total contratado',1)}${th('org','Origen proformado',1)}${th('mes',curP().name,1)}${S.loc?th('oc','Fuera de contrato',1):''}${th('saldo','Saldo disponible',1)}</div>`];
+  // Descarga: botón por fila si hay proforma, y arriba todas las de la tabla tal como esté filtrada
+  const hasPf = r=>r.org>0 || Math.abs(r.mes)>0.0005, nDl = rows.filter(hasPf).length;
+  $('l-right').innerHTML = nDl ? `<button class="btn" type="button" data-act="dlall" data-n="${nDl}">${DLICON}Descargar proformas (${nDl})</button>` : '';
+  const t = [`<div class="lg-g" role="row">${th('name','Proveedor')}${th('n','Nº contratos',1)}${th('total','Total contratado',1)}${th('org','Origen proformado',1)}${th('mes',curP().name,1)}${loc?th('oc','Fuera de contrato',1):''}${th('saldo','Saldo disponible',1)}<span class="c h" role="columnheader" aria-label="Descargar"></span></div>`];
   // Contratos por encima dentro de un proveedor en margen (solo hay detalle por contrato de ACME en el prototipo)
   const pasados = CONTRACTS.filter(c=>contractStats(c).saldo<0);
   for (const r of rows){
     const multi = r.acme && !r.e && pasados.length ? `<span class="why g">${pasados.length} de ${CONTRACTS.length} contratos por encima (${pasados.map(c=>c.code).join(', ')})</span>` : '';
     const why = (r.e==='r'||r.e==='o') ? `<span class="why ${r.e}"><span class="stdot ${r.e}"></span><b>${EST[r.e]}</b> · ${porque(r.e,r.total,r.s)}</span>` : '';
     const sub = why || multi;
-    t.push(`<div class="lg-g lrow${r.e?' st-'+r.e:''}" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c cen pad0 ck-cell"><input type="checkbox" data-act="lsel" data-name="${esc(r.name)}" ${S.lsel.has(r.name)?'checked':''} aria-label="Seleccionar ${esc(r.name)}"></span><span class="c${sub?' two':''}"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>${sub}</span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e">${eur(r.mes)}</span>${S.loc?`<span class="c e">${r.oc?eur(r.oc):'—'}</span>`:''}<span class="c e nb"><span class="${r.e?'neg-'+r.e:''}">${eur(r.s)}</span></span></div>`);
+    t.push(`<div class="lg-g lrow${r.e?' st-'+r.e:''}" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c${sub?' two':''}"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>${sub}</span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e">${eur(r.mes)}</span>${loc?`<span class="c e">${r.oc?eur(r.oc):'—'}</span>`:''}<span class="c e nb"><span class="${r.e?'neg-'+r.e:''}">${eur(r.s)}</span></span><span class="c cen pad0">${hasPf(r)?`<button class="dlbtn" type="button" data-act="dlone" data-name="${esc(r.name)}" data-tip="Descargar proforma" aria-label="Descargar proforma de ${esc(r.name)}">${DLICON}</button>`:''}</span></div>`);
   }
   if (!rows.length) t.push(`<div class="lg-g"><div class="empty" style="grid-column:1/-1">Ningún proveedor coincide con la búsqueda.</div></div>`);
-  t.push(`<div class="lg-g total" role="row"><span class="c" style="grid-column:1/3">Total</span><span class="c e">${sum(rows,'n')}</span><span class="c e">${eur(sum(rows,'total'))}</span><span class="c e">${eur(sum(rows,'org'))}</span><span class="c e">${eur(sum(rows,'mes'))}</span>${S.loc?`<span class="c e">${eur(sum(rows,'oc'))}</span>`:''}<span class="c e nb">${eur(sum(rows,'total')-sum(rows,'org'))}</span></div>`);
+  t.push(`<div class="lg-g total" role="row"><span class="c">Total</span><span class="c e">${sum(rows,'n')}</span><span class="c e">${eur(sum(rows,'total'))}</span><span class="c e">${eur(sum(rows,'org'))}</span><span class="c e">${eur(sum(rows,'mes'))}</span>${loc?`<span class="c e">${eur(sum(rows,'oc'))}</span>`:''}<span class="c e nb">${eur(sum(rows,'total')-sum(rows,'org'))}</span><span class="c"></span></div>`);
   $('ltable').innerHTML = t.join('');
 }
 function renderApuntes(){
@@ -892,8 +898,9 @@ document.addEventListener('click',(e)=>{
     case 'back': location.hash = ''; return;
     case 'contrato': e.preventDefault(); toast(`Abriría la ficha del contrato ${el.dataset.code} en una pestaña nueva (obligaciones e información del contrato).`); return;
     case 'openprov': if (e.target.closest('input')) return; if (el.dataset.name===PROVIDER){ S.tab='proformas'; location.hash = 'proveedor'; } else { toast('En el prototipo solo se puede abrir la proforma de ' + PROVIDER + '.'); } return;
-    case 'lstate': S.lstate = el.dataset.v; break;
-    case 'loc': S.loc = !S.loc; if (S.loc) S.sort = {k:'oc', dir:-1}; else if (S.sort.k==='oc') S.sort = {k:'name', dir:1}; break;
+    case 'lstate': S.lstate = el.dataset.v; if (S.lstate==='oc') S.sort = {k:'oc', dir:-1}; else if (S.sort.k==='oc') S.sort = {k:'name', dir:1}; if (el.dataset.scroll) setTimeout(()=>$('l-tools').scrollIntoView({behavior:'smooth',block:'start'}),0); break;
+    case 'dlone': toast(`Descargando <code>Proforma ${esc(el.dataset.name)} · ${esc(curP().name)}.pdf</code>`); return;
+    case 'dlall': toast(`Descargando ZIP con ${el.dataset.n} proformas de ${esc(curP().name.toLowerCase())}`); return;
     case 'sort': { const k = el.dataset.k; S.sort = S.sort.k===k ? {k, dir:-S.sort.dir} : {k, dir: k==='name'?1:-1}; break; }
     case 'lsel': case 'lselall': return;
     case 'cerrar': toast('Cerrar periodo es un flujo aparte y no está en este prototipo.'); return;
@@ -929,6 +936,9 @@ function showTip(el){
 $('table').addEventListener('mouseover', (e)=>{ const el = e.target.closest('.t, [data-tip]'); if (el) showTip(el); });
 $('table').addEventListener('mouseout', (e)=>{ const el = e.target.closest('.t, [data-tip]'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
 $('table').addEventListener('focusin', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
+$('ltable').addEventListener('mouseover', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
+$('ltable').addEventListener('mouseout', (e)=>{ const el = e.target.closest('[data-tip]'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
+$('ltable').addEventListener('focusin', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
 $('table').addEventListener('focusout', ()=>{ tip.hidden = true; });
 // La sombra va del borde de Concepto hasta el final de la tabla, solo mientras hay scroll
 function placeShadow(){
