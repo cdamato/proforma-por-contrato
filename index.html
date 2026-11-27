@@ -793,11 +793,13 @@ function renderList(){
   $('l-right').innerHTML = nDl ? `<button class="btn" type="button" data-act="dlall" data-n="${nDl}">${DLICON}Descargar proformas (${nDl})</button>` : '';
   const t = [`<div class="lg-g" role="row">${th('name','Proveedor')}${th('n','Nº contratos',1)}${th('total','Total contratado',1)}${th('org','Origen proformado',1)}${th('mes',curP().name,1)}${loc?th('oc','Fuera de contrato',1):''}${th('saldo','Saldo disponible',1)}<span class="c h" role="columnheader" aria-label="Descargar"></span></div>`];
   // Contratos por encima dentro de un proveedor en margen (solo hay detalle por contrato de ACME en el prototipo)
-  const pasados = CONTRACTS.filter(c=>contractStats(c).saldo<0);
+  // Con su fuera de contrato asignado, como la ejecución y el saldo de la ficha
+  const pasados = CONTRACTS.filter(c=>contractStats(c,true).saldo<0);
   for (const r of rows){
-    const multi = r.acme && !r.e && pasados.length ? `<span class="why g">${pasados.length} de ${CONTRACTS.length} contratos por encima (${pasados.map(c=>c.code).join(', ')})</span>` : '';
+    // El contrato pasado se sigue viendo si el proveedor no se ha pasado (sin estado o «En riesgo»)
+    const multi = r.acme && (!r.e || r.e==='y') && pasados.length ? `<span class="why g">${pasados.length} de ${CONTRACTS.length} contratos por encima (${pasados.map(c=>c.code).join(', ')})</span>` : '';
     const why = r.e ? `<span class="why ${r.e}"><span class="stdot ${r.e}"></span><b>${EST[r.e]}</b> · ${porque(r.e,r.s,r.oc)}</span>` : '';
-    const sub = why || multi;
+    const sub = why + multi;
     t.push(`<div class="lg-g lrow${r.e?' st-'+r.e:''}" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c${sub?' two':''}"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>${sub}</span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e">${eur(r.mes)}</span>${loc?`<span class="c e">${r.oc?eur(r.oc):'—'}</span>`:''}<span class="c e nb"><span class="${r.e==='r'||r.e==='o'?'neg-'+r.e:''}">${eur(r.s)}</span></span><span class="c cen pad0">${hasPf(r)?`<button class="dlbtn" type="button" data-act="dlone" data-name="${esc(r.name)}" data-tip="Descargar proforma" aria-label="Descargar proforma de ${esc(r.name)}">${DLICON}</button>`:''}</span></div>`);
   }
   if (!rows.length) t.push(`<div class="lg-g"><div class="empty" style="grid-column:1/-1">Ningún proveedor coincide con la búsqueda.</div></div>`);
