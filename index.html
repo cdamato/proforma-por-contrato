@@ -286,9 +286,13 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .dct{border-collapse:separate;border-spacing:0;width:100%;min-width:1700px;font-size:14px}
 .dct th,.dct td{padding:8px 12px;border-bottom:1px solid var(--gray200);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;background:#fff}
 .dct .l{text-align:left}
-.dct .s1{position:sticky;left:0;z-index:2;width:420px;min-width:420px;max-width:420px;overflow:hidden;text-overflow:ellipsis}
-.dct .s2{position:sticky;left:420px;z-index:2;width:200px;min-width:200px;max-width:200px;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--gray200)}
-.dct .s12{position:sticky;left:0;z-index:2;max-width:620px;overflow:hidden;text-overflow:ellipsis;box-shadow:inset -1px 0 0 var(--gray200)}
+/* Columnas fijas a la izquierda: su número y ancho dependen de «Agrupar por» y de «Configurar columnas» (left y width en línea) */
+.dct .lc{position:sticky;z-index:2;overflow:hidden;text-overflow:ellipsis}
+.dct .lc.last{box-shadow:inset -1px 0 0 var(--gray200)}
+.dc-gl{color:var(--muted);font-weight:400}
+.mi.cbx{flex-direction:row;align-items:center;justify-content:flex-start;gap:10px}
+.mi .cb{width:16px;height:16px;border:1px solid var(--gray300);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex:none;background:#fff;color:#fff}
+.mi .cb.on{background:#18181B;border-color:#18181B}
 .dct thead th{font-weight:500}
 .dct thead tr.gr th{border:0;padding:0;background:#fff}
 .dct thead tr.gr th.gh{padding:6px 12px;text-align:center;font-weight:500}
@@ -344,7 +348,8 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   </div>
   <div id="v-detalle" hidden>
     <div class="dc-bar">
-      <button class="btn sq" type="button" data-act="dccols" aria-label="Configurar columnas" title="Configurar columnas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg></button>
+      <button class="btn sq" type="button" id="dc-cols" data-act="dccols" aria-haspopup="menu" aria-expanded="false" aria-label="Configurar columnas" title="Configurar columnas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg></button>
+      <button class="btn" type="button" id="dc-group" data-act="dcgroup" aria-haspopup="listbox" aria-expanded="false" hidden></button>
       <button class="btn" type="button" id="dc-fold" data-act="dcfold"></button>
       <span class="dc-leg" id="dc-leg" hidden></span>
       <button class="btn" type="button" data-act="dcxls" style="margin-left:auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</button>
@@ -510,7 +515,7 @@ const PERIODS = [
   {m:4, name:'Abril 2026', num:0},
   {m:3, name:'Marzo 2026', num:0}
 ];
-const S = { view:'list', tab:'proformas', apAll:false, apProv:'all', apTipo:'todos', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9, dcClosed:new Set() };
+const S = { view:'list', tab:'proformas', apAll:false, apProv:'all', apTipo:'todos', sort:{k:'name',dir:1}, lq:'', lsel:new Set(), open:new Set(['HC-26150029']), fueraOpen:true, filter:'all', q:'', liquidated:false, menu:null, anchor:null, period:9, dcClosed:new Set(), dcVar:'a', dcGroup:'prov', dcHide:new Set() };
 const curP = ()=>PERIODS.find(p=>p.m===S.period);
 const isPast = ()=>S.period!==9;
 const readOnly = ()=>S.liquidated || isPast();
@@ -660,6 +665,11 @@ function renderTable(){
 // ---------- menús flotantes (fixed, fuera del scroll de la tabla) ----------
 function menuHTML(){
   const m = S.menu; if (!m) return '';
+  // Detalle costes, versión B: agrupar las filas por proveedor (árbol) o por contrato (lista)
+  if (m==='dcgroup') return DC_GROUPBY.map(([v,l])=>`<button class="mi row ${S.dcGroup===v?'on':''}" type="button" role="option" aria-selected="${S.dcGroup===v}" data-act="setdcgroup" data-v="${v}"><span>${l}</span>${S.dcGroup===v?CHECK_D:''}</button>`).join('');
+  // Configurar columnas: la agrupación de compra y los grupos de importes se pueden quitar
+  if (m==='dccols') return `<div class="mh">Columnas</div>` + [['ag','Agrupación de compra']].concat(DC_COLGROUPS.map(g=>[g.k,g.h])).map(([v,l])=>{ const on = !S.dcHide.has(v);
+    return `<button class="mi cbx" type="button" role="menuitemcheckbox" aria-checked="${on}" data-act="dccol" data-v="${v}"><span class="cb${on?' on':''}" aria-hidden="true">${on?CHECK_S:''}</span><span>${l}</span></button>`; }).join('');
   if (m==='periodo'){
     const note = (S.tab==='apuntes' && S.apAll) ? `<div class="mi-note">Apuntes: todos los periodos. Elige un mes para volver a filtrar.</div>` : '';
     return note + PERIODS.map(p=>{
@@ -698,6 +708,8 @@ function anchorFor(m){
   if (m==='periodo') return $('per-btn');
   if (m==='dl') return $('dl-btn');
   if (m==='bulkassign') return $('ab-assign');
+  if (m==='dcgroup') return $('dc-group');
+  if (m==='dccols') return $('dc-cols');
   const [kind,id] = m.split('-'); return document.querySelector(`[data-act="${kind}"][data-id="${id}"]`);
 }
 function placeMenu(){
@@ -705,8 +717,8 @@ function placeMenu(){
   if (!S.menu){ fl.hidden = true; fl.className = 'menu'; return; }
   const a = anchorFor(S.menu); if (!a){ S.menu = null; fl.hidden = true; return; }
   fl.className = (S.menu==='dl' || S.menu==='filter') ? 'menu wide' : 'menu';
-  fl.setAttribute('role', S.menu==='dl' ? 'menu' : 'listbox');
-  fl.setAttribute('aria-label', S.menu==='dl' ? 'Exportar un contrato' : 'Opciones');
+  fl.setAttribute('role', (S.menu==='dl' || S.menu==='dccols') ? 'menu' : 'listbox');
+  fl.setAttribute('aria-label', {dl:'Exportar un contrato', dccols:'Configurar columnas', dcgroup:'Agrupar por'}[S.menu] || 'Opciones');
   fl.innerHTML = menuHTML(); fl.hidden = false;
   const r = a.getBoundingClientRect(), w = fl.offsetWidth, h = fl.offsetHeight, vw = innerWidth, vh = innerHeight;
   let left = (S.menu==='dl' || S.menu==='periodo') ? r.right - w : r.left;
@@ -717,6 +729,8 @@ function placeMenu(){
   $('dl-btn').setAttribute('aria-expanded', S.menu==='dl');
   $('per-btn').setAttribute('aria-expanded', S.menu==='periodo');
   $('ab-assign').setAttribute('aria-expanded', S.menu==='bulkassign');
+  $('dc-group').setAttribute('aria-expanded', S.menu==='dcgroup');
+  $('dc-cols').setAttribute('aria-expanded', S.menu==='dccols');
 }
 function renderActionbar(){
   const n = FUERA.filter(f=>f.checked).length;
@@ -830,46 +844,76 @@ const dcVals = (r)=>[r.ini, r.amp, r.ini+r.amp, ...r.pr, ...r.tr];
 const dcSum = (rows)=>rows.reduce((a,r)=>a.map((x,i)=>x+dcVals(r)[i]), [0,0,0,0,0,0,0,0,0]);
 const dcGroups = (rows)=>{ const m = new Map(); rows.forEach(r=>{ if(!m.has(r.p)) m.set(r.p,[]); m.get(r.p).push(r); }); return [...m].map(([p,rs])=>({p,rs})); };
 function dcKeys(){ return dcData().flatMap(c=>['c|'+c.name].concat(dcGroups(c.rows).map(g=>'p|'+c.name+'|'+g.p))); }
-const dcAllOpen = ()=>!dcKeys().some(k=>k.startsWith('p|') && S.dcClosed.has(k));
+// Versión B (#detalle-agrupar): «Agrupar por» Proveedor (árbol, como la A) o Contrato (un contrato por fila, ordenado por código)
+const DC_GROUPBY = [['prov','Proveedor'],['contrato','Contrato']];
+const dcByContract = ()=>S.view==='list' && S.dcVar==='b' && S.dcGroup==='contrato';
+// «Plegar todo» pliega los proveedores en el árbol y las categorías en la lista por contrato
+const dcFoldKeys = ()=>dcByContract() ? dcData().map(c=>'c|'+c.name) : dcKeys().filter(k=>k.startsWith('p|'));
+const dcAllOpen = ()=>!dcFoldKeys().some(k=>S.dcClosed.has(k));
+const DC_COLGROUPS = [{k:'g1',cls:'g1',h:'Contrato proveedor',cols:['Importe inicial','Ampliación','Contrato total']},{k:'g2',cls:'g2',h:'Proformas proveedores',cols:['Origen','Anterior','Periodo']},{k:'g3',cls:'g3',h:'Traspaso a CI-CD',cols:['Origen','Anterior','Periodo']}];
+const CHECK_D = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+const CHECK_S = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+// Columnas fijas de la izquierda según la vista
+function dcLeft(){
+  const list = S.view==='list';
+  const c = dcByContract() ? [{k:'code',h:'Contrato',w:170},{k:'prov',h:'Proveedor',w:340}] : [{k:'tree',h:list?'Proveedor · Contrato':'Contrato',w:420}];
+  if (!S.dcHide.has('ag')) c.push({k:'ag',h:'Agrupación de compra',w:200});
+  let x = 0; return c.map((o,i,a)=>{ const r = {...o, left:x, last:i===a.length-1}; x += o.w; return r; });
+}
 const CHEV_D = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const CHEV_R = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
 const CDCI = {CD:'coste directo', CI:'coste indirecto'};
 const trTxt = (a,b)=>`Traspaso de ${CDCI[a]} a ${CDCI[b]}`;
 const TRICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h11l-3-3"/><path d="M17 17H6l3 3"/></svg>';
 function renderDetalle(){
-  const list = S.view==='list', cats = dcData();
-  const tdn = (v)=>v.map(x=>`<td>${eur(x)}</td>`).join('');
+  const list = S.view==='list', cats = dcData(), byC = dcByContract();
+  const L = dcLeft(), LW = L.reduce((a,c)=>a+c.w,0);
+  const GS = DC_COLGROUPS.map((g,i)=>({...g,i})).filter(g=>!S.dcHide.has(g.k));
+  const idx = GS.flatMap(g=>[g.i*3, g.i*3+1, g.i*3+2]);
+  const tdn = (v)=>idx.map(i=>`<td>${eur(v[i])}</td>`).join('');
   // La línea de traspaso no es un contrato: sin importes de contrato y con la etiqueta de dónde viene
-  const tdr = (r)=>r.from ? '<td>—</td><td>—</td><td>—</td>'+tdn(dcVals(r).slice(3)) : tdn(dcVals(r));
+  const tdr = (r)=>{ const v = dcVals(r); return r.from ? idx.map(i=>i<3?'<td>—</td>':`<td>${eur(v[i])}</td>`).join('') : tdn(v); };
+  // Celdas fijas: una por columna de la izquierda, o una sola que las abarca todas (filas de total y categoría)
+  const st = (c)=>`left:${c.left}px;width:${c.w}px;min-width:${c.w}px;max-width:${c.w}px`;
+  const lc = (c,inner,cls,tag)=>`<${tag||'td'} class="l lc${c.last?' last':''}${cls?' '+cls:''}" style="${st(c)}">${inner}</${tag||'td'}>`;
+  const span = (inner,cls)=>`<td class="l lc last${cls?' '+cls:''}" colspan="${L.length}" style="left:0;max-width:${LW}px">${inner}</td>`;
   // Agrupación de compra: la primera y «+N» si hay más (todas en el tooltip). En la de traspaso, «CD → CI» con el texto entero en el tooltip y en la leyenda.
   const agT = (r,G)=>{ if (r.from) return `<span class="badge sm" style="margin-left:0" data-tip="${esc(trTxt(r.from,G))}" tabindex="0">${r.from} → ${G}</span>`; const t = r.ag[0] + (r.ag.length>1 ? ` +${r.ag.length-1}` : ''); return `<span class="ag"${r.ag.length>1?` data-tip="${esc(r.ag.join(', '))}" tabindex="0"`:''}>${esc(t)}</span>`; };
   const chev = (k,name)=>{ const o = !S.dcClosed.has(k); return `<button type="button" class="dchev" data-act="dctg" data-k="${esc(k)}" aria-expanded="${o}" aria-label="${o?'Plegar':'Desplegar'} ${esc(name)}">${o?CHEV_D:CHEV_R}</button>`; };
-  // Columna de árbol a la izquierda (categoría › proveedor › contrato) y la agrupación de compra en la siguiente
-  let h = `<thead><tr class="gr"><th class="s1"></th><th class="s2"></th><th class="gh g1" colspan="3">Contrato proveedor</th><th class="gh g2" colspan="3">Proformas proveedores</th><th class="gh g3" colspan="3">Traspaso a CI-CD</th></tr>
-    <tr class="hd"><th class="l s1">${list?'Proveedor · Contrato':'Contrato'}</th><th class="l s2">Agrupación de compra</th><th>Importe inicial</th><th>Ampliación</th><th>Contrato total</th><th>Origen</th><th>Anterior</th><th>Periodo</th><th>Origen</th><th>Anterior</th><th>Periodo</th></tr></thead><tbody>`;
-  h += `<tr class="t1"><td class="l s12" colspan="2">TOTAL HARD COST + CI</td>${tdn(dcSum(cats.flatMap(c=>c.rows)))}</tr>`;
+  // Columnas fijas a la izquierda y, después, los grupos de importes que estén a la vista
+  const cell = (c,r,G,lv)=>c.k==='ag' ? lc(c, agT(r,G)) : c.k==='prov' ? lc(c, esc(r.p)) : lc(c, (lv==='lv1'&&!byC?'<span class="sp"></span>':'')+r.code, lv);
+  let h = `<thead><tr class="gr">${L.map(c=>lc(c,'','', 'th')).join('')}${GS.map(g=>`<th class="gh ${g.cls}" colspan="3">${g.h}</th>`).join('')}</tr>
+    <tr class="hd">${L.map(c=>lc(c,c.h,'','th')).join('')}${GS.map(g=>g.cols.map(x=>`<th>${x}</th>`).join('')).join('')}</tr></thead><tbody>`;
+  h += `<tr class="t1">${span('TOTAL HARD COST + CI')}${tdn(dcSum(cats.flatMap(c=>c.rows)))}</tr>`;
   ['CD','CI'].forEach(G=>{
     const cs = cats.filter(c=>c.grp===G); if (!cs.length) return;
-    h += `<tr class="t2"><td class="l s12" colspan="2">TOTAL ${G}</td>${tdn(dcSum(cs.flatMap(c=>c.rows)))}</tr>`;
+    h += `<tr class="t2">${span('TOTAL '+G)}${tdn(dcSum(cs.flatMap(c=>c.rows)))}</tr>`;
     cs.forEach(c=>{
       const ck = 'c|'+c.name, co = !S.dcClosed.has(ck);
-      h += `<tr class="cat" data-act="dctg" data-k="${esc(ck)}"><td class="l s12 lv0" colspan="2">${chev(ck,c.name)}${esc(c.name)}</td>${tdn(dcSum(c.rows))}</tr>`;
+      h += `<tr class="cat" data-act="dctg" data-k="${esc(ck)}">${span(chev(ck,c.name)+esc(c.name),'lv0')}${tdn(dcSum(c.rows))}</tr>`;
       if (!co) return;
       // Vista del proveedor: los contratos van directamente bajo su categoría
-      if (!list){ c.rows.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}><td class="l s1 lv1"><span class="sp"></span>${r.code}</td><td class="l s2">${agT(r,G)}</td>${tdr(r)}</tr>`; }); return; }
+      if (!list && !byC){ c.rows.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}>${L.map(x=>cell(x,r,G,'lv1')).join('')}${tdr(r)}</tr>`; }); return; }
+      // Agrupar por contrato: un contrato por fila bajo su categoría, ordenados por código, y el proveedor en su columna
+      if (byC){ c.rows.slice().sort((a,b)=>a.code.localeCompare(b.code)).forEach(r=>{ h += `<tr${r.from?' class="trl"':''}>${L.map(x=>cell(x,r,G,'lv1')).join('')}${tdr(r)}</tr>`; }); return; }
       dcGroups(c.rows).forEach(g=>{
         // Todos los proveedores igual, también con un solo contrato: su fila y los contratos debajo
         const pk = 'p|'+c.name+'|'+g.p, po = !S.dcClosed.has(pk);
-        h += `<tr class="pv" data-act="dctg" data-k="${esc(pk)}"><td class="l s1 lv1">${chev(pk,g.p)}${esc(g.p)} <span class="cnt">· ${g.rs.length} ${g.rs.length===1?'contrato':'contratos'}</span></td><td class="l s2"></td>${tdn(dcSum(g.rs))}</tr>`;
-        if (po) g.rs.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}><td class="l s1 lv2">${r.code}</td><td class="l s2">${agT(r,G)}</td>${tdr(r)}</tr>`; });
+        h += `<tr class="pv" data-act="dctg" data-k="${esc(pk)}">${L.map(x=>x.k==='tree' ? lc(x, `${chev(pk,g.p)}${esc(g.p)} <span class="cnt">· ${g.rs.length} ${g.rs.length===1?'contrato':'contratos'}</span>`, 'lv1') : lc(x,'')).join('')}${tdn(dcSum(g.rs))}</tr>`;
+        if (po) g.rs.forEach(r=>{ h += `<tr${r.from?' class="trl"':''}>${L.map(x=>cell(x,r,G,'lv2')).join('')}${tdr(r)}</tr>`; });
       });
     });
   });
   $('dct').innerHTML = h + '</tbody>';
+  // El ancho mínimo de la tabla sigue a las columnas que quedan
+  $('dct').style.minWidth = (LW + idx.length*120) + 'px';
   // Leyenda del traspaso, solo si hay alguna línea de traspaso a la vista
   const tr = cats.find(c=>c.rows.some(r=>r.from));
   $('dc-leg').hidden = !tr;
   if (tr){ const r = tr.rows.find(x=>x.from); $('dc-leg').innerHTML = `<span class="badge sm" style="margin-left:0">${r.from} → ${tr.grp}</span>${esc(trTxt(r.from,tr.grp))}`; }
+  // «Agrupar por», solo en la versión B y en la vista general
+  $('dc-group').hidden = !(list && S.dcVar==='b');
+  $('dc-group').innerHTML = `<span class="dc-gl">Agrupar por:</span> ${DC_GROUPBY.find(g=>g[0]===S.dcGroup)[1]}${CHEV_D}`;
   // En la vista del proveedor no hay grupos de proveedor que plegar
   $('dc-fold').hidden = !list;
   $('dc-fold').textContent = dcAllOpen() ? 'Plegar todo' : 'Desplegar todo';
@@ -973,9 +1017,16 @@ document.addEventListener('click',(e)=>{
     // Las pestañas tienen el alcance de la página: en Control de costes, todos los proveedores; dentro de un proveedor, solo ese
     case 'tabdetalle': S.tab='detalle'; S.menu=null; break;
     case 'dctg': { const k = el.dataset.k; S.dcClosed.has(k) ? S.dcClosed.delete(k) : S.dcClosed.add(k); break; }
-    case 'dcfold': if (dcAllOpen()) dcKeys().filter(k=>k.startsWith('p|')).forEach(k=>S.dcClosed.add(k)); else S.dcClosed.clear(); break;
-    case 'dccols': toast('Configurar columnas funciona como hoy y no forma parte de este prototipo.'); return;
-    case 'dcxls': toast(`Descargando <code>Detalle costes_${esc(S.view==='list'?'VELEZ':PROVIDER)}_${curP().name.toLowerCase()}.xlsx</code>: las mismas filas que la pantalla, con cada proveedor en un grupo del esquema de Excel e importes como número.`); return;
+    case 'dcfold': if (dcAllOpen()) dcFoldKeys().forEach(k=>S.dcClosed.add(k)); else S.dcClosed.clear(); break;
+    case 'dccols': S.menu = S.menu==='dccols'?null:'dccols'; placeMenu(); return;
+    case 'dccol': { const v = el.dataset.v; S.dcHide.has(v) ? S.dcHide.delete(v) : S.dcHide.add(v); break; }
+    case 'dcgroup': S.menu = S.menu==='dcgroup'?null:'dcgroup'; placeMenu(); return;
+    case 'setdcgroup': S.dcGroup = el.dataset.v; S.menu=null; break;
+    case 'dcxls': { const f = `<code>Detalle costes_${esc(S.view==='list'?'VELEZ':PROVIDER)}_${curP().name.toLowerCase()}.xlsx</code>`;
+      // El Excel sale siempre desplegado; en la versión B sigue a «Agrupar por»
+      toast(S.view!=='list' ? `Descargando ${f}: los contratos de ${esc(PROVIDER)} bajo su categoría, con importes como número.`
+        : dcByContract() ? `Descargando ${f}: un contrato por fila bajo su categoría, ordenados por código, con importes como número.`
+        : `Descargando ${f}: cada proveedor con sus contratos debajo, todo desplegado aunque aquí esté plegado, con importes como número.`); return; }
     case 'proyecto': toast('El cambio de proyecto no forma parte de este prototipo.'); return;
     case 'back': location.hash = ''; return;
     case 'contrato': e.preventDefault(); toast(`Abriría la ficha del contrato ${el.dataset.code} en una pestaña nueva (obligaciones e información del contrato).`); return;
@@ -1016,8 +1067,8 @@ $('table').addEventListener('mouseover', (e)=>{ const el = e.target.closest('.t,
 $('table').addEventListener('mouseout', (e)=>{ const el = e.target.closest('.t, [data-tip]'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
 $('table').addEventListener('focusin', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
 $('table').addEventListener('focusout', ()=>{ tip.hidden = true; });
-$('dct').addEventListener('mouseover', (e)=>{ const el = e.target.closest('[data-tip], .s1, .s2'); if (el) showTip(el); });
-$('dct').addEventListener('mouseout', (e)=>{ const el = e.target.closest('[data-tip], .s1, .s2'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
+$('dct').addEventListener('mouseover', (e)=>{ const el = e.target.closest('[data-tip], .lc'); if (el) showTip(el); });
+$('dct').addEventListener('mouseout', (e)=>{ const el = e.target.closest('[data-tip], .lc'); if (el && !el.contains(e.relatedTarget)) tip.hidden = true; });
 $('dct').addEventListener('focusin', (e)=>{ const el = e.target.closest('[data-tip]'); if (el) showTip(el); });
 $('dct').addEventListener('focusout', ()=>{ tip.hidden = true; });
 $('dc-scroll').addEventListener('scroll', ()=>{ tip.hidden = true; }, {passive:true});
@@ -1040,7 +1091,9 @@ function route(){
   if (h==='#agosto'){ S.period = 8; S.view = 'prov'; }
   else if (h==='#abril'){ S.period = 4; S.view = 'list'; }
   else if (h==='#apuntes'){ S.view = 'list'; S.tab = 'apuntes'; }
-  else if (h==='#detalle'){ S.view = 'list'; S.tab = 'detalle'; }
+  else if (h==='#detalle'){ S.view = 'list'; S.tab = 'detalle'; S.dcVar = 'a'; S.dcGroup = 'prov'; }
+  // Versión B para comparar con José: la misma pantalla con «Agrupar por»
+  else if (h==='#detalle-agrupar'){ S.view = 'list'; S.tab = 'detalle'; S.dcVar = 'b'; S.dcGroup = 'prov'; }
   else if (h==='#detalle-proveedor'){ S.view = 'prov'; S.tab = 'detalle'; }
   else S.view = h==='#proveedor' ? 'prov' : 'list';
   // El bloque fuera de contrato se muestra siempre desplegado al entrar en un proveedor
