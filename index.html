@@ -289,7 +289,10 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 /* Columnas fijas a la izquierda: su número y ancho dependen de «Agrupar por» y de «Configurar columnas» (left y width en línea) */
 .dct .lc{position:sticky;z-index:2;overflow:hidden;text-overflow:ellipsis}
 .dct .lc.last{box-shadow:inset -1px 0 0 var(--gray200)}
-.dc-gl{color:var(--muted);font-weight:400}
+/* «Agrupar por» como «Periodo»: etiqueta fuera y el valor en el selector */
+.dc-grp{display:inline-flex;align-items:center;gap:8px}
+.dc-grp[hidden]{display:none}
+.dc-sel{width:180px;justify-content:space-between;font-size:14px;font-weight:400}
 .mi.cbx{flex-direction:row;align-items:center;justify-content:flex-start;gap:10px}
 .mi .cb{width:16px;height:16px;border:1px solid var(--gray300);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;flex:none;background:#fff;color:#fff}
 .mi .cb.on{background:#18181B;border-color:#18181B}
@@ -349,7 +352,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
   <div id="v-detalle" hidden>
     <div class="dc-bar">
       <button class="btn sq" type="button" id="dc-cols" data-act="dccols" aria-haspopup="menu" aria-expanded="false" aria-label="Configurar columnas" title="Configurar columnas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg></button>
-      <button class="btn" type="button" id="dc-group" data-act="dcgroup" aria-haspopup="listbox" aria-expanded="false" hidden></button>
+      <span class="dc-grp" id="dc-group-wrap" hidden><span class="lbl" id="dc-group-lbl">Agrupar por</span><button class="btn dc-sel" type="button" id="dc-group" data-act="dcgroup" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="dc-group-lbl dc-group"></button></span>
       <button class="btn" type="button" id="dc-fold" data-act="dcfold"></button>
       <span class="dc-leg" id="dc-leg" hidden></span>
       <button class="btn" type="button" data-act="dcxls" style="margin-left:auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Descargar</button>
@@ -912,8 +915,8 @@ function renderDetalle(){
   $('dc-leg').hidden = !tr;
   if (tr){ const r = tr.rows.find(x=>x.from); $('dc-leg').innerHTML = `<span class="badge sm" style="margin-left:0">${r.from} → ${tr.grp}</span>${esc(trTxt(r.from,tr.grp))}`; }
   // «Agrupar por», solo en la versión B y en la vista general
-  $('dc-group').hidden = !(list && S.dcVar==='b');
-  $('dc-group').innerHTML = `<span class="dc-gl">Agrupar por:</span> ${DC_GROUPBY.find(g=>g[0]===S.dcGroup)[1]}${CHEV_D}`;
+  $('dc-group-wrap').hidden = !(list && S.dcVar==='b');
+  $('dc-group').innerHTML = `<span>${DC_GROUPBY.find(g=>g[0]===S.dcGroup)[1]}</span>${CHEV_D}`;
   // En la vista del proveedor no hay grupos de proveedor que plegar
   $('dc-fold').hidden = !list;
   $('dc-fold').textContent = dcAllOpen() ? 'Plegar todo' : 'Desplegar todo';
