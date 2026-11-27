@@ -13,7 +13,7 @@
 :root{
   --bg:#FFFFFF; --chrome:#F4F4F5; --gray50:#FAFAFA; --gray100:#F4F4F5; --gray200:#E4E4E7; --gray300:#D4D4D8;
   --fg:#18181B; --muted:#52525B; --subtle:#71717A;
-  --brand:#527A53; --brand-hover:#3D5C3F; --bar:#000000; /* Progress de Pin0 (Gray): relleno fg/default, pista bg/muted */
+  --brand:#527A53; --brand-hover:#3D5C3F; --bar:#16A34A; /* Ejecución de contrato: green/solid de Pin0 para lo contratado; fuera de contrato en yellow/solid; pista bg/muted */
   --band:#BFDBFE; --band-soft:#EFF6FF;
   --warn-bg:#FFEDD5; --warn-soft:#FFF7ED; --warn-fg:#9A3412; --ok-bg:#DCFCE7; --ok-fg:#166534; --danger:#B91C1C; --danger-bg:#FEF2F2;
   --shadow:0 8px 24px rgba(24,24,27,.10),0 2px 6px rgba(24,24,27,.06);
@@ -99,15 +99,15 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .dlbtn:hover{background:var(--gray100)}
 .lt{min-width:1150px}
 /* Tarea 2 · quién se ha pasado: fila tintada por estado, sin franja (Pin0: red fuera de margen, orange superado; cifras en fg/error y fg/warning; fuera de contrato en yellow/solid) */
-.lrow.st-r .c{background:#FEF2F2}.lrow.st-o .c{background:#FFF7ED}
-.lrow.st-r:hover .c{background:#FEE2E2}.lrow.st-o:hover .c{background:#FFEDD5}
+.lrow.st-r .c{background:#FEF2F2}.lrow.st-o .c{background:#FFF7ED}.lrow.st-y .c{background:#FEFCE8}
+.lrow.st-r:hover .c{background:#FEE2E2}.lrow.st-o:hover .c{background:#FFEDD5}.lrow.st-y:hover .c{background:#FEF9C3}
 .lt .lrow .c{height:auto;min-height:36px}
 .lt .c.two{height:auto;min-height:36px;flex-direction:column;align-items:flex-start;justify-content:center;padding-block:6px;gap:2px}
 .why{display:flex;align-items:center;gap:6px;font-size:12px;line-height:16px}
-.why.r{color:#991919}.why.o{color:#92310A}.why.g{color:var(--muted)}
+.why.r{color:#991919}.why.o{color:#92310A}.why.y{color:#854D0E}.why.g{color:var(--muted)}
 .neg-r{color:#EF4444;font-weight:600}.neg-o{color:#EA580C;font-weight:600}
 .stdot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 9px}
-.stdot.ro{background:linear-gradient(90deg,#DC2626 50%,#EA580C 50%)}.stdot.r{background:#DC2626}.stdot.o{background:#EA580C}.stdot.a{background:#FDE047;border-radius:2px}
+.stdot.ro{background:linear-gradient(90deg,#DC2626 50%,#EA580C 50%)}.stdot.r{background:#DC2626}.stdot.o{background:#EA580C}.stdot.y{background:#EAB308}.stdot.a{background:#FDE047;border-radius:2px}
 .segf{display:inline-flex;background:var(--gray100);border-radius:8px;padding:3px;gap:2px;height:36px;align-items:center}
 .segf button{border:0;background:none;border-radius:6px;padding:0 12px;height:30px;font:inherit;font-size:13px;color:#3F3F46;display:inline-flex;align-items:center;gap:7px}
 .segf button[aria-pressed="true"]{background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600;color:var(--fg)}
@@ -119,7 +119,14 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
 .cards.c4{grid-template-columns:1fr 1fr 1fr 1.4fr;gap:16px}
 /* Estado dentro de la tarjeta de saldo: Badge subtle del DS, solo si se ha pasado */
 .stbadge{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-size:12px;line-height:16px;font-weight:500;border-radius:6px;padding:2px 8px}
-.stbadge.o{background:#FFEDD5;color:#92310A}.stbadge.r{background:#FEE2E2;color:#991919}
+.stbadge.o{background:#FFEDD5;color:#92310A}.stbadge.r{background:#FEE2E2;color:#991919}.stbadge.y{background:#FEF9C3;color:#713F12}
+/* Ejecución por encima del 100 %: la barra llega a lo ejecutado, una raya marca el 100 % y lo que sobra va rayado en naranja */
+.bar-wrap{position:relative;padding-top:18px}
+.bar.two{position:relative}
+.bar-over{position:absolute;top:0;bottom:0;right:0;background:repeating-linear-gradient(135deg,rgba(234,88,12,.6) 0 4px,rgba(234,88,12,0) 4px 8px)}
+.bar-tick{position:absolute;top:2px;bottom:-4px;width:2px;margin-left:-1px;background:var(--fg)}
+.bar-tick span{position:absolute;top:-2px;left:50%;transform:translate(-50%,-100%);font-size:11px;line-height:14px;font-weight:600;white-space:nowrap}
+.sw.ov{background:repeating-linear-gradient(135deg,#EA580C 0 2px,#fff 2px 4px);outline:1px solid #EA580C}
 .big.neg{color:#EF4444}
 .plinks{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;line-height:16px}
 .plink{background:none;border:0;padding:0;font:inherit;color:var(--brand-hover);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
@@ -362,9 +369,9 @@ button:focus-visible,input:focus-visible{outline:2px solid #2563EB;outline-offse
     <div class="card"><span class="lbl">Saldo disponible</span><span class="big num" id="k-sa"></span><span id="k-est"></span><span class="help" id="k-total-help"></span></div>
     <div class="card"><span class="lbl">Proformado del periodo</span><span class="big num" id="k-per"></span><span class="help" id="k-per-help"></span></div>
     <div class="card">
-      <div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num" id="k-av"></span></div>
-      <div class="bar two" role="img" id="k-bar-wrap"><span class="bar-fill" id="k-bar"></span><span class="bar-fill oc" id="k-bar-oc"></span></div>
-      <div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span><b class="num" id="k-or"></b></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span><b class="num" id="k-oc"></b><span class="lbl" id="k-oc-help"></span></span></div>
+      <div class="avance-top"><span class="lbl">Ejecución de contrato</span><span class="big num" id="k-av"></span></div>
+      <div id="k-bar-wrap"></div>
+      <div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span><b class="num" id="k-or"></b></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span><b class="num" id="k-oc"></b><span class="lbl" id="k-oc-help"></span></span><span class="lg" id="k-ov" hidden><span class="sw ov" aria-hidden="true"></span><span class="lbl">Por encima del contrato</span><b class="num" id="k-ov-n"></b></span></div>
     </div>
   </section>
 
@@ -440,7 +447,10 @@ let FUERA = [
   F(['2437','ud','Precio Cerrado 03 Andamios Según oferta 260295',1150,1150,1,1,0,1150,1150,0,5]),
   F(['QAF024','ud','Alquiler adicional 03 Andamios Según oferta 260295',7,7,38,7,31,266,49,217,8]),
   F(['QAF020','ud','Cambio Posicion 03 Andamios (Incluye desmontaje y montaje con certificado) Según oferta 260295',700,700,...Z]),
-  F(['2437','ud','Descuento limpieza',-22,-22,9.9,0,9.9,-217.8,-0,-217.8])
+  F(['2437','ud','Descuento limpieza',-22,-22,9.9,0,9.9,-217.8,-0,-217.8]),
+  // Ejemplo con más fuera de contrato (27/11): el proveedor queda «En riesgo» y HC-26150029 pasa del 100 %
+  Object.assign(F(['QAF031','m2','Andamio adicional fachada norte, no previsto en contrato',12.5,22000,1760,1280,480,22000,16000,6000,7]), {contract:'HC-26150072', reviewed:true}),
+  F(['QAF032','ud','Plataforma de carga adicional, no prevista en contrato',1500,6000,4,2,2,6000,3000,3000,8])
 ];
 // Listado de Control de costes · Proformas (Figma 747:49321). ACME se calcula a partir de sus contratos.
 const PROVIDERS = [
@@ -449,6 +459,7 @@ const PROVIDERS = [
   ['AUTONIVELANTES MARBELLA, S.L.',1,6943.872,0],['BLAITOSAN S.L.',1,5999,0],['FRANCISCO TERNERO S.L.',2,36616.742,36839.742],
   ['ISOLGOMMA, S.R.L',1,2732.288,0],['LEVEL Prefabricados 2009 S.L.U.',2,8401.26,0],['MAT. DE CONSTR. EL FILETE, S.L.',1,3000,0],
   ['PERFORACION Y AYUDAS A INSTALACIONES, S.L.',1,525,0],['TOI-TOI SANITARIOS MOVILES, S.A.',1,299.6,0],['TRANSVITORIA, S.L.',1,160,0],
+  ['SERVICIOS INTEGRALES LUCEMAR',1,150000,200000],
   ['VALLADOS JOSE ANTONIO CHAMIZO S.L.U',1,10045,9492.5],['ZEPPELINE VALENCIA S.L.',1,6856,0]
 ];
 // Origen proformado acumulado por mes (5 = mayo … 9 = septiembre). Datos de ejemplo para navegar por meses cerrados.
@@ -523,9 +534,18 @@ const measured = ()=> CONTRACTS.filter(hasMed);
 // Estado del proveedor (regla oficial por proveedor: hasta 3000 € por encima del saldo; «a punto» = 10 %, hipótesis pendiente de OPS)
 // El margen lo fija negocio; 3000 € es el valor de ejemplo.
 const MARGEN = 3000;
-const EST = {r:'Fuera de margen', o:'Superado'};
-const estado = (t,sd)=> sd < -MARGEN ? 'r' : sd < 0 ? 'o' : '';
-const porque = (e,t,sd)=> e==='o' ? `le quedan ${eur(sd+MARGEN)} de margen` : e==='r' ? `${eur(-(sd+MARGEN))} por encima del margen` : '';
+const EST = {r:'Fuera de margen', o:'Superado', y:'En riesgo'};
+// sd = saldo disponible (ya resta el fuera de contrato); oc = fuera de contrato del proveedor.
+// «En riesgo»: aún no se ha pasado, pero su fuera de contrato supera el saldo que le queda.
+const estado = (sd,oc=0)=> sd < -MARGEN ? 'r' : sd < 0 ? 'o' : (oc > 0 && oc > sd) ? 'y' : '';
+const porque = (e,sd,oc=0)=> e==='o' ? `le quedan ${eur(sd+MARGEN)} de margen` : e==='r' ? `${eur(-(sd+MARGEN))} por encima del margen` : e==='y' ? `fuera de contrato ${eur(oc)} y saldo ${eur(sd)}` : '';
+// Barra de ejecución: contrato (verde) + fuera de contrato (amarillo). Por encima del 100 %, la escala pasa a lo ejecutado.
+function execBar(t, c, f, label){
+  const ex = c+f, av = t ? ex/t : 0, w = (x,b)=> b ? Math.max(0,x/b*100) : 0;
+  if (av <= 1) return { av, over:0, html:`<div class="bar two" role="img" aria-label="${label} ${pct(av,1)}"><span class="bar-fill" style="width:${w(c,t)}%"></span><span class="bar-fill oc" style="width:${w(f,t)}%"></span></div>` };
+  const p = w(t,ex);
+  return { av, over: ex-t, html:`<div class="bar-wrap"><div class="bar two" role="img" aria-label="${label} ${pct(av,1)}"><span class="bar-fill" style="width:${w(c,ex)}%"></span><span class="bar-fill oc" style="width:${w(f,ex)}%"></span><span class="bar-over" style="width:${100-p}%"></span></div><span class="bar-tick" style="left:${p}%"><span>100 %</span></span></div>` };
+}
 function contractStats(c, withFuera=false){
   // La fila del contrato y la tarjeta de avance cuentan solo lo contratado; fuera de contrato tiene su propio subtotal.
   const assigned = FUERA.filter(f=>f.contract===c.code);
@@ -559,20 +579,21 @@ function renderCards(){
     total = st.imp; origen = st.origen; help = `${c.code} · ${c.rows.length} partidas`;
     fz = FUERA.filter(f=>f.contract===c.code);
   }
-  const saldo = total-origen, av = total?origen/total:0, oc = sum(fz,'ito');
+  // El fuera de contrato suma a la ejecución y resta del saldo, pero no al total contratado (Pol, 27/11)
+  const oc = sum(fz,'ito'), saldo = total-origen-oc;
   // Estado: siempre del proveedor (la regla es por proveedor), con lo contratado y lo fuera de contrato
-  const pT = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0), pO = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + sum(FUERA,'ito'), pS = pT-pO, e = estado(pT,pS);
-  // El estado va dentro de la tarjeta de saldo, solo si el proveedor se ha pasado
-  $('k-est').innerHTML = e ? `<span class="stbadge ${e}"><span class="stdot ${e}"></span>${EST[e]} · ${porque(e,pT,pS)}</span>` : '';
-  $('k-sa').className = 'big num' + (e ? ' neg-'+e : '');
+  const pT = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imp'),0), pOC = sum(FUERA,'ito'), pO = CONTRACTS.reduce((a,c)=>a+sum(c.rows,'ito'),0) + pOC, pS = pT-pO, e = estado(pS,pOC);
+  // El estado va dentro de la tarjeta de saldo: Superado, Fuera de margen o En riesgo
+  $('k-est').innerHTML = e ? `<span class="stbadge ${e}"><span class="stdot ${e}"></span>${EST[e]} · ${porque(e,pS,pOC)}</span>` : '';
+  $('k-sa').className = 'big num' + (e==='r'||e==='o' ? ' neg-'+e : '');
   const per = (S.filter==='all' ? CONTRACTS.reduce((a,c)=>a+sum(c.rows,'imes'),0) : contractStats(visibleContracts()[0]).imes) + sum(fz,'imes');
   $('k-per').textContent = eur(per); $('k-per-help').textContent = curP().name;
   $('k-sa').textContent = eur(saldo); $('k-total-help').textContent = `Total contratado: ${eur(total)}`;
   $('k-oc').textContent = eur(oc); $('k-oc-help').textContent = fz.length ? `· ${fz.length} ${fz.length===1?'línea':'líneas'}` : '';
-  $('k-av').textContent = pct(av); $('k-or').textContent = eur(origen);
-  $('k-bar').style.width = Math.max(0,Math.min(100,av*100))+'%';
-  $('k-bar-oc').style.width = Math.max(0,Math.min(100-av*100,total?oc/total*100:0))+'%';
-  $('k-bar-wrap').setAttribute('aria-label','Avance de contrato '+pct(av));
+  const xb = execBar(total, origen, oc, 'Ejecución de contrato');
+  $('k-av').textContent = pct(xb.av); $('k-av').className = 'big num' + (xb.over && (e==='r'||e==='o') ? ' neg-'+e : xb.over ? ' neg-o' : ''); $('k-or').textContent = eur(origen);
+  $('k-bar-wrap').innerHTML = xb.html;
+  $('k-ov').hidden = !xb.over; $('k-ov-n').textContent = eur(xb.over);
   const liq = $('k-liq');
   $('k-num').textContent = 'Proforma nº ' + curP().num;
   if (isPast()){
@@ -740,24 +761,25 @@ function renderList(){
   $('l-empty').hidden = !none; $('l-tools').hidden = none; $('l-scroll').hidden = none;
   $('l-empty-t').textContent = 'Sin proformas en ' + curP().name.toLowerCase();
   // Estado y fuera de contrato de cada proveedor
-  all.forEach(r=>{ r.s = r.total-r.org; r.e = estado(r.total, r.s); r.oc = r.acme ? sum(FUERA,'ito') : 0; });
-  const over = all.filter(r=>r.e==='r'||r.e==='o'), ocAll = sum(all,'oc'), ocN = all.filter(r=>r.oc).length;
-  // Cabecera: informa; «Ver» lleva a la vista «Se han pasado» de la tabla.
+  all.forEach(r=>{ r.oc = r.acme ? sum(FUERA,'ito') : 0; r.s = r.total-r.org; r.e = estado(r.s, r.oc); });
+  const over = all.filter(r=>r.e==='r'||r.e==='o'), nR = all.filter(r=>r.e==='r').length, nO = all.filter(r=>r.e==='o').length, ocAll = sum(all,'oc'), ocN = all.filter(r=>r.oc).length;
+  // Cabecera: informa; cada estado lleva a su vista de la tabla.
+  const vlink = (v,n,t)=> n ? `<button class="plink" type="button" data-act="lstate" data-v="${v}" data-scroll="1">${n} ${t}</button>` : '';
   const card1 = over.length
-    ? `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num neg">${eur(sum(over,'s'))}</span><span class="help">en ${over.length} ${over.length===1?'proveedor':'proveedores'} · <button class="plink" type="button" data-act="lstate" data-v="over" data-scroll="1">Ver</button></span></div>`
+    ? `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num neg">${eur(sum(over,'s'))}</span><span class="help">${[vlink('r',nR,'fuera de margen'),vlink('o',nO,nO===1?'superado':'superados')].filter(Boolean).join(' · ')}</span></div>`
     : `<div class="card"><span class="lbl">Por encima del saldo</span><span class="big num">${eur(0)}</span><span class="help">Ningún proveedor se ha pasado</span></div>`;
-  const ocW = projTotal ? Math.min(100-av*100, ocAll/projTotal*100) : 0;
+  const xb = execBar(projTotal, org-ocAll, ocAll, 'Ejecución de contrato');
   $('l-cards').innerHTML = card1 +
     `<div class="card"><span class="lbl">Proformado del periodo</span><span class="big num">${eur(sum(all,'mes'))}</span><span class="help">${curP().name}</span></div>` +
     `<div class="card"><span class="lbl">Saldo disponible</span><span class="big num">${eur(projTotal-org)}</span><span class="help">Total contratado: ${eur(projTotal)}</span></div>` +
-    `<div class="card"><div class="avance-top"><span class="lbl">Avance de contrato</span><span class="big num">${pct(av,1)}</span></div><div class="bar two" role="img" aria-label="Avance de contrato ${pct(av,1)}"><span class="bar-fill" style="width:${Math.min(100,(av*100)-ocW)}%"></span><span class="bar-fill oc" style="width:${ocW}%"></span></div><div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span><b class="num">${eur(org-ocAll)}</b></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span><b class="num">${eur(ocAll)}</b>${ocN?`<span class="lbl">· ${ocN} ${ocN===1?'proveedor':'proveedores'}</span>`:''}</span></div></div>`;
-  // Barra: un segmentado de vistas. «Se han pasado» junta los dos estados; cada fila dice cuál es.
-  $('l-filters').innerHTML = `<span class="segf" role="group" aria-label="Vista"><button type="button" data-act="lstate" data-v="all" aria-pressed="${S.lstate==='all'}">Todos <b>${all.length}</b></button><button type="button" data-act="lstate" data-v="over" aria-pressed="${S.lstate==='over'}" ${over.length?'':'disabled'}><span class="stdot ro"></span>Se han pasado <b>${over.length}</b></button><button type="button" data-act="lstate" data-v="oc" aria-pressed="${S.lstate==='oc'}" ${ocN?'':'disabled'}><span class="stdot a"></span>Con fuera de contrato <b>${ocN}</b></button></span>`;
+    `<div class="card"><div class="avance-top"><span class="lbl">Ejecución de contrato</span><span class="big num${xb.over?' neg-o':''}">${pct(av,1)}</span></div>${xb.html}<div class="legend"><span class="lg"><span class="sw" aria-hidden="true"></span><span class="lbl">Contrato</span><b class="num">${eur(org-ocAll)}</b></span><span class="lg"><span class="sw oc" aria-hidden="true"></span><span class="lbl">Fuera de contrato</span><b class="num">${eur(ocAll)}</b>${ocN?`<span class="lbl">· ${ocN} ${ocN===1?'proveedor':'proveedores'}</span>`:''}</span>${xb.over?`<span class="lg"><span class="sw ov" aria-hidden="true"></span><span class="lbl">Por encima del contrato</span><b class="num">${eur(xb.over)}</b></span>`:''}</div></div>`;
+  // Barra: un segmentado de vistas, una por estado (ronda 6). «En riesgo» no tiene vista propia: sale en «Con fuera de contrato».
+  $('l-filters').innerHTML = `<span class="segf" role="group" aria-label="Vista"><button type="button" data-act="lstate" data-v="all" aria-pressed="${S.lstate==='all'}">Todos <b>${all.length}</b></button><button type="button" data-act="lstate" data-v="r" aria-pressed="${S.lstate==='r'}" ${nR?'':'disabled'}><span class="stdot r"></span>Fuera de margen <b>${nR}</b></button><button type="button" data-act="lstate" data-v="o" aria-pressed="${S.lstate==='o'}" ${nO?'':'disabled'}><span class="stdot o"></span>Superado <b>${nO}</b></button><button type="button" data-act="lstate" data-v="oc" aria-pressed="${S.lstate==='oc'}" ${ocN?'':'disabled'}><span class="stdot a"></span>Con fuera de contrato <b>${ocN}</b></button></span>`;
   const note = $('l-note'); note.hidden = !isPast() || none;
   if (isPast()) note.textContent = `Periodo cerrado: solo aparecen los proveedores con proforma en ${curP().name.toLowerCase()}. Puedes consultarlas y exportarlas, pero no editarlas.`;
   if (S.lq) rows = rows.filter(r=>r.name.toLowerCase().includes(S.lq));
   const loc = S.lstate==='oc';
-  if (S.lstate==='over') rows = rows.filter(r=>r.e);
+  if (S.lstate==='r' || S.lstate==='o') rows = rows.filter(r=>r.e===S.lstate);
   if (loc) rows = rows.filter(r=>r.oc>0);
   $('ltable').classList.toggle('oc', loc);
   const {k,dir} = S.sort;
@@ -774,9 +796,9 @@ function renderList(){
   const pasados = CONTRACTS.filter(c=>contractStats(c).saldo<0);
   for (const r of rows){
     const multi = r.acme && !r.e && pasados.length ? `<span class="why g">${pasados.length} de ${CONTRACTS.length} contratos por encima (${pasados.map(c=>c.code).join(', ')})</span>` : '';
-    const why = (r.e==='r'||r.e==='o') ? `<span class="why ${r.e}"><span class="stdot ${r.e}"></span><b>${EST[r.e]}</b> · ${porque(r.e,r.total,r.s)}</span>` : '';
+    const why = r.e ? `<span class="why ${r.e}"><span class="stdot ${r.e}"></span><b>${EST[r.e]}</b> · ${porque(r.e,r.s,r.oc)}</span>` : '';
     const sub = why || multi;
-    t.push(`<div class="lg-g lrow${r.e?' st-'+r.e:''}" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c${sub?' two':''}"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>${sub}</span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e">${eur(r.mes)}</span>${loc?`<span class="c e">${r.oc?eur(r.oc):'—'}</span>`:''}<span class="c e nb"><span class="${r.e?'neg-'+r.e:''}">${eur(r.s)}</span></span><span class="c cen pad0">${hasPf(r)?`<button class="dlbtn" type="button" data-act="dlone" data-name="${esc(r.name)}" data-tip="Descargar proforma" aria-label="Descargar proforma de ${esc(r.name)}">${DLICON}</button>`:''}</span></div>`);
+    t.push(`<div class="lg-g lrow${r.e?' st-'+r.e:''}" role="row" data-act="openprov" data-name="${esc(r.name)}"><span class="c${sub?' two':''}"><button class="provlink" type="button" data-act="openprov" data-name="${esc(r.name)}">${esc(r.name)}</button>${sub}</span><span class="c e">${r.n}</span><span class="c e">${eur(r.total)}</span><span class="c e">${eur(r.org)}</span><span class="c e">${eur(r.mes)}</span>${loc?`<span class="c e">${r.oc?eur(r.oc):'—'}</span>`:''}<span class="c e nb"><span class="${r.e==='r'||r.e==='o'?'neg-'+r.e:''}">${eur(r.s)}</span></span><span class="c cen pad0">${hasPf(r)?`<button class="dlbtn" type="button" data-act="dlone" data-name="${esc(r.name)}" data-tip="Descargar proforma" aria-label="Descargar proforma de ${esc(r.name)}">${DLICON}</button>`:''}</span></div>`);
   }
   if (!rows.length) t.push(`<div class="lg-g"><div class="empty" style="grid-column:1/-1">Ningún proveedor coincide con la búsqueda.</div></div>`);
   t.push(`<div class="lg-g total" role="row"><span class="c">Total</span><span class="c e">${sum(rows,'n')}</span><span class="c e">${eur(sum(rows,'total'))}</span><span class="c e">${eur(sum(rows,'org'))}</span><span class="c e">${eur(sum(rows,'mes'))}</span>${loc?`<span class="c e">${eur(sum(rows,'oc'))}</span>`:''}<span class="c e nb">${eur(sum(rows,'total')-sum(rows,'org'))}</span><span class="c"></span></div>`);
